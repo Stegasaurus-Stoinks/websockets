@@ -103,10 +103,10 @@ celerybeat.pid
 
 # Environments
 .env
+*/.vscode
+.vscode
 .venv
 */.venv
-.vscode
-*/.vscode
 */.idea
 env/
 venv/
