@@ -28,18 +28,26 @@ cur = conn.cursor()
 
 def my_custom_process_message(message):
     #print("Got Data")
-    print(message)
+    #print(message)
 
     data = json.loads(message)[0]
+    #print(data)
+    
+    if data['ev'] == 'status':
+        print("Status Message: {} -> {}".format(data["message"],data["status"]))
 
     #convert and format time stamp from UTC to Market Hours (NEW_YORK)
     tick_datetime_object = datetime.utcfromtimestamp(data["s"] / 1000)
+    #print(tick_datetime_object)
     utc_time = tick_datetime_object.strftime('%Y-%m-%d %H:%M:%S')
-    utc_time = utc_time.replace(tzinfo=from_zone)
-    data_time = utc_time.astimezone(to_zone)
+    #print(utc_time)
+    #utc_time = utc_time.replace(tzinfo=from_zone)
+    #print(utc_time)
+    #data_time = utc_time.astimezone(to_zone)
+    #print(data_time)
 
-    if data["ev"] == "AM":
-        stockAmData(data_time, data)
+    if data['ev'] == 'AM':
+        stockAmData(utc_time, data)
 
 
 def on_close(message):
@@ -83,9 +91,9 @@ def stockAmData(data_time, data):
     curData = (data_time,data['sym'],data['v'],data['av'],data['z'],data['vw'],data['o'],data['h'],data['c'],data['l'],data['a'],data['s'])
 
     current_timestamp = data_time
-    print(current_timestamp)
+    #print(current_timestamp)
     if current_timestamp != previous_timestamp:
-        print('timestamp not the same')
+        #print('timestamp not the same')
         data_package = []
         data_package.append(curData)
         previous_timestamp = current_timestamp
@@ -97,7 +105,7 @@ def stockAmData(data_time, data):
     else:
         #print('timestamp is the same')
         data_package.append(curData)
-        print(len(data_package))
+        #print(len(data_package))
 
     if len(data_package) >= len(tickerList):
         print('all data ready:')
@@ -121,7 +129,7 @@ def DBInsert(sql_path):
 
         dataToSend+=';'
 
-        print(dataToSend)
+        #print(dataToSend)
         try:
             cur.execute(dataToSend)
             print('data sent')
