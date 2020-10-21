@@ -1,0 +1,11 @@
+Symbol|Security Name|Market Category|Test Issue|Financial Status|Round Lot Size|ETF|NextShares
+AACG|ATA Creativity Global - American Depositary Shares, each representing two common shares|G|N|N|100|N|N
+AACQ|Artius Acquisition Inc. - Class A Common Stock|S|N|N|100|N|N
+AACQU|Artius Acquisition Inc. - Unit consisting of one ordinary share and one third redeemable warrant|S|N|N|100|N|N
+AACQW|Artius Acquisition Inc. - Warrant|S|N|N|100|N|N
+AAL|American Airlines Group, Inc. - Common Stock|Q|N|N|100|N|N
+AAME|Atlantic American Corporation - Common Stock|G|N|N|100|N|N
+AAOI|Applied Optoelectronics, Inc. - Common Stock|G|N|N|100|N|N
+AAON|AAON, Inc. - Common Stock|Q|N|N|100|N|N
+AAPL|Apple Inc. - Common Stock|Q|N|N|100|N|N
+

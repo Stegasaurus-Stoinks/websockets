@@ -13,7 +13,7 @@ def main():
         #respo = client.stocks_equities_snapshot_all_tickers()
 
 
-        print(resp2.status+"\n\n")
+        print(resp2.status+"\n")
         print(resp2.ticker.ticker)
         print(resp2.ticker.todays_chang_eperc)
         print(resp2.ticker.day.close_price)

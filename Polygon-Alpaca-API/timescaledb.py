@@ -28,6 +28,7 @@ cur = conn.cursor()
 
 def my_custom_process_message(message):
     #print("Got Data")
+    print(message)
 
     data = json.loads(message)[0]
 
@@ -73,7 +74,7 @@ def createSubcription(my_client):
         print("Connected to {}".format(tickerData))
 
 def stockAmData(data_time, data):
-    #print("stockAmData Detected")
+    print("stockAmData Detected")
     
     global current_timestamp
     global previous_timestamp
@@ -99,7 +100,7 @@ def stockAmData(data_time, data):
         print(len(data_package))
 
     if len(data_package) >= len(tickerList):
-        #print('all data ready:')
+        print('all data ready:')
         DBInsert(SQL_PATH)
         print('all data ready: package sent')
         data_package = []
