@@ -20,12 +20,12 @@ def main():
  
     #further filtering
     nasdaq_tradedQ = nasdaq_traded[nasdaq_traded["Market Category"] == "Q"]
-    print(nasdaq_tradedQ)
+    #print(nasdaq_tradedQ)
 
     key = config.API_KEY
     polygon_snapshot = pd.DataFrame(columns=['Symbol', 'todaysChange'])
 
-    print(nasdaq_tradedQ.Symbol)
+    #print(nasdaq_tradedQ.Symbol)
     
     
     with RESTClient(key) as client:
@@ -39,7 +39,8 @@ def main():
             #print(f" {ticker['ticker']} dropped {ticker['todaysChange']}$ which was {ticker['todaysChangePerc']}% updated @ {ticker['updated']}")
             #print(new_row)
             symbol = ticker['ticker']
-            if symbol in nasdaq_tradedQ.values:
+            #============= Change Filter BELOW ==============
+            if symbol in nasdaq_traded.values:
                 #print(str(symbol) + " is in nasdaq_tradedQ")
                 new_row = {'Symbol':ticker['ticker'], 'todaysChange':ticker['todaysChange']}
                 polygon_snapshot = polygon_snapshot.append(new_row, ignore_index=True)
@@ -56,10 +57,10 @@ def main():
 
 if __name__ == '__main__':
 
-    main()
+    #main()
     while(1):
         now = datetime.now()
-        if now.hour == 6 and now.minute == 30:
+        if now.hour == 9 and now.minute == 54:
             main()
             quit()
     
