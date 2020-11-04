@@ -21,7 +21,7 @@ from_zone = tz.gettz('UTC')
 to_zone = tz.gettz('America/New_York')
 
 SQL_PATH = "INSERT INTO stockamdata(time, symbol, volume, day_volume, day_open, vwap, o, h, c, l, avg, unix) VALUES "
-CONNECTION = "postgres://{}:{}@{}:{}/{}".format(config.TSDB_USERNAME, config.TSDB_PASSWORD, config.TSDB_HOST, config.TSDB_PORT, config.TSDB_DATABASE)
+CONNECTION = "postgres://{}:{}@{}:{}/{}".format(config.TSDB_USERNAME, config.TSDB_AWS_PASSWORD, config.TSDB_AWS_HOST, config.TSDB_PORT, config.TSDB_DATABASE)
 #print(CONNECTION)
 conn = psycopg2.connect(CONNECTION)
 cur = conn.cursor()
