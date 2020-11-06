@@ -21,7 +21,7 @@ from_zone = tz.gettz('UTC')
 to_zone = tz.gettz('America/New_York')
 
 SQL_PATH = "INSERT INTO test(index, data1, data2) VALUES (%s, %s, %s);"
-data = (3, 3, 3)
+data = (4, 4, 4)
 CONNECTION = "postgres://{}:{}@{}:{}/{}".format(config.TSDB_USERNAME, config.TSDB_AWS_PASSWORD, config.TSDB_AWS_HOST, config.TSDB_PORT, config.TSDB_DATABASE)
 conn = psycopg2.connect(CONNECTION)
 cur = conn.cursor()

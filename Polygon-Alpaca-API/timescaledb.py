@@ -6,7 +6,7 @@ from polygon import WebSocketClient, STOCKS_CLUSTER
 import config
 import threading
 
-tickerList = ["AAPL","SPY","TSLA","MSFT"]
+tickerList = ["AAPL","SPY","TSLA","MSFT","DIS","AAL","GE","DAL","CCL","GPRO","F"]
 dataType = "AM."
 assetsToDownload = []
 A_candlesticks = []
