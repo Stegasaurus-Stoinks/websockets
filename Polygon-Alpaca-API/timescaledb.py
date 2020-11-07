@@ -92,6 +92,7 @@ def stockAmData(data_time, data):
 
     current_timestamp = data_time
     #print(current_timestamp)
+    #If a new minute of data was recieved, start timeout timer and create new data array
     if current_timestamp != previous_timestamp:
         #print('timestamp not the same')
         data_package = []
