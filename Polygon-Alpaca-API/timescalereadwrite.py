@@ -26,6 +26,7 @@ data = (4, 4, 4)
 CONNECTION = "postgres://{}:{}@{}:{}/{}".format(config.TSDB_USERNAME, config.TSDB_AWS_PASSWORD, config.TSDB_AWS_HOST, config.TSDB_PORT, config.TSDB_DATABASE)
 conn = psycopg2.connect(CONNECTION)
 cur = conn.cursor()
+Start_time = datetime(2020, 11, 6, 22, 0, 0, 0)
 
 def sendData():
     try:
@@ -45,6 +46,7 @@ def pullData():
             print(result[0])
 
 def pullAMData(ticker, numPoints):
+    global Start_time
     query = """
     SELECT *
     FROM stockamdata
@@ -52,11 +54,25 @@ def pullAMData(ticker, numPoints):
     ORDER BY time
     DESC LIMIT %s;
     """
-    data = (ticker, numPoints)
-    cur.execute(query, data)
+
+    query2 = """
+    SELECT *
+    FROM stockamdata
+    WHERE symbol = %s
+    AND time = %s
+    ORDER BY time
+    DESC LIMIT %s;
+    """
+
+    data = (ticker, Start_time, numPoints)
+    cur.execute(query2, data)
     results = cur.fetchall()
+    if results == []:
+        print("No such entry in DB")
+
     for result in results:
         print("{} opened @ {} at time {}".format(result[1],result[6],result[0]))
+        print(result[0].minute)
         
 
-pullAMData('TSLA' , 20)
+pullAMData('TSLA' , 1)

@@ -1,12 +1,15 @@
 import time, sys, json, requests
 import config
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
+import psycopg2
 
-from polygon import WebSocketClient, STOCKS_CLUSTER
+Start_time = datetime(2020, 11, 6, 17, 59, 0)
+#print(Start_time)
+Current_time = datetime.now()
+Next_time = datetime(2020, 11, 6, 17, 30, 0)
+newData = False
 
-
-A_candlesticks = []
 AM_candlesticks = []
 in_position = False
 downtrend = False
@@ -21,6 +24,11 @@ ORDERS_URL = "{}/v2/orders".format(BASE_URL)
 POSITIONS_URL = "{}/v2/positions/{}".format(BASE_URL, SYMBOL)
 
 HEADERS = {'APCA-API-KEY-ID': config.PAPER_API_KEY, 'APCA-API-SECRET-KEY': config.PAPER_SECRET_KEY}
+
+CONNECTION = "postgres://{}:{}@{}:{}/{}".format(config.TSDB_USERNAME, config.TSDB_AWS_PASSWORD, config.TSDB_AWS_HOST, config.TSDB_PORT, config.TSDB_DATABASE)
+conn = psycopg2.connect(CONNECTION)
+cur = conn.cursor()
+
 
 
 def send_order(profit_price, loss_price):
@@ -49,10 +57,8 @@ def send_order(profit_price, loss_price):
 def place_order(profit_price, loss_price):
 
     print("== Sending order ==")
+    quit()
     #send_order(profit_price, loss_price)
-
-
-
 
 def ThreeWhiteSoldiers():
     global in_position, downtrend
@@ -79,44 +85,6 @@ def ThreeWhiteSoldiers():
 
         else:
             print("No go")
-
-
-def Calculate_trend():
-    global downtrend, uptrend
-    # need to add this
-    downtrend = True
-
-def Calculate_trend_Attempt():
-    global downtrend, uptrend, downtrend_points, uptrend_points
-    current_candle = AM_candlesticks[-1]
-    previous_candle = AM_candlesticks[-2]
-    if(current_candle['high'] < previous_candle['high']):
-        downtrend_points = downtrend_points + 1
-    if (current_candle['low'] > previous_candle['low']):
-        uptrend_points = uptrend_points + 1
-
-    if uptrend_points > 5 and uptrend_points >= (downtrend_points+1):
-        uptrend = True
-        downtrend = False
-        print("uptrend located")
-        uptrend_points = 0
-        downtrend_points = 0
-
-    if downtrend_points > 5 and downtrend_points >= (uptrend_points + 1):
-        uptrend = False
-        downtrend = True
-        print("downtrend located")
-        uptrend_points = 0
-        downtrend_points = 0
-
-    else:
-        if downtrend_points < 5 and uptrend_points < 5:
-            print("Not enough data to calculate trend")
-        else:
-            print("No Trend Found/Trading Sideways")
-
-    print("uptrend points: {} downtrendpoints: {}".format(uptrend_points, downtrend_points))
-    return
 
 def Calculate_trend_Attempt2():
     global downtrend, uptrend
@@ -158,73 +126,77 @@ def Calculate_trend_Attempt2():
             uptrend = False
             downtrend = False
 
-        print("uptrend points: {} not_uptrend_points: {}".format(uptrend_points, not_uptrend_points))
-        print("downtrend points: {} not_downtrend_points: {}".format(downtrend_points, not_downtrend_points))
+        #print("uptrend points: {} not_uptrend_points: {}".format(uptrend_points, not_uptrend_points))
+        #print("downtrend points: {} not_downtrend_points: {}".format(downtrend_points, not_downtrend_points))
 
     return
 
 
-def my_custom_process_message(message):
-    # print("this is my custom message processing", message)
-    data = json.loads(message)[0]
+def ReceiveNewData():
+    global newData
+    global Current_time
 
-    tick_datetime_object = datetime.utcfromtimestamp(data["s"] / 1000)
-    data_time = tick_datetime_object.strftime('%Y-%m-%d %H:%M:%S')
+    while not newData:
+        result = query('SPY')
+        #result = result[0]
 
-    if data["ev"] == "A":
-        print("{} @ ${} @ {} ".format(data["sym"], data["c"], data_time))
-        A_candlesticks.append({
-            "time": data_time,
-            "open": data["o"],
-            "high": data["h"],
-            "low": data["l"],
-            "close": data["c"],
-            "volume": data["v"]
-        })
+        if result == []:
+            time.sleep(1)
+            print("no new data")
+            IncrementTime()
 
-    if data["ev"] == "AM":
-        print("=====  {} @ ${} @ {}  =====".format(data["sym"], data["c"], data_time))
-        if data["o"] > data["c"]:
-            trend = 1
         else:
-            trend = 0
-        AM_candlesticks.append({
-            "time": data_time,
-            "open": data["o"],
-            "high": data["h"],
-            "low": data["l"],
-            "close": data["c"],
-            "volume": data["v"],
-            "color": trend
+            result = result[0]
+            #print("NEW DATA DETECTED")
+            newData = True
+            Current_time = result[0]
+
+    print("{} opened @ {} at time {}".format(result[1],result[6],result[0]))
+    UpdateDataArray(result)
+    newData = False
+
+def query(ticker):
+    query = """
+    SELECT *
+    FROM stockamdata
+    WHERE symbol = %s
+    AND time = %s
+    ORDER BY time
+    DESC LIMIT %s;
+    """
+    data = (ticker, Next_time, 1)
+    cur.execute(query, data)
+    results = cur.fetchall()
+    return results
+
+def IncrementTime():
+    global Next_time
+    Next_time += timedelta(minutes=1)
+
+def UpdateDataArray(data):
+    global AM_candlesticks
+    AM_candlesticks.append({
+            "dtime": data[0],
+            "open": data[6],
+            "high": data[7],
+            "low": data[9],
+            "close": data[8],
+            "volume": data[2]
         })
 
-    # Check for trend in price
-    Calculate_trend_Attempt2()
-
-    # Check for pattern
-    ThreeWhiteSoldiers()
-
-
-    #if len(A_candlesticks) % 10 == 0:
-    #    print(A_candlesticks)
-
-
-
-def my_custom_error_handler(ws, error):
-    print("this is my custom error handler", error)
-
-
-def my_custom_close_handler(ws):
-    print("this is my custom close handler")
+    if len(AM_candlesticks) > 20:
+        AM_candlesticks.pop(0)
+        #print(len(AM_candlesticks))
 
 
 def main():
-    key = config.API_KEY
-    my_client = WebSocketClient(STOCKS_CLUSTER, key, my_custom_process_message)
-    my_client.run_async()
-    channel = "AM.{}".format(SYMBOL)
-    my_client.subscribe(channel)
-
-
-if __name__ == "__main__":
-    main()
+    while True:
+        ReceiveNewData()
+        IncrementTime()
+        time.sleep(2)
+        # Check for trend in price
+        Calculate_trend_Attempt2()
+        # Check for pattern
+        ThreeWhiteSoldiers()  
+            
+main()
