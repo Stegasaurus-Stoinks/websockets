@@ -27,6 +27,10 @@ conn = psycopg2.connect(CONNECTION)
 cur = conn.cursor()
 
 def my_custom_process_message(message):
+
+    #if utc_time.hour >= 21 or utc_time <= 5:
+    #    quit()
+
     #print("Got Data")
     #print(message)
 
@@ -46,9 +50,11 @@ def my_custom_process_message(message):
     #data_time = utc_time.astimezone(to_zone)
     #print(data_time)
 
+    #print("time")
+
     if data['ev'] == 'AM':
         stockAmData(utc_time, data)
-
+        
 
 def on_close(message):
     global numDisconnect
@@ -140,6 +146,7 @@ def DBInsert(sql_path):
 
         conn.commit()
 
+
 def main():
     connect()
 
@@ -147,3 +154,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+    
+    

@@ -72,7 +72,7 @@ def pullAMData(ticker, numPoints):
 
     for result in results:
         print("{} opened @ {} at time {}".format(result[1],result[6],result[0]))
-        print(result[0].minute)
+        print("{}:{}".format(result[0].hour, result[0].minute))
         
 
 pullAMData('TSLA' , 1)

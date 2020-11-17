@@ -7,7 +7,7 @@ import psycopg2
 Start_time = datetime(2020, 11, 6, 17, 59, 0)
 #print(Start_time)
 Current_time = datetime.now()
-Next_time = datetime(2020, 11, 6, 17, 30, 0)
+Next_time = datetime(2020, 11, 9, 17, 40, 0)
 newData = False
 
 AM_candlesticks = []
@@ -69,9 +69,9 @@ def ThreeWhiteSoldiers():
         first_candle = AM_candlesticks[-3]
 
         if third_candle['close'] > second_candle['close'] > first_candle['close']\
-                and third_candle['close'] > third_candle['open']\
-                and second_candle['close'] > second_candle['open']\
-                and first_candle['close'] > first_candle['open']:
+                and third_candle['close'] >= third_candle['open']\
+                and second_candle['close'] >= second_candle['open']\
+                and first_candle['close'] >= first_candle['open']:
             print("Found three green candlesticks in a row")
             distance = third_candle['close'] - first_candle['open']
             print("Distance is {}".format(distance))
@@ -89,8 +89,8 @@ def ThreeWhiteSoldiers():
 def Calculate_trend_Attempt2():
     global downtrend, uptrend
 
-    uptrend_points = 0
-    downtrend_points = 0
+    uptrend_points = 0.00
+    downtrend_points = 0.00
     not_downtrend_points = 0
     not_uptrend_points = 0
 
@@ -101,22 +101,27 @@ def Calculate_trend_Attempt2():
         for x in range(-1,-5,-1):
             current_candle = AM_candlesticks[x]
             previous_candle = AM_candlesticks[x-1]
-            if(current_candle['high'] < previous_candle['high']):
-                downtrend_points += 1
-            else:
-                not_downtrend_points += 1
+            #if(current_candle['high'] < previous_candle['high']):
+            #    downtrend_points += 1
+            #else:
+            #    not_downtrend_points += 1
 
-            if (current_candle['low'] > previous_candle['low']):
-                uptrend_points = uptrend_points + 1
-            else:
-                not_uptrend_points += 1
+            #if (current_candle['low'] > previous_candle['low']):
+            #    uptrend_points = uptrend_points + 1
+            #else:
+            #    not_uptrend_points += 1
+            if current_candle['change'] >= 0:
+                uptrend_points += current_candle['change']
 
-        if uptrend_points >= (not_uptrend_points + 2):
+            else:
+                downtrend_points -= current_candle['change']
+
+        if uptrend_points >= downtrend_points:
             uptrend = True
             downtrend = False
             print("uptrend located")
 
-        if downtrend_points >= (not_downtrend_points + 2):
+        if downtrend_points >= uptrend_points:
             uptrend = False
             downtrend = True
             print("downtrend located")
@@ -126,7 +131,7 @@ def Calculate_trend_Attempt2():
             uptrend = False
             downtrend = False
 
-        #print("uptrend points: {} not_uptrend_points: {}".format(uptrend_points, not_uptrend_points))
+        print("uptrend points: {} downtrend_points: {}".format(uptrend_points, downtrend_points))
         #print("downtrend points: {} not_downtrend_points: {}".format(downtrend_points, not_downtrend_points))
 
     return
@@ -175,13 +180,16 @@ def IncrementTime():
 
 def UpdateDataArray(data):
     global AM_candlesticks
+    change = 0.00
+    change = float(data[8])-float(data[6])
     AM_candlesticks.append({
             "dtime": data[0],
             "open": data[6],
             "high": data[7],
             "low": data[9],
             "close": data[8],
-            "volume": data[2]
+            "volume": data[2],
+            "change": change
         })
 
     if len(AM_candlesticks) > 20:
@@ -190,13 +198,13 @@ def UpdateDataArray(data):
 
 
 def main():
-    while True:
+    while Next_time.minute != 59:
         ReceiveNewData()
         IncrementTime()
-        time.sleep(2)
+        time.sleep(0.5)
         # Check for trend in price
         Calculate_trend_Attempt2()
         # Check for pattern
-        ThreeWhiteSoldiers()  
+        #ThreeWhiteSoldiers()  
             
 main()

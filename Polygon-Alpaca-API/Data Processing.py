@@ -179,7 +179,8 @@ def my_custom_process_message(message):
             "high": data["h"],
             "low": data["l"],
             "close": data["c"],
-            "volume": data["v"]
+            "volume": data["v"],
+            "change": data["c"]-data["o"]
         })
 
     if data["ev"] == "AM":
