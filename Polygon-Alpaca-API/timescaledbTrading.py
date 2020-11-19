@@ -1,13 +1,17 @@
+
 import time, sys, json, requests
 import config
 import json
 from datetime import datetime, timedelta
 import psycopg2
+import matplotlib.pyplot as plt
 
 Start_time = datetime(2020, 11, 6, 17, 59, 0)
 #print(Start_time)
 Current_time = datetime.now()
-Next_time = datetime(2020, 11, 9, 17, 40, 0)
+#use next time as start time for now
+Next_time = datetime(2020, 11, 18, 18, 11, 0)
+End_time = datetime(2020, 11, 18, 18, 30, 0)
 newData = False
 
 AM_candlesticks = []
@@ -28,6 +32,9 @@ HEADERS = {'APCA-API-KEY-ID': config.PAPER_API_KEY, 'APCA-API-SECRET-KEY': confi
 CONNECTION = "postgres://{}:{}@{}:{}/{}".format(config.TSDB_USERNAME, config.TSDB_AWS_PASSWORD, config.TSDB_AWS_HOST, config.TSDB_PORT, config.TSDB_DATABASE)
 conn = psycopg2.connect(CONNECTION)
 cur = conn.cursor()
+
+#plot stuff here
+fig,ax = plt.subplots()
 
 
 
@@ -182,6 +189,7 @@ def UpdateDataArray(data):
     global AM_candlesticks
     change = 0.00
     change = float(data[8])-float(data[6])
+    print(change)
     AM_candlesticks.append({
             "dtime": data[0],
             "open": data[6],
@@ -191,20 +199,40 @@ def UpdateDataArray(data):
             "volume": data[2],
             "change": change
         })
-
+    plotData(AM_candlesticks[0])
+    #print(len(AM_candlesticks))
     if len(AM_candlesticks) > 20:
         AM_candlesticks.pop(0)
         #print(len(AM_candlesticks))
 
+def plotData(data):
+    
+    if data['change'] > 0:
+        print("green")
+        ax.plot([data['dtime'],data['dtime']],[data['close'],data['open']], linestyle='-', c='g')
+        ax.plot(data['dtime'],data['open'],'o',c='g')
+        ax.plot(data['dtime'],data['close'],'o',c='g')
+
+    else:
+        print("red")
+        ax.plot([data['dtime'],data['dtime']],[data['close'],data['open']], linestyle='-', c='r')
+        ax.plot(data['dtime'],data['open'],'o',c='r')
+        ax.plot(data['dtime'],data['close'],'o',c='r')
+
+
 
 def main():
-    while Next_time.minute != 59:
+    while Next_time != End_time:
         ReceiveNewData()
         IncrementTime()
-        time.sleep(0.5)
+        #time.sleep(0.25)
         # Check for trend in price
-        Calculate_trend_Attempt2()
+        #Calculate_trend_Attempt2()
         # Check for pattern
-        #ThreeWhiteSoldiers()  
+        #ThreeWhiteSoldiers()
+
+    plt.show() 
             
 main()
+
+
