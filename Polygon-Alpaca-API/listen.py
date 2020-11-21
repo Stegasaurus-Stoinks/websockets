@@ -6,13 +6,14 @@ import config
 CONNECTION = "postgres://{}:{}@{}:{}/{}".format(config.TSDB_USERNAME, config.TSDB_AWS_PASSWORD, config.TSDB_AWS_HOST, config.TSDB_PORT, config.TSDB_DATABASE)
 conn = psycopg2.connect(CONNECTION)
 cur = conn.cursor()
-cur.execute("LISTEN amdata")
-cur.execute("NOTIFY testyy, 'this connection works';")
+cur.execute("LISTEN testyy")
+#cur.execute("NOTIFY testyy, 'this connection works';")
 conn.commit()
 print("Waiting for notifications on channel 'test'")
 
+
 while True:
-    if select.select([conn],[],[],5) == ([],[],[]):
+    if select.select([conn],[],[],10) == ([],[],[]):
         print("Timeout")
     else:
         conn.poll()
