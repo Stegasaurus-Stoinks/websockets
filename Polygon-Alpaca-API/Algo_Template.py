@@ -1,9 +1,11 @@
-import select, time
+import select, time, requests, json, sys
 import psycopg2
 import psycopg2.extensions
 import config
 from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
+import alpaca_trade_api as tradeapi
+
 
 #------Config Variables------
 Live_Trading = True
@@ -16,6 +18,15 @@ AM_candlesticks = []
 Current_time = datetime(2020, 11, 18, 18, 11, 0)
 Next_time = datetime(2020, 11, 18, 18, 11, 0)
 End_time = datetime(2020, 11, 18, 18, 30, 0)
+in_position = True
+
+BASE_URL = "https://paper-api.alpaca.markets"
+ACCOUNT_URL = "{}/v2/account".format(BASE_URL)
+ORDERS_URL = "{}/v2/orders".format(BASE_URL)
+POSITIONS_URL = "{}/v2/positions/{}".format(BASE_URL, ticker)
+HEADERS = {'APCA-API-KEY-ID': config.PAPER_API_KEY, 'APCA-API-SECRET-KEY': config.PAPER_SECRET_KEY}
+
+api = tradeapi.REST(config.PAPER_API_KEY, config.PAPER_SECRET_KEY, base_url='https://paper-api.alpaca.markets') # or use ENV Vars shown below
 
 CONNECTION = "postgres://{}:{}@{}:{}/{}".format(config.TSDB_USERNAME, config.TSDB_AWS_PASSWORD, config.TSDB_AWS_HOST, config.TSDB_PORT, config.TSDB_DATABASE)
 conn = psycopg2.connect(CONNECTION)
@@ -73,6 +84,34 @@ def QueryLast(ticker):
     conn.commit()
     return results
 
+def place_order(profit_price, loss_price): 
+
+    print("== Sending order ==")
+    send_order(profit_price, loss_price)
+
+def send_order(profit_price, loss_price):
+
+    data = {
+        "symbol": ticker,
+        "qty": 10,
+        "side": "buy",
+        "type": "market",
+        "time_in_force": "gtc",
+        "order_class": "bracket",
+        "take_profit": {
+            "limit_price": profit_price
+        },
+        "stop_loss": {
+            "stop_price": loss_price
+        }
+    }
+
+    r = requests.post(ORDERS_URL, json=data, headers=HEADERS)
+
+    response = json.loads(r.content)
+
+    print(response)
+
 def UpdateDataArray(data):
     global AM_candlesticks
     if data != None:
@@ -93,15 +132,70 @@ def UpdateDataArray(data):
             AM_candlesticks.pop(0)
             #print(len(AM_candlesticks))
 
+def ThreeKingsAlgo():
+    global in_position
+    if len(AM_candlesticks)<10:
+        print("not enough data to start")
+    
+    else:
+        firstcandle = AM_candlesticks[-1]
+        secondcandle = AM_candlesticks[-2]
+        thirdcandle = AM_candlesticks[-3]
+
+        if firstcandle['change'] > 0 and secondcandle['change'] > 0 and thirdcandle['change'] > 0:
+            print("three green candles detected: Now checking trend")
+            if IsDownTrend(-4,-9):
+                print("Found a downtrend: Three Kings Pattern Detected")
+                distance = third_candle['close'] - first_candle['open']
+                print("Distance is {}".format(distance))
+                profit_price = third_candle['close'] + (distance * 2)
+                print("TP @ {}".format(profit_price))
+                loss_price = first_candle['open']
+                print("Cut Loss @ {}".format(loss_price))
+                in_position = True
+                place_order(profit_price, loss_price)   
+
+def IsDownTrend(Start, End):
+    downtrend_candles = 0
+    downtrend_value = 0.00
+    uptrend_candles = 0
+    uptrend_value = 0.00
+
+    for x in range(Start,End,-1):
+        current_candle = AM_candlesticks[x]
+        cur_change = current_candle['change']
+        #previous_candle = AM_candlesticks[x-1]
+        if cur_change < 0:
+            downtrend_candles += 1
+            downtrend_value -= cur_change
+
+        else:
+            uptrend_candles += 1
+            uptrend_value += cur_change
+
+    if downtrend_candles > uptrend_candles and downtrend_value > uptrend_value:
+        return True
+
+    else:
+        return False
+
 def main():
     global NewData
+    global in_position
     while True:
         AwaitNewData() 
         #Breaks out to the code below if a notify is recieved on the above defined "notify_channel"
         #------------Add code Below Here-------------
 
         print("Notify Recieved")
-        UpdateDataArray(QueryData(ticker))   
+        UpdateDataArray(QueryData(ticker))
+
+        if not in_position:
+            ThreeKingsAlgo()
+
+        else:
+            if len(api.list_positions()) == 0:
+                in_position = False   
 
         #------------Add code Above Here-------------
         #Reset the notification loop
