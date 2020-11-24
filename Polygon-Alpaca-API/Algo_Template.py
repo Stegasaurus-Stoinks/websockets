@@ -9,7 +9,7 @@ import alpaca_trade_api as tradeapi
 
 #------Config Variables------
 Live_Trading = True
-notify_channel = "testyy"
+notify_channel = "amdata"
 ticker = "SPY"
 #----------------------------
 
@@ -41,7 +41,7 @@ def AwaitNewData():
     if Live_Trading:
         while not NewData:
             #print("NewData is", NewData)
-            if select.select([conn],[],[],10) == ([],[],[]):
+            if select.select([conn],[],[],40) == ([],[],[]):
                 print("Waiting for notifications on channel " + notify_channel)
             else:
                 conn.poll()
@@ -56,6 +56,8 @@ def QueryData(ticker):
 
     if Live_Trading:
         data = QueryLast(ticker)
+        #print(Current_time)
+        #print(data[0])
         if Current_time != data[0]:
             print("This is a new data point")
             print("{} opened @ {} at time {}".format(data[1],data[6],data[0]))
@@ -74,11 +76,10 @@ def QueryLast(ticker):
     SELECT *
     FROM stockamdata
     WHERE symbol = %s
-    AND time = %s
     ORDER BY time
     DESC LIMIT %s;
     """
-    data = (ticker, Next_time, 1)
+    data = (ticker, 1)
     cur.execute(query, data)
     results = cur.fetchall()[0]
     conn.commit()
@@ -146,11 +147,11 @@ def ThreeKingsAlgo():
             print("three green candles detected: Now checking trend")
             if IsDownTrend(-4,-9):
                 print("Found a downtrend: Three Kings Pattern Detected")
-                distance = third_candle['close'] - first_candle['open']
+                distance = thirdcandle['close'] - firstcandle['open']
                 print("Distance is {}".format(distance))
-                profit_price = third_candle['close'] + (distance * 2)
+                profit_price = thirdcandle['close'] + (distance * 2)
                 print("TP @ {}".format(profit_price))
-                loss_price = first_candle['open']
+                loss_price = firstcandle['open']
                 print("Cut Loss @ {}".format(loss_price))
                 in_position = True
                 place_order(profit_price, loss_price)   
