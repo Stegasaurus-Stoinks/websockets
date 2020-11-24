@@ -139,9 +139,9 @@ def ThreeKingsAlgo():
         print("not enough data to start")
     
     else:
-        firstcandle = AM_candlesticks[-1]
+        firstcandle = AM_candlesticks[-3]
         secondcandle = AM_candlesticks[-2]
-        thirdcandle = AM_candlesticks[-3]
+        thirdcandle = AM_candlesticks[-1]
 
         if firstcandle['change'] > 0 and secondcandle['change'] > 0 and thirdcandle['change'] > 0:
             print("three green candles detected: Now checking trend")
