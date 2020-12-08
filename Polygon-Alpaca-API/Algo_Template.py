@@ -10,7 +10,7 @@ import alpaca_trade_api as tradeapi
 #------Config Variables------
 Live_Trading = True
 notify_channel = "amdata"
-ticker = "SPY"
+ticker = "AAPL"
 #----------------------------
 
 NewData = False
@@ -28,10 +28,16 @@ HEADERS = {'APCA-API-KEY-ID': config.PAPER_API_KEY, 'APCA-API-SECRET-KEY': confi
 
 api = tradeapi.REST(config.PAPER_API_KEY, config.PAPER_SECRET_KEY, base_url='https://paper-api.alpaca.markets') # or use ENV Vars shown below
 
-CONNECTION = "postgres://{}:{}@{}:{}/{}".format(config.TSDB_USERNAME, config.TSDB_AWS_PASSWORD, config.TSDB_AWS_HOST, config.TSDB_PORT, config.TSDB_DATABASE)
-conn = psycopg2.connect(CONNECTION)
-cur = conn.cursor()
-cur.execute("LISTEN " + notify_channel)
+data_CONNECTION = "postgres://{}:{}@{}:{}/{}".format(config.TSDB_USERNAME, config.TSDB_AWS_PASSWORD, config.TSDB_AWS_HOST, config.TSDB_PORT, config.TSDB_DATABASE)
+data_conn = psycopg2.connect(CONNECTION)
+data_cur = conn.cursor()
+data_cur.execute("LISTEN " + notify_channel)
+
+order_CONNECTION = "postgres://{}:{}@{}:{}/{}".format(config.TSDB_USERNAME, config.TSDB_AWS_PASSWORD, config.TSDB_AWS_HOST, config.TSDB_PORT, config.TSDB_DATABASE)
+order_conn = psycopg2.connect(CONNECTION)
+order_cur = conn.cursor()
+order_cur.execute("LISTEN " + notify_channel)
+
 #cur.execute("NOTIFY testyy, 'this connection works';")
 conn.commit()
 
@@ -80,9 +86,9 @@ def QueryLast(ticker):
     DESC LIMIT %s;
     """
     data = (ticker, 1)
-    cur.execute(query, data)
-    results = cur.fetchall()[0]
-    conn.commit()
+    data_cur.execute(query, data)
+    results = data_cur.fetchall()[0]
+    data_conn.commit()
     return results
 
 def place_order(profit_price, loss_price): 
@@ -112,6 +118,9 @@ def send_order(profit_price, loss_price):
     response = json.loads(r.content)
 
     print(response)
+
+def log_order(profit_price, loss_price):
+    
 
 def UpdateDataArray(data):
     global AM_candlesticks
