@@ -5,6 +5,7 @@ from dateutil import tz
 from polygon import WebSocketClient, STOCKS_CLUSTER
 import config
 import threading
+import keystore
 
 tickerList = ["AAPL","SPY","TSLA","MSFT","DIS","AAL","GE","DAL","CCL","GPRO","F"]
 dataType = "AM."
@@ -21,7 +22,7 @@ from_zone = tz.gettz('UTC')
 to_zone = tz.gettz('America/New_York')
 
 SQL_PATH = "INSERT INTO stockamdata(time, symbol, volume, day_volume, day_open, vwap, o, h, c, l, avg, unix) VALUES "
-CONNECTION = "postgres://{}:{}@{}:{}/{}".format(config.TSDB_USERNAME, config.TSDB_AWS_PASSWORD, config.TSDB_AWS_HOST, config.TSDB_PORT, config.TSDB_DATA_DATABASE)
+CONNECTION = "postgres://{}:{}@{}:{}/{}".format(config.TSDB_USERNAME, config.TSDB_AWS_PASSWORD, config.TSDB_AWS_HOST, config.TSDB_PORT, config.TSDB_DATABASE)
 #print(CONNECTION)
 conn = psycopg2.connect(CONNECTION)
 cur = conn.cursor()
@@ -73,7 +74,7 @@ def on_error(message):
 
 def connect():
     print("Connecting")
-    my_client = WebSocketClient(STOCKS_CLUSTER, config.API_KEY, my_custom_process_message, on_close, on_error)    
+    my_client = WebSocketClient(STOCKS_CLUSTER, keystore.API_KEY, my_custom_process_message, on_close, on_error)    
     my_client.run_async()
     createSubcription(my_client)
     print("===Running===")
