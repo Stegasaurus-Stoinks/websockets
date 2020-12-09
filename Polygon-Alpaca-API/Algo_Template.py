@@ -5,7 +5,10 @@ import config
 from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
 import alpaca_trade_api as tradeapi
+import keystore
 
+#Import Functions and Indicators
+from Algo_Functions import IsDownTrend
 
 #------Config Variables------
 Live_Trading = True
@@ -13,6 +16,7 @@ notify_channel = "amdata"
 ticker = "AAPL"
 #----------------------------
 
+ALGO = 'ThreeKings'
 NewData = False
 AM_candlesticks = []
 Current_time = datetime(2020, 11, 18, 18, 11, 0)
@@ -24,19 +28,14 @@ BASE_URL = "https://paper-api.alpaca.markets"
 ACCOUNT_URL = "{}/v2/account".format(BASE_URL)
 ORDERS_URL = "{}/v2/orders".format(BASE_URL)
 POSITIONS_URL = "{}/v2/positions/{}".format(BASE_URL, ticker)
-HEADERS = {'APCA-API-KEY-ID': config.PAPER_API_KEY, 'APCA-API-SECRET-KEY': config.PAPER_SECRET_KEY}
+HEADERS = {'APCA-API-KEY-ID': keystore.PAPER_API_KEY, 'APCA-API-SECRET-KEY': keystore.PAPER_SECRET_KEY}
 
-api = tradeapi.REST(config.PAPER_API_KEY, config.PAPER_SECRET_KEY, base_url='https://paper-api.alpaca.markets') # or use ENV Vars shown below
+api = tradeapi.REST(keystore.PAPER_API_KEY, keystore.PAPER_SECRET_KEY, base_url='https://paper-api.alpaca.markets') # or use ENV Vars shown below
 
-data_CONNECTION = "postgres://{}:{}@{}:{}/{}".format(config.TSDB_USERNAME, config.TSDB_AWS_PASSWORD, config.TSDB_AWS_HOST, config.TSDB_PORT, config.TSDB_DATABASE)
-data_conn = psycopg2.connect(CONNECTION)
-data_cur = conn.cursor()
-data_cur.execute("LISTEN " + notify_channel)
-
-order_CONNECTION = "postgres://{}:{}@{}:{}/{}".format(config.TSDB_USERNAME, config.TSDB_AWS_PASSWORD, config.TSDB_AWS_HOST, config.TSDB_PORT, config.TSDB_DATABASE)
-order_conn = psycopg2.connect(CONNECTION)
-order_cur = conn.cursor()
-order_cur.execute("LISTEN " + notify_channel)
+CONNECTION = "postgres://{}:{}@{}:{}/{}".format(config.TSDB_USERNAME, config.TSDB_AWS_PASSWORD, config.TSDB_AWS_HOST, config.TSDB_PORT, config.TSDB_DATABASE)
+conn = psycopg2.connect(CONNECTION)
+cur = conn.cursor()
+cur.execute("LISTEN " + notify_channel)
 
 #cur.execute("NOTIFY testyy, 'this connection works';")
 conn.commit()
@@ -86,21 +85,22 @@ def QueryLast(ticker):
     DESC LIMIT %s;
     """
     data = (ticker, 1)
-    data_cur.execute(query, data)
-    results = data_cur.fetchall()[0]
-    data_conn.commit()
+    cur.execute(query, data)
+    results = cur.fetchall()[0]
+    conn.commit()
     return results
 
-def place_order(profit_price, loss_price): 
+def place_order(profit_price, loss_price, entry_price, volume): 
 
     print("== Sending order ==")
-    send_order(profit_price, loss_price)
+    send_order(profit_price, loss_price, volume)
+    log_order(profit_price, loss_price, entry_price, volume)
 
-def send_order(profit_price, loss_price):
+def send_order(profit_price, loss_price, volume):
 
     data = {
         "symbol": ticker,
-        "qty": 10,
+        "qty": volume,
         "side": "buy",
         "type": "market",
         "time_in_force": "gtc",
@@ -119,8 +119,21 @@ def send_order(profit_price, loss_price):
 
     print(response)
 
-def log_order(profit_price, loss_price):
-    
+def log_order(profit_price, loss_price, entry_price, volume):
+    data_send = """
+    INSERT INTO trades(entrytime, exittime, algo, entryprice, exitprice, symbol, tradetype, volume, id) 
+    VALUES %s, %s, %s, %s, %s, %s, %s, %s;
+    """
+
+    data = (Current_time, Current_time, ALGO, entry_price, profit_price, ticker, 'Shares', volume, 1)
+    try:
+        cur.execute(data_send, data)
+        print("order data logged")
+
+    except (Exception, psycopg2.Error) as error:
+            print(error.pgerror)
+                
+    conn.commit()
 
 def UpdateDataArray(data):
     global AM_candlesticks
@@ -154,7 +167,7 @@ def ThreeKingsAlgo():
 
         if firstcandle['change'] > 0 and secondcandle['change'] > 0 and thirdcandle['change'] > 0:
             print("three green candles detected: Now checking trend")
-            if IsDownTrend(-4,-9):
+            if IsDownTrend(-4,-9, AM_candlesticks):
                 print("Found a downtrend: Three Kings Pattern Detected")
                 distance = thirdcandle['close'] - firstcandle['open']
                 print("Distance is {}".format(distance))
@@ -163,31 +176,7 @@ def ThreeKingsAlgo():
                 loss_price = firstcandle['open']
                 print("Cut Loss @ {}".format(loss_price))
                 in_position = True
-                place_order(profit_price, loss_price)   
-
-def IsDownTrend(Start, End):
-    downtrend_candles = 0
-    downtrend_value = 0.00
-    uptrend_candles = 0
-    uptrend_value = 0.00
-
-    for x in range(Start,End,-1):
-        current_candle = AM_candlesticks[x]
-        cur_change = current_candle['change']
-        #previous_candle = AM_candlesticks[x-1]
-        if cur_change < 0:
-            downtrend_candles += 1
-            downtrend_value -= cur_change
-
-        else:
-            uptrend_candles += 1
-            uptrend_value += cur_change
-
-    if downtrend_candles > uptrend_candles and downtrend_value > uptrend_value:
-        return True
-
-    else:
-        return False
+                place_order(profit_price, loss_price, thirdcandle['close'], 10)   
 
 def main():
     global NewData
