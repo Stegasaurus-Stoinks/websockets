@@ -1,0 +1,9 @@
+create venv:
+py -3 -m venv .venv
+
+add dependencies:
+pip install polygon-api-client psycopg2 python-dateutil pandas
+
+extra patches:
+pip install pipwin
+pipwin install numpy

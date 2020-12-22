@@ -5,16 +5,9 @@ from dateutil import tz
 from polygon import WebSocketClient, STOCKS_CLUSTER
 import config
 import threading
+import keystore
 
-tickerList = ["AAPL","SPY","TSLA","MSFT","AAIT","AAL","AAME","AAOI","AAON","AAVL","AAWW","AAXJ","ABAC","ABAX","ABCB","ABCD","ABCO","ABCW","ABDC","ABGB","ABIO","ABMD","ABTL","ABY","ACAD",
-"ACAS","ACAT","ACET","ACFC","ACFN","ACGL","ACHC","ACHN","ACIW","ACLS","ACNB","ACOR","ACPW","ACRX","ACSF","ACST","ACTA","ACTG","ACTS","ACUR","ACWI","ACWX","ACXM","ADAT","ADBE",
-"ADEP","ADES","ADHD","ADI","ADMA","ADMP","ADMS","ADNC","ADP","ADRA","ADRD","ADRE","ADRU","ADSK","ADTN","ADUS","ADVS","ADXS","ADXSW","AEGN","AEGR","AEHR","AEIS","AEPI","AERI",
-"AETI","AEY","AEZS","AFAM","AFCB","AFFX","AFH","AFMD","AFOP","AFSI","AGEN","AGII","AGIIL","AGIO","AGNC","AGNCB","AGNCP","AGND","AGRX","AGTC","AGYS","AGZD","AHGP","AHPI","AIMC",
-"AINV","AIQ","AIRM","AIRR","AIRT","AIXG","AKAM","AKAO","AKBA","AKER","AKRX","ALCO","ALDR","ALDX","ALGN","ALGT","ALIM","ALKS","ALLB","ALLT","ALNY","ALOG","ALOT","ALQA","ALSK",
-"ALTR","ALXA","ALXN","AMAG","AMAT","AMBA","AMBC","AMBCW","AMCC","AMCF","AMCN","AMCX","AMD","AMDA","AMED","AMGN","AMIC","AMKR","AMNB","AMOT","AMOV","AMPH","AMRB","AMRI","AMRK",
-"AMRN","AMRS","AMSC","AMSF","AMSG","AMSGP","AMSWA","AMTX","AMWD","AMZN","ANAC","ANAD","ANAT","ANCB","ANCI","ANCX","ANDE","ANGI","ANGO","ANIK","ANIP","ANSS","ANTH","ANY","AOSL",
-"AROW","ARQL","ARRS","ARRY","ARTNA","ARTW","ARTX","ARUN","ARWR","ASBB","ASBI","ASCMA","ASEI","ASFI","ASMB","ASMI","ASML","ASNA","ASPS","ASPX","ASRV","ASRVP",
-]
+tickerList = ["AAPL","SPY","TSLA","MSFT","DIS","AAL","GE","DAL","CCL","GPRO","F"]
 dataType = "AM."
 assetsToDownload = []
 A_candlesticks = []
@@ -35,6 +28,10 @@ conn = psycopg2.connect(CONNECTION)
 cur = conn.cursor()
 
 def my_custom_process_message(message):
+
+    #if utc_time.hour >= 21 or utc_time <= 5:
+    #    quit()
+
     #print("Got Data")
     #print(message)
 
@@ -54,9 +51,11 @@ def my_custom_process_message(message):
     #data_time = utc_time.astimezone(to_zone)
     #print(data_time)
 
+    #print("time")
+
     if data['ev'] == 'AM':
         stockAmData(utc_time, data)
-
+        
 
 def on_close(message):
     global numDisconnect
@@ -75,7 +74,7 @@ def on_error(message):
 
 def connect():
     print("Connecting")
-    my_client = WebSocketClient(STOCKS_CLUSTER, config.API_KEY, my_custom_process_message, on_close, on_error)    
+    my_client = WebSocketClient(STOCKS_CLUSTER, keystore.API_KEY, my_custom_process_message, on_close, on_error)    
     my_client.run_async()
     createSubcription(my_client)
     print("===Running===")
@@ -100,6 +99,7 @@ def stockAmData(data_time, data):
 
     current_timestamp = data_time
     #print(current_timestamp)
+    #If a new minute of data was recieved, start timeout timer and create new data array
     if current_timestamp != previous_timestamp:
         #print('timestamp not the same')
         data_package = []
@@ -147,6 +147,7 @@ def DBInsert(sql_path):
 
         conn.commit()
 
+
 def main():
     connect()
 
@@ -154,3 +155,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+    
+    
