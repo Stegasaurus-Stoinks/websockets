@@ -21,3 +21,14 @@ def IsDownTrend(Start, End, AM_candlesticks):
 
     else:
         return False
+
+def formatTime(timey):
+    year = timey.year
+    month = timey.month
+    day = timey.day
+    hour = timey.hour
+    minute = timey.minute
+    second = timey.second
+
+    timeyy = "{}-{}-{} {}:{}:{}".format(year, month , day, hour, minute, second)
+    return timeyy
