@@ -8,7 +8,7 @@ import alpaca_trade_api as tradeapi
 import keystore
 
 #Import Functions and Indicators
-from Algo_Functions import IsDownTrend
+from Algo_Functions import IsDownTrend,formatTime
 
 #------Config Variables------
 Live_Trading = True
@@ -122,10 +122,10 @@ def send_order(profit_price, loss_price, volume):
 def log_order(profit_price, loss_price, entry_price, volume):
     data_send = """
     INSERT INTO trades(entrytime, exittime, algo, entryprice, exitprice, symbol, tradetype, volume, id) 
-    VALUES %s, %s, %s, %s, %s, %s, %s, %s, %s;
+    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);
     """
 
-    data = (Current_time, Current_time, ALGO, entry_price, profit_price, ticker, 'Shares', volume, 1)
+    data = (formatTime(Current_time), formatTime(Current_time), ALGO, entry_price, profit_price, ticker, 'Shares', volume, 1)
     try:
         cur.execute(data_send, data)
         print("order data logged")

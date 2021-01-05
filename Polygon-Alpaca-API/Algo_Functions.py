@@ -34,6 +34,7 @@ def formatTime(timey):
     second = timey.second
 
     timeyy = "{}-{}-{} {}:{}:{}".format(year, month , day, hour, minute, second)
+<<<<<<< HEAD
     return timeyy
     
 def ListAverage(ListofList):
@@ -72,3 +73,6 @@ def plotter(x_vec,y1_data,y2_data,line1,line2,identifier='',pause_time=0.1):
     
     # return line so we can update it again in the next iteration
     return line1, line2
+=======
+    return timeyy
+>>>>>>> justin
