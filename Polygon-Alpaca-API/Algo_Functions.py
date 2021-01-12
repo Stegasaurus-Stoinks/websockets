@@ -72,3 +72,23 @@ def plotter(x_vec,y1_data,y2_data,line1,line2,identifier='',pause_time=0.1):
     
     # return line so we can update it again in the next iteration
     return line1, line2
+
+def Calc_EMA(length,data,old_EMA=0,initial_val=0):
+    EMA = 0.00
+    k = 2/(length+1)
+
+    if initial_val == 1:
+        #if EMA has never been calculated
+        if length > len(data):
+            return "Error"
+        data = data[len(data)+1-length:len(data)+1]
+
+        for x in range(len(data)):
+            EMA = (data[x] * k) + (EMA*(1-k))
+
+        return round(EMA,2)
+
+    else:
+        EMA = (data*k)+(old_EMA*(1-k))
+
+        return round(EMA,2)
