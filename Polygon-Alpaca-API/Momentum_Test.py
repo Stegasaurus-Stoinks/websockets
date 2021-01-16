@@ -15,7 +15,7 @@ from Algo_Functions import IsDownTrend,formatTime,Calc_EMA,plotter
 Live_Trading = False
 notify_channel = "amdata"
 ticker = "AAPL"
-Start_time = datetime(2020, 11, 18, 18, 30, 0)
+Start_time = datetime(2021, 1, 15, 14, 30, 0)
 End_time = datetime(2020, 11, 18, 18, 30, 0)
 #----------------------------
 
@@ -143,7 +143,7 @@ def main():
 
     Current_time = Start_time
 
-    size = 20
+    size = 40
     x_vec = np.linspace(0,1,size+1)[0:-1]
     y_vec = np.zeros(len(x_vec))
     y_vec1 = np.zeros(len(x_vec))
@@ -168,7 +168,7 @@ def main():
         #AwaitNewData() 
         #Breaks out to the code below if a notify is recieved on the above defined "notify_channel"
         #------------Add code Below Here----------
-        if(Current_time > DAY_START_TIME and Current_time < DAY_END_TIME):
+        if(Current_time >= DAY_START_TIME and Current_time <= DAY_END_TIME):
             try:
                 data = QuerySpecificData(ticker, Current_time)
 
@@ -184,8 +184,8 @@ def main():
                 EMA1 = C
                 EMA2 = C
 
-            EMA1 = Calc_EMA(10,C,EMA1)
-            EMA2 = Calc_EMA(20,C,EMA2)
+            EMA1 = Calc_EMA(20,C,EMA1)
+            EMA2 = Calc_EMA(50,C,EMA2)
             #print(O, C)
             
             if in_position:
@@ -241,6 +241,12 @@ def main():
 
             Current_time = Current_time + timedelta(minutes=1)
             #time.sleep(.2)
+
+        else:
+            print("DONE!")
+            print(number_of_trades)
+            print("missing"missing_data)
+            time.sleep(5)
         #print("Notify Recieved")
         #UpdateDataArray(QueryData(ticker))
         #print(AM_candlesticks)
