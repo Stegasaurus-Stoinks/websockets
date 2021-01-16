@@ -45,7 +45,7 @@ def ListAverage(ListofList):
 # use ggplot style for more sophisticated visuals
 plt.style.use('ggplot')
 
-def plotter(x_vec,y1_data,y2_data,y3_data,y4_data,y5_data,line1,line2,line3,line4,line5,identifier='',pause_time=0.1):
+def plotter(x_vec,y1_data,y2_data,y3_data,y4_data,y5_data,line1,line2,line3,line4,line5,identifier='',pause_time=0.01):
     if line1==[]:
         # this is the call to matplotlib that allows dynamic plotting
         plt.ion()

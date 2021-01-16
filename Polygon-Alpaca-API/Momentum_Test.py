@@ -249,8 +249,8 @@ def main():
 
         else:
             print("DONE!")
-            print("# of changes" + number_of_trades)
-            print("missing" + missing_data)
+            print("# of trades " + str(number_of_trades))
+            print("missing " + str(missing_data))
             time.sleep(5)
         #print("Notify Recieved")
         #UpdateDataArray(QueryData(ticker))
