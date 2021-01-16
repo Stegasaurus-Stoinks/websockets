@@ -46,6 +46,10 @@ cur.execute("LISTEN " + notify_channel)
 #cur.execute("NOTIFY testyy, 'this connection works';")
 conn.commit()
 
+#variable for checking cross-up
+highest = 0
+
+
 
 def AwaitNewData():
     global NewData
@@ -163,7 +167,7 @@ def main():
     missing_data = 0
     number_of_trades = 0
 
-    stop_loss = 0.001
+    stop_loss = 0.002
     profit = 0
 
     while True:
@@ -190,9 +194,18 @@ def main():
             EMA1 = Calc_EMA(20,C,EMA1)
             EMA2 = Calc_EMA(50,C,EMA2)
             #print(O, C)
-            
+
+            #getting first EMA point :D
+            if Current_time == (Start_time + timedelta(minutes=1)):
+                if EMA1 > EMA2:
+                    highest = 1
+                else:
+                    highest = 2
+
+
+
             if in_position:
-                if upTrade:
+                if not upTrade:
                     temp = C + (C * stop_loss)
                     if temp < exit_price:
                         exit_price = temp
@@ -219,18 +232,20 @@ def main():
 
                 print(profit)
 
-                if EMA1 > EMA2:
+                if (EMA1 > EMA2) and (highest == 2):
+                    highest = 1
                     in_position = True
                     upTrade = True
                     #print("upTrade placed")
                     entry_price = C
-
-                if EMA1 < EMA2:
+                    exit_price = C - (C * stop_loss)
+                if (EMA1 < EMA2) and (highest == 1):
+                    highest = 2
                     in_position = True
                     upTrade = False
                     #print("downTrade placed")
                     entry_price = C
-                
+                    exit_price = C + (C * stop_loss)
 
             y_vec[-1] = EMA1
             y_vec1[-1] = EMA2
@@ -252,6 +267,7 @@ def main():
             print("# of trades " + str(number_of_trades))
             print("missing " + str(missing_data))
             time.sleep(5)
+            quit()
         #print("Notify Recieved")
         #UpdateDataArray(QueryData(ticker))
         #print(AM_candlesticks)
