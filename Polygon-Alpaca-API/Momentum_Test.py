@@ -160,6 +160,8 @@ def main():
     entry_price = 100
     exit_price = 100
     upTrade = False
+    missing_data = 0
+    number_of_trades = 0
 
     stop_loss = 0.001
     profit = 0
@@ -174,6 +176,7 @@ def main():
 
             except (IndexError):
                 print("missing data")
+                missing_data += 1
                 Current_time = Current_time + timedelta(minutes=1)
             
             UpdateDataArray(data)
@@ -196,6 +199,7 @@ def main():
                     
                     if C > exit_price:
                         in_position = False
+                        number_of_trades += 1
                         profit = profit + (exit_price - entry_price) 
                     
                 else:
@@ -205,6 +209,7 @@ def main():
 
                     if C < exit_price:
                         in_position = False
+                        number_of_trades += 1
                         profit = profit + (entry_price - exit_price)
 
             else:
@@ -244,8 +249,8 @@ def main():
 
         else:
             print("DONE!")
-            print(number_of_trades)
-            print("missing"missing_data)
+            print("# of changes" + number_of_trades)
+            print("missing" + missing_data)
             time.sleep(5)
         #print("Notify Recieved")
         #UpdateDataArray(QueryData(ticker))
