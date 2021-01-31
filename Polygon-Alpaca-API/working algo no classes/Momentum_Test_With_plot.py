@@ -14,8 +14,8 @@ from Algo_Functions import IsDownTrend,formatTime,Calc_EMA,plotter
 #------Config Variables------
 Live_Trading = False
 notify_channel = "amdata"
-ticker = "AAPL"
-Start_time = datetime(2021, 1, 15, 14, 30, 0)
+ticker = "AAL"
+Start_time = datetime(2020, 11, 18, 18, 30, 0)
 End_time = datetime(2020, 11, 18, 18, 30, 0)
 #----------------------------
 
@@ -141,13 +141,29 @@ def UpdateDataArray(data):
             close_data.pop(0)
             #print(len(AM_candlesticks))
 
+def ValidTradingHours(Current_time, Offset = 0):
+    Startt = DAY_START_TIME
+    Endt = DAY_END_TIME
+
+    if Offset > 0:
+        Startt = Startt + timedelta(minutes = Offset)
+
+    if Offset < 0:
+        Endt = Endt + timedelta(minutes = Offset)
+
+    if (Current_time >= Startt and Current_time <= Endt):
+        return True
+
+    else:
+        return False
+
 def main():
     global NewData
     global in_position
 
     Current_time = Start_time
 
-    size = 40
+    size = 100
     x_vec = np.linspace(0,1,size+1)[0:-1]
     y_vec = np.zeros(len(x_vec))
     y_vec1 = np.zeros(len(x_vec))
@@ -166,15 +182,17 @@ def main():
     upTrade = False
     missing_data = 0
     number_of_trades = 0
+    good_trades = 0
+    bad_trades = 0
 
-    stop_loss = 0.002
+    stop_loss = 0.008
     profit = 0
 
     while True:
         #AwaitNewData() 
         #Breaks out to the code below if a notify is recieved on the above defined "notify_channel"
         #------------Add code Below Here----------
-        if(Current_time >= DAY_START_TIME and Current_time <= DAY_END_TIME):
+        if(ValidTradingHours(Current_time)):
             try:
                 data = QuerySpecificData(ticker, Current_time)
 
@@ -206,31 +224,47 @@ def main():
 
             if in_position:
                 if not upTrade:
+                    #calculate trailing stop loss
                     temp = C + (C * stop_loss)
                     if temp < exit_price:
                         exit_price = temp
                     
-                    if C > exit_price:
+                    #if :
+                    if C > exit_price or EMA1 > EMA2 or not ValidTradingHours(Current_time, -5):
                         in_position = False
                         number_of_trades += 1
-                        profit = profit + (exit_price - entry_price) 
+                        profit = profit + (entry_price - exit_price)
+                        print("Trade profit: " + str(entry_price - exit_price))
+                        print("Total Profit: " + str(profit))
+                        if entry_price - exit_price > 0:
+                            good_trades += 1
+
+                        else:
+                            bad_trades += 1
                     
                 else:
+                    #calculate trailing stop loss
                     temp = C - (C * stop_loss)
                     if temp > exit_price:
                         exit_price = temp
 
-                    if C < exit_price:
+                    #if :
+                    if C < exit_price or EMA2 > EMA1 or not ValidTradingHours(Current_time, -5):
                         in_position = False
                         number_of_trades += 1
-                        profit = profit + (entry_price - exit_price)
+                        profit = profit + (exit_price - entry_price)
+                        print("Trade profit: " + str(exit_price - entry_price))
+                        print("Total Profit: " + str(profit))
+                        if exit_price - entry_price > 0:
+                            good_trades += 1
+
+                        else:
+                            bad_trades += 1
 
             else:
                 #check if you need to enter position
                 entry_price = C
                 exit_price = C
-
-                print(profit)
 
                 if (EMA1 > EMA2) and (highest == 2):
                     highest = 1
@@ -239,6 +273,7 @@ def main():
                     #print("upTrade placed")
                     entry_price = C
                     exit_price = C - (C * stop_loss)
+
                 if (EMA1 < EMA2) and (highest == 1):
                     highest = 2
                     in_position = True
@@ -260,13 +295,16 @@ def main():
             y_vec4 = np.append(y_vec4[1:],0.0)
 
             Current_time = Current_time + timedelta(minutes=1)
+
+            print(Current_time)
             #time.sleep(.2)
 
         else:
             print("DONE!")
-            print("# of trades " + str(number_of_trades))
+            print("# of trades: " + str(number_of_trades))
+            print("Good trades: " + str(good_trades) + " | Bad trades: " + str(bad_trades))
             print("missing " + str(missing_data))
-            time.sleep(5)
+            time.sleep(10)
             quit()
         #print("Notify Recieved")
         #UpdateDataArray(QueryData(ticker))

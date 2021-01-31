@@ -94,9 +94,9 @@ def Calc_EMA(length,data,old_EMA=0,initial_val=0):
         for x in range(len(data)):
             EMA = (data[x] * k) + (EMA*(1-k))
 
-        return round(EMA,2)
+        return round(EMA,4)
 
     else:
         EMA = (data*k)+(old_EMA*(1-k))
 
-        return round(EMA,2)
+        return round(EMA,4)
