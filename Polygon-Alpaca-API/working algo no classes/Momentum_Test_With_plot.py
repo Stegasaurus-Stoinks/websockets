@@ -1,11 +1,11 @@
 import select, time, requests, json, sys
 import psycopg2
 import psycopg2.extensions
-import config
+import ../config
 from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
 import alpaca_trade_api as tradeapi
-import keystore
+import ../keystore
 import numpy as np
 
 #Import Functions and Indicators

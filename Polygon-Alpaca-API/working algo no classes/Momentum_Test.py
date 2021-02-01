@@ -34,14 +34,6 @@ in_position = False
 DAY_START_TIME = Start_time.replace(hour=14, minute=30)
 DAY_END_TIME = Start_time.replace(hour=21, minute=00)
 
-BASE_URL = "https://paper-api.alpaca.markets"
-ACCOUNT_URL = "{}/v2/account".format(BASE_URL)
-ORDERS_URL = "{}/v2/orders".format(BASE_URL)
-POSITIONS_URL = "{}/v2/positions/{}".format(BASE_URL, ticker)
-HEADERS = {'APCA-API-KEY-ID': keystore.PAPER_API_KEY, 'APCA-API-SECRET-KEY': keystore.PAPER_SECRET_KEY}
-
-api = tradeapi.REST(keystore.PAPER_API_KEY, keystore.PAPER_SECRET_KEY, base_url='https://paper-api.alpaca.markets') # or use ENV Vars shown below
-
 CONNECTION = "postgres://{}:{}@{}:{}/{}".format(config.TSDB_USERNAME, config.TSDB_AWS_PASSWORD, config.TSDB_AWS_HOST, config.TSDB_PORT, config.TSDB_DATABASE)
 conn = psycopg2.connect(CONNECTION)
 cur = conn.cursor()
