@@ -1,6 +1,6 @@
 class Ticker:
 
-    def __init__(self, symbol, type):
+    def __init__(self, symbol, type, Database):
         self.symbol = symbol
         self.type = type
         self.status = "Not Initialized"
@@ -9,8 +9,12 @@ class Ticker:
         self.EMA50 = 0
         self.EMA200 = 0
 
+        #This obect will be the only one communicating with the database
+        self.DataBase = Database
+
         #Pandas Array for local data storage
         self.AM_candlesticks = []
+        self.tradeList = []
 
         self.dayVolume = 0
         self.avgVolume = 0
@@ -36,3 +40,10 @@ class Ticker:
     def getCurrentPrice(self):
         #pull current price for specific type
         print("")
+
+    def getStatus(self):
+        return self.status
+
+    def addTrade(self):
+        print("Trade recorded")
+        #function will add trade to trade list which will then be sent to database, or maybe just send the newest trade? idk

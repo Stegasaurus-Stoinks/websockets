@@ -5,10 +5,11 @@ class Algo:
     
     #unique id so find trades that have been placed by this algo
 
-    def __init__(self, ticker, name, risklevel, live):
+    def __init__(self, ticker, name, risklevel, tradeapi, live):
         self.ticker = ticker
         self.name = name
         self.risklevel = risklevel
+        self.tradeapi = tradeapi
         self.live = live
 
         self.tradeID = name + ticker.symbol + str(risklevel)
@@ -24,6 +25,7 @@ class Algo:
 
     def update(self):
         #This function will be run once the database recieves a new data point
+        #all the logic that is checked to see if you need to buy or sell should be in this function
         print("Run Algo Update Loop using data from " + self.ticker.symbol)
         print("Trades placed will have the ID: " + self.tradeID)
 
@@ -36,8 +38,10 @@ class Algo:
 
             #conditions that must be met to place a trade
             if 1:
-                trade = Trade(self.tradeID, 1.01, time)
-                print(trade.getStatus())
+                #place a trade
+                volume = 10
+                trade = Trade(self.ticker.symbol, volume, self.tradeID, 1.01, time, self.tradeapi, printInfo = True)
+                print("The trade is " + trade.getStatus())
 
     def Statistics(self):
         print("This will print all of the statistics of the algo")
@@ -47,4 +51,5 @@ class Algo:
 
     def getStatus(self):
         return(self.status)
+        #return(self.ticker.status)
 

@@ -15,9 +15,9 @@ from Algo_Functions import IsDownTrend,formatTime,Calc_EMA,plotter
 #------Config Variables------
 Live_Trading = True
 notify_channel = "amdata"
-ticker = "MSFT  "
+ticker = "MSFT"
 
-#Start_time = datetime(2021, 1, 29, 17, 40, 0)
+#Start_time = datetime(2021, 1, 29, 17, 40, 0) 
 Start_time = datetime.utcnow()
 End_time = datetime(2020, 11, 18, 18, 30, 0)
 #----------------------------
@@ -33,6 +33,15 @@ in_position = False
 
 DAY_START_TIME = Start_time.replace(hour=14, minute=30)
 DAY_END_TIME = Start_time.replace(hour=21, minute=00)
+
+BASE_URL = "https://paper-api.alpaca.markets"
+ACCOUNT_URL = "{}/v2/account".format(BASE_URL)
+ORDERS_URL = "{}/v2/orders".format(BASE_URL)
+POSITIONS_URL = "{}/v2/positions/{}".format(BASE_URL, ticker)
+HEADERS = {'APCA-API-KEY-ID': keystore.PAPER_API_KEY, 'APCA-API-SECRET-KEY': keystore.PAPER_SECRET_KEY}
+
+api = tradeapi.REST(keystore.PAPER_API_KEY, keystore.PAPER_SECRET_KEY, base_url='https://paper-api.alpaca.markets') # or use ENV Vars shown below
+
 
 CONNECTION = "postgres://{}:{}@{}:{}/{}".format(config.TSDB_USERNAME, config.TSDB_AWS_PASSWORD, config.TSDB_AWS_HOST, config.TSDB_PORT, config.TSDB_DATABASE)
 conn = psycopg2.connect(CONNECTION)
