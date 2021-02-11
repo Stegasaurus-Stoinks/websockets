@@ -1,3 +1,5 @@
+import pandas as pd 
+
 class Ticker:
 
     def __init__(self, symbol, type, Database):
@@ -9,11 +11,11 @@ class Ticker:
         self.EMA50 = 0
         self.EMA200 = 0
 
-        #This obect will be the only one communicating with the database
+        #This object will be the only one communicating with the database
         self.DataBase = Database
 
         #Pandas Array for local data storage
-        self.AM_candlesticks = []
+        self.AM_candlesticks = pd.DataFrame()
         self.tradeList = []
 
         self.dayVolume = 0
@@ -34,6 +36,8 @@ class Ticker:
 
     def warmUp(self):
         #warm up indicators and complete initial fill of data array
+
+        
         print("Warm Up " + self.symbol)
         self.status = "Initialized"
 
