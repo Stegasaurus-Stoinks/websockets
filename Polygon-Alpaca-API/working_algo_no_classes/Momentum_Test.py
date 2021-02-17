@@ -5,7 +5,7 @@ import config
 from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
 import alpaca_trade_api as tradeapi
-import keystore
+from POLYGON-ALPACA-API import keystore
 import numpy as np
 import pytz
 
