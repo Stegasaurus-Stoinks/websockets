@@ -15,6 +15,7 @@ AAPL = Ticker("AAPL", "Stock", DB)
 
 #Warmup all tickers
 AAPL.warmUp()
+AAPL.getStatus()
 
 #Initialize all algos for the day
 AAPLalgo1 = Algo(AAPL, "ThreeKings", 9, Api, live = True)
@@ -25,6 +26,7 @@ while 1:
     #DB.awaitNewData()
 
     AAPL.update()
+    AAPL.getStatus()
 
     AAPLalgo1.update()
     AAPLalgo2.update()
