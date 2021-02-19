@@ -39,7 +39,7 @@ class Ticker:
         #add to local AM_candlesticks
         self.AM_candlesticks.append(Checked_data)
 
-        self.Current_time = 
+        #self.Current_time = 
 
 
 
@@ -47,6 +47,7 @@ class Ticker:
         print("call query function for specific type")
         data = self.DataBase.QueryLast(self.symbol, 1)
         return data
+
 
 
     def checkData(self, data):
@@ -79,25 +80,25 @@ class Ticker:
 
 
 
-    def getData(self):
-        #return entire data array
-        return(self.AM_candlesticks)
-
-
-
-    def getCurrentData(self):
+    def getData(self, type = "LAST"):
         #pull current price for specific type
-        return(self.Checked_data)
+        if type == "LAST":
+            return(self.Checked_data)
+
+        if type == "HEAD":
+            return(self.AM_candlesticks.head())
+
+        if type == "FULL":
+            return(self.AM_candlesticks)
 
 
 
     def getStatus(self):
-        #print(self.AM_candlesticks.head())
+        print(self.AM_candlesticks.head())
         return self.status
         
 
 
-
     def addTrade(self):
-        print("Trade recorded")
+        print("Trade recorded - Well not really this method still need to be implemented")
         #function will add trade to trade list which will then be sent to database, or maybe just send the newest trade? idk

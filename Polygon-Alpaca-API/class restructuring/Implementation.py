@@ -23,7 +23,7 @@ AAPLalgo2 = Algo(AAPL, "MomentumEMA", 2, Api, live = True)
 
 
 while 1:
-    #DB.awaitNewData()
+    DB.awaitNewData()
 
     AAPL.update()
     AAPL.getStatus()

@@ -43,7 +43,7 @@ class Database:
                 self.conn.poll()
                 while self.conn.notifies:
                     self.notify = self.conn.notifies.pop(0)
-                    #print("Got NOTIFY, New Data Recieved!")
+                    print("Got NOTIFY, New Data Recieved!")
                     #print(notify.pid, notify.channel, notify.payload)
                     self.NewData = True
 

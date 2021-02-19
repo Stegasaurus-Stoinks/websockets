@@ -1,35 +1,141 @@
-import shrimpy
-import plotly.graph_objects as go
+import psycopg2
+import time, json, requests, csv
+from datetime import datetime
+from dateutil import tz
+from polygon import WebSocketClient, STOCKS_CLUSTER, CRYPTO_CLUSTER
+import config
+import threading
+import keystore
 
-# sign up for the Shrimpy Developer APIs for your free API keys
-shrimpy_public_key = '5c5c5f288b4d61a98780c3d25ddf71f76f51b7f47d2da41e10255b5d06b6b560'
-shrimpy_secret_key = '13c3e415e5c478123a2dfe4a2b5274a0f8d732228ea179b1cef72d36756e117ef3def0e59cc5b4cf729e1e22cf7314c8bfc09581239befdfa8711b4993f46ea8'
+tickerList = ["BTC-USD"]
+dataType = "AM."
+assetsToDownload = []
+A_candlesticks = []
+AM_candlesticks = []
+numDisconnect = 0
+current_timestamp = 0
+previous_timestamp = 0
+data_package = []
 
-# collect the historical candlestick data
-client = shrimpy.ShrimpyApiClient(shrimpy_public_key, shrimpy_secret_key)
-candles = client.get_candles(
-    'binance', # exchange
-    'LTC',         # base_trading_symbol
-    'USD',         # quote_trading_symbol
-    '1m'           # interval
-)
+#Define timezones for time stamp conversion
+from_zone = tz.gettz('UTC')
+to_zone = tz.gettz('America/New_York')
 
-dates = []
-open_data = []
-high_data = []
-low_data = []
-close_data = []
+#SQL_PATH = "INSERT INTO stockamdata(time, symbol, volume, day_volume, day_open, vwap, o, h, c, l, avg, unix) VALUES "
+#CONNECTION = "postgres://{}:{}@{}:{}/{}".format(config.TSDB_USERNAME, config.TSDB_AWS_PASSWORD, config.TSDB_AWS_HOST, config.TSDB_PORT, config.TSDB_DATABASE)
+#print(CONNECTION)
+#conn = psycopg2.connect(CONNECTION)
+#cur = conn.cursor()
 
-# format the data to match the plotting library
-for candle in candles:
-    dates.append(candle['time'])
-    open_data.append(candle['open'])
-    high_data.append(candle['high'])
-    low_data.append(candle['low'])
-    close_data.append(candle['close'])
+def my_custom_process_message(message):
 
-# plot the candlesticks
-fig = go.Figure(data=[go.Candlestick(x=dates,
-                       open=open_data, high=high_data,
-                       low=low_data, close=close_data)])
-fig.show()
+    #if utc_time.hour >= 21 or utc_time <= 5:
+    #    quit()
+
+    #print("Got Data")
+    #print(message)
+
+    data = json.loads(message)[0]
+    print(data)
+    
+        
+
+def on_close(message):
+    global numDisconnect
+    print('=================================================================================================')
+    print("Connection Closed, attempting reconnection in 1 second")
+    print(message)
+    numDisconnect = numDisconnect + 1
+    print(numDisconnect)
+    print('=================================================================================================')
+    time.sleep(0.5)
+    connect()
+
+def on_error(message):
+    print(message)
+    print("Error")
+
+def connect():
+    print("Connecting")
+    my_client = WebSocketClient(CRYPTO_CLUSTER, keystore.API_KEY, my_custom_process_message, on_close, on_error)    
+    my_client.run_async()
+    createSubcription(my_client)
+    print("===Running===")
+    
+def createSubcription(my_client):
+    size = len(tickerList)
+    tickerData = ""
+    for i in range(size):
+        tickerData = dataType+tickerList[i]
+        assetsToDownload.append(tickerData)
+        my_client.subscribe(tickerData)
+        print("Connected to {}".format(tickerData))
+
+def stockAmData(data_time, data):
+    print("stockAmData Detected")
+    
+    global current_timestamp
+    global previous_timestamp
+    global data_package
+
+    curData = (data_time,data['sym'],data['v'],data['av'],data['z'],data['vw'],data['o'],data['h'],data['c'],data['l'],data['a'],data['s'])
+
+    current_timestamp = data_time
+    #print(current_timestamp)
+    #If a new minute of data was recieved, start timeout timer and create new data array
+    if current_timestamp != previous_timestamp:
+        #print('timestamp not the same')
+        data_package = []
+        data_package.append(curData)
+        previous_timestamp = current_timestamp
+        # creates a timer that starts when a new timestamp is received
+        # waits for a few seconds before pushing data to DB if not all data was received
+        timer = threading.Timer(5.0, DBInsert, [SQL_PATH]) 
+        timer.start()          
+        
+    else:
+        #print('timestamp is the same')
+        data_package.append(curData)
+        #print(len(data_package))
+
+    if len(data_package) >= len(tickerList):
+        print('all data ready:')
+        DBInsert(SQL_PATH)
+        print('all data ready: package sent')
+        data_package = []
+    
+
+def DBInsert(sql_path):
+    if len(data_package) != 0:
+        print('send to db')
+        dataToSend = ''
+        dataToSend += sql_path
+        dataToSend += str(data_package[0])
+        iterdata = iter(data_package)
+        next(iterdata)
+        for data in iterdata:
+            dataToSend+=','
+            dataToSend+=str(data)
+            
+
+        dataToSend+=';'
+
+        #print(dataToSend)
+        try:
+            cur.execute(dataToSend)
+            print('data sent')
+
+        except (Exception, psycopg2.Error) as error:
+            print(error.pgerror)
+
+        conn.commit()
+
+
+def main():
+    connect()
+
+    
+
+if __name__ == "__main__":
+    main()
+    
