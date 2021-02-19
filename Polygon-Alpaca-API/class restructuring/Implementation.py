@@ -28,6 +28,6 @@ while 1:
     AAPL.update()
     AAPL.getStatus()
 
-    AAPLalgo1.update()
-    AAPLalgo2.update()
-    quit()
+    #AAPLalgo1.update()
+    #AAPLalgo2.update()
+    #quit()

@@ -37,7 +37,7 @@ class Database:
         #loop here until conn.poll() recieves a non empty message
         while (self.NewData == False):
             #print("NewData is", NewData)
-            if select.select([self.conn],[],[],10) == ([],[],[]):
+            if select.select([self.conn],[],[],40) == ([],[],[]):
                 print("Waiting for notifications on channel " + self.notify_channel)
             else:
                 self.conn.poll()

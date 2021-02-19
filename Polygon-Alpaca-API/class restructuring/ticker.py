@@ -36,8 +36,14 @@ class Ticker:
 
         data = self.queryNewData()
         self.Checked_data = self.checkData(data)
+        print(self.Checked_data[0])
+
+        series = pd.Series(self.Checked_data[0][1:], index = self.AM_candlesticks.columns, name=self.Checked_data[0][0])
+
+        self.AM_candlesticks = self.AM_candlesticks.append(series)
+        self.AM_candlesticks = self.AM_candlesticks.sort_index(ascending=False)
         #add to local AM_candlesticks
-        self.AM_candlesticks.append(Checked_data)
+        #self.AM_candlesticks.append(self.Checked_data)
 
         #self.Current_time = 
 
@@ -83,7 +89,7 @@ class Ticker:
     def getData(self, type = "LAST"):
         #pull current price for specific type
         if type == "LAST":
-            return(self.Checked_data)
+            return(self.Checked_data[0])
 
         if type == "HEAD":
             return(self.AM_candlesticks.head())
@@ -95,6 +101,7 @@ class Ticker:
 
     def getStatus(self):
         print(self.AM_candlesticks.head())
+        print(self.AM_candlesticks.tail())
         return self.status
         
 
