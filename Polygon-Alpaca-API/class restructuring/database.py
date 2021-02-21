@@ -6,15 +6,16 @@ import config
 
 class Database:
 
-    def __init__(self, notify_channel = "amdata"):
+    def __init__(self, BackTest, notify_channel = "amdata"):
         self.notify_channel = notify_channel
         CONNECTION = "postgres://{}:{}@{}:{}/{}".format(config.TSDB_USERNAME, config.TSDB_AWS_PASSWORD, config.TSDB_AWS_HOST, config.TSDB_PORT, config.TSDB_DATABASE)
         self.conn = psycopg2.connect(CONNECTION)
         self.cur = self.conn.cursor()
+        self.BackTest = BackTest
 
         self.setupNotify()
-        
 
+        
 
     def setupNotify(self):
         self.cur.execute("LISTEN " + self.notify_channel)
@@ -32,18 +33,23 @@ class Database:
 
 
     def awaitNewData(self):
+
         self.NewData = False
 
         #loop here until conn.poll() recieves a non empty message
         while (self.NewData == False):
-            #print("NewData is", NewData)
-            if select.select([self.conn],[],[],10) == ([],[],[]):
+            #print("NewData is", self.NewData)
+            if self.BackTest:
+                self.NewData = True
+                return()
+
+            if select.select([self.conn],[],[],40) == ([],[],[]):
                 print("Waiting for notifications on channel " + self.notify_channel)
             else:
                 self.conn.poll()
                 while self.conn.notifies:
                     self.notify = self.conn.notifies.pop(0)
-                    #print("Got NOTIFY, New Data Recieved!")
+                    print("Got NOTIFY, New Data Recieved!")
                     #print(notify.pid, notify.channel, notify.payload)
                     self.NewData = True
 
