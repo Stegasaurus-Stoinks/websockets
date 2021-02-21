@@ -1,5 +1,6 @@
 import pandas as pd 
 from datetime import datetime, timedelta
+import time
 
 class Ticker:
 
@@ -8,6 +9,16 @@ class Ticker:
         self.type = type
         self.status = "Not Initialized"
         
+        #local array size
+        self.ArraySize = 50
+        #backtest length minus the local array size
+        self.length = 500
+        #iteration to keep track of backtest
+        self.iteration = 0
+        #for timing the backtest
+        self.start_time = 0
+        self.end_time = 0
+
         #idk if these are gonna be calculated here yet
         self.EMA10 = 0
         self.EMA20 = 0
@@ -31,21 +42,36 @@ class Ticker:
 
     #main update function
     def update(self):
+        """Call this Function to update the local data array with new data from database or backtest data"""
         #print("Update the local data array")
         self.Last_time = self.Current_time
 
-        data = self.queryNewData()
-        self.Checked_data = self.checkData(data)
-        print(self.Checked_data[0])
 
-        series = pd.Series(self.Checked_data[0][1:], index = self.AM_candlesticks.columns, name=self.Checked_data[0][0])
+        #Update for BACKTEST Data
+        if self.DataBase.BackTest:
+            if self.start_time == 0:
+                self.start_time = time.time()
 
-        self.AM_candlesticks = self.AM_candlesticks.append(series)
-        self.AM_candlesticks = self.AM_candlesticks.sort_index(ascending=False)
-        #add to local AM_candlesticks
-        #self.AM_candlesticks.append(self.Checked_data)
+            self.iteration += 1
+            #print("Update local array with backtest data")
+            self.AM_candlesticks = self.BackTestAM_candlesticks.iloc[self.length-self.ArraySize-self.iteration:self.length-1-self.iteration]
+            if self.iteration >= self.length-self.ArraySize:
+                self.end_time = time.time()
+                print("Backtesting Complete!")
+                print("Backtesting " + str(self.length-self.ArraySize) + " points took " + str(self.end_time-self.start_time) + " seconds")
+                quit()
 
-        #self.Current_time = 
+
+        #Update for LIVE Data
+        else:
+            data = self.queryNewData()
+            self.Checked_data = self.checkData(data)
+            print(self.Checked_data[0])
+
+            series = pd.Series(self.Checked_data[0][1:], index = self.AM_candlesticks.columns, name=self.Checked_data[0][0])
+
+            self.AM_candlesticks = self.AM_candlesticks.append(series)
+            self.AM_candlesticks = self.AM_candlesticks.sort_index(ascending=False)
 
 
 
@@ -74,13 +100,28 @@ class Ticker:
         #warm up indicators and complete initial fill of data array
         print("Warm Up " + self.symbol)
 
-        data = self.DataBase.QueryLast(self.symbol, 50)
-        #Pandas Array for local data storage
-        self.AM_candlesticks = pd.DataFrame(data)
-        self.AM_candlesticks.columns = ['time','symbol','volume','day_volume','day_open','vwap','open','high','close','low','avg','unix']
-        self.AM_candlesticks['datetime'] = pd.to_datetime(self.AM_candlesticks['time'])
-        self.AM_candlesticks = self.AM_candlesticks.set_index('datetime')
-        self.AM_candlesticks.drop(['time'], axis=1, inplace=True)
+        #Update for BACKTEST Data
+        if self.DataBase.BackTest:
+            #length of backtest
+            data = self.DataBase.QueryLast(self.symbol, self.length)
+            self.BackTestAM_candlesticks = pd.DataFrame(data)
+            self.BackTestAM_candlesticks.columns = ['time','symbol','volume','day_volume','day_open','vwap','open','high','close','low','avg','unix']
+            self.BackTestAM_candlesticks['datetime'] = pd.to_datetime(self.BackTestAM_candlesticks['time'])
+            self.BackTestAM_candlesticks = self.BackTestAM_candlesticks.set_index('datetime')
+            self.BackTestAM_candlesticks.drop(['time'], axis=1, inplace=True)
+
+            self.AM_candlesticks = self.BackTestAM_candlesticks.iloc[self.length-self.ArraySize:self.length-1]
+
+        #Update for LIVE Data
+        else:
+            data = self.DataBase.QueryLast(self.symbol, self.ArraySize)
+            #Pandas Array for local data storage
+            self.AM_candlesticks = pd.DataFrame(data)
+            self.AM_candlesticks.columns = ['time','symbol','volume','day_volume','day_open','vwap','open','high','close','low','avg','unix']
+            self.AM_candlesticks['datetime'] = pd.to_datetime(self.AM_candlesticks['time'])
+            self.AM_candlesticks = self.AM_candlesticks.set_index('datetime')
+            self.AM_candlesticks.drop(['time'], axis=1, inplace=True)
+
 
         self.status = "Initialized"
 
@@ -100,8 +141,8 @@ class Ticker:
 
 
     def getStatus(self):
-        print(self.AM_candlesticks.head())
-        print(self.AM_candlesticks.tail())
+        print(self.symbol + " is @ " + str(self.AM_candlesticks.iloc[0]['close']))
+        #print(self.AM_candlesticks.tail())
         return self.status
         
 

@@ -39,10 +39,10 @@ class Trade:
         #call funtion to close order through api
         
         if self.volume > 0:
-            alpacaAPI.SimpleBuy(self.symbol, self.volume)
+            self.tradeapi.SimpleBuy(self.symbol, self.volume)
 
         if self.volume < 0:
-            alpacaAPI.SimpleSell(self.symbol, self.volume)
+            self.tradeapi.SimpleSell(self.symbol, self.volume)
 
         self.status = "Closed"
 
