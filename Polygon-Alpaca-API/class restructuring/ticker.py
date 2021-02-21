@@ -128,7 +128,13 @@ class Ticker:
 
 
     def getData(self, type = "LAST"):
-        #pull current price for specific type
+        """
+        Pull current price for asset
+        3 Options for type
+        - LAST - Returns the single most recent data point (Default)
+        - HEAD - Returns the last 5 data points
+        - FULL - Returns the entire data array
+        """
         if type == "LAST":
             return(self.Checked_data[0])
 
