@@ -23,23 +23,18 @@ AAPL.warmUp()
 AAPL.getStatus()
 
 #Initialize all algos for the day
-AAPLalgo1 = Algo(AAPL, "ThreeKings", 9, Api, live = True)
-AAPLalgo2 = Algo(AAPL, "MomentumEMA", 2, Api, live = True)
-
-plot = LiveChartEnv("1min", 50)
-plot.initialize_chart()
+AAPLalgo1 = Algo(AAPL, "ThreeKings", 9, Api, live = False)
+AAPLalgo2 = Algo(AAPL, "MomentumEMA", 2, Api, live = False, plotting = True)
 
 while 1:
     DB.awaitNewData()
 
     AAPL.update()
     AAPL.getStatus()
-
-    plot.update_chart(AAPL.getData("FULL"))
     
     #time.sleep(0.01)
 
     #AAPLalgo1.update()
-    #AAPLalgo2.update()
+    AAPLalgo2.update()
     
     #quit()
