@@ -136,7 +136,7 @@ class Ticker:
         - FULL - Returns the entire data array
         """
         if type == "LAST":
-            return(self.Checked_data[0])
+            return(self.AM_candlesticks.iloc[0])
 
         if type == "HEAD":
             return(self.AM_candlesticks.head())
@@ -147,7 +147,7 @@ class Ticker:
 
 
     def getStatus(self):
-        print(self.symbol + " is @ " + str(self.AM_candlesticks.iloc[0]['close']))
+        #print(self.symbol + " is @ " + str(self.AM_candlesticks.iloc[0]['close']))
         #print(self.AM_candlesticks.tail())
         return self.status
         

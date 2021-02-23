@@ -24,7 +24,7 @@ class Trade:
         if self.volume < 0:
             self.tradeapi.SimpleSell(self.symbol, self.volume)
 
-        self.status = "Open"
+        self.status = True
 
         #print to console trade placement info if asked for it
         if self.printInfo:
@@ -44,12 +44,12 @@ class Trade:
         if self.volume < 0:
             self.tradeapi.SimpleSell(self.symbol, self.volume)
 
-        self.status = "Closed"
+        self.status = False
 
         if self.printInfo:
             print("Opened a Postion! Bought " + str(self.volume) + " of " + self.symbol + " Trade ID: " + self.ID)
 
 
-
-    def getStatus(self):
+    #return true or false whether we are in position or not
+    def inPosition(self):
         return(self.status)
