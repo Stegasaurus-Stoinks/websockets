@@ -41,7 +41,7 @@ class Algo:
                 #place a trade
                 volume = 10
                 trade = Trade(self.ticker.symbol, volume, self.tradeID, 1.01, time, self.tradeapi, printInfo = True)
-                print("The trade is " + trade.getStatus())
+                print("Trade in position?: " + trade.inPosition())
 
     def Statistics(self):
         print("This will print all of the statistics of the algo")

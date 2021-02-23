@@ -10,11 +10,11 @@ class Trade:
         self.openTime = openTime
         self.tradeapi = tradeapi
         self.printInfo = printInfo
-        self.openPostion()
+        self.openPosition()
         
 
 
-    def openPostion(self):
+    def openPosition(self):
         #call funtion to open order through api
 
         #check if short or long position
@@ -32,7 +32,7 @@ class Trade:
 
 
 
-    def closePostion(self, closePrice, closeTime):
+    def closePosition(self, closePrice, closeTime):
         self.closePrice = closePrice
         self.closeTime = closeTime
 

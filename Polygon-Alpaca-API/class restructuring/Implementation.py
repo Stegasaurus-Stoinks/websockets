@@ -24,9 +24,9 @@ AAPL.warmUp()
 AAPL.getStatus()
 
 #Initialize all algos for the day
-AAPLalgo1 = Algo(AAPL, "ThreeKings", 9, api, live = True)
-AAPLalgo2 = Algo(AAPL, "MomentumEMA", 2, api, live = True)
-momentum1 = MomentumAlgo(AAPL, 2, api)
+#AAPLalgo1 = Algo(AAPL, "ThreeKings", 9, api, live = True)
+#AAPLalgo2 = Algo(AAPL, "MomentumEMA", 2, api, live = True)
+momentum1 = MomentumAlgo(AAPL, "testy", 2, api)
 
 #plot = LiveChartEnv("1min", 50)
 #plot.initialize_chart()
