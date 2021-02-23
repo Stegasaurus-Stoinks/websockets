@@ -23,7 +23,9 @@ class Algo:
         self.status = "Initialized"
 
         #array for extra plot data
-        self.test = [np.NaN] * 49
+        self.test = []
+        self.test1 = [np.NaN] * 49
+        self.test2 = [np.NaN] * 49
         #print(self.test)
 
         #initialize plot if plot variable is true
@@ -43,10 +45,18 @@ class Algo:
         #print("Run Algo Update Loop using data from " + self.ticker.symbol)
         #print("Trades placed will have the ID: " + self.tradeID)
 
-        #creating df for extra plot data for plotter 
-        self.test.append(130)
-        if len(self.test) >= 49:
-            self.test.pop(0)
+        #creating df for extra plot data for plotter
+
+        avg1 = self.ticker.getData("FULL")['close'].mean()
+        avg2 = self.ticker.getData("FULL")[0:20]['close'].mean()  
+        self.test1.append(avg1)
+        self.test2.append(avg2)
+        if len(self.test1) >= 49:
+            self.test1.pop(0)
+        if len(self.test2) >= 49:
+            self.test2.pop(0)
+
+        self.test = [self.test1,self.test2]
 
         if(self.inPosition):
             self.status = "In a Position. ID: " + self.tradeID

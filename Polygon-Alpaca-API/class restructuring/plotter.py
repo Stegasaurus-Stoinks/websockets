@@ -36,15 +36,16 @@ class LiveChartEnv:
                             candle_data["low"][candle], \
                             candle_data["close"][candle]
                 ohlc.append(append_me)
-
+            extraPlots = []
             if extraData:
-                extraPlot = mpf.make_addplot(extraData, ax=self.ax1)
+                for array in extraData:
+                    extraPlots.append(mpf.make_addplot(array, ax=self.ax1))
 
 
             self.ax1.clear() # - Clear the chart
             self.ax2.clear()
             #candlestick_ohlc(self.ax, ohlc, width=0.4, colorup='#075105', colordown='#AF141A')
-            mpf.plot(candle_data, addplot=extraPlot, ax=self.ax1, volume=self.ax2)
+            mpf.plot(candle_data, addplot=extraPlots, ax=self.ax1, volume=self.ax2)
             
             #for label in self.ax.xaxis.get_ticklabels():
             #    label.set_rotation(45)
