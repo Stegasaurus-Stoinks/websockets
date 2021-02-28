@@ -16,8 +16,8 @@ class Ticker:
         #iteration to keep track of backtest
         self.iteration = 0
         #for timing the backtest
-        self.start_time = 0
-        self.end_time = 0
+        self.exe_start_time = 0
+        self.exe_end_time = 0
 
         #idk if these are gonna be calculated here yet
         self.EMA10 = 0
@@ -36,6 +36,12 @@ class Ticker:
         self.Current_time = datetime(2020, 11, 18, 18, 30, 0)
         self.Last_time = datetime(2020, 11, 18, 18, 30, 0)
 
+        #Start and End times of normal market hours
+        self.DAY_START_TIME = datetime(2020, 11, 18, 18, 30, 0)
+        self.DAY_END_TIME = datetime(2020, 11, 18, 18, 30, 0)
+
+        self.validTradingHours = False
+
         self.Data_errors = 0
 
 
@@ -49,16 +55,16 @@ class Ticker:
 
         #Update for BACKTEST Data
         if self.DataBase.BackTest:
-            if self.start_time == 0:
-                self.start_time = time.time()
+            if self.exe_start_time == 0:
+                self.exe_start_time = time.time()
 
             self.iteration += 1
             #print("Update local array with backtest data")
             self.AM_candlesticks = self.BackTestAM_candlesticks.iloc[self.length-self.ArraySize-self.iteration:self.length-1-self.iteration]
             if self.iteration >= self.length-self.ArraySize:
-                self.end_time = time.time()
+                self.exe_end_time = time.time()
                 print("Backtesting Complete!")
-                print("Backtesting " + str(self.length-self.ArraySize) + " points took " + str(self.end_time-self.start_time) + " seconds")
+                print("Backtesting " + str(self.length-self.ArraySize) + " points took " + str(self.exe_end_time-self.exe_start_time) + " seconds")
                 quit()
 
 
@@ -74,6 +80,16 @@ class Ticker:
             self.AM_candlesticks = self.AM_candlesticks.sort_index(ascending=False)
 
 
+        #check valid trading hours
+        self.Current_time = self.AM_candlesticks.index[0]
+        if (self.Current_time < self.DAY_END_TIME) and (self.Current_time > self.DAY_START_TIME):
+            self.validTradingHours = True
+
+        else:
+            self.validTradingHours = False
+
+
+
 
     def queryNewData(self):
         print("call query function for specific type")
@@ -84,7 +100,9 @@ class Ticker:
 
     def checkData(self, data):
         print("check to make sure the new point is actually differnt from the last")
-        if 1: #Check if new timestamp is not equal to last time
+        self.Current_time = data.index
+        if self.Last_time != self.Current_time: #Check if new timestamp is not equal to last time
+            print("date time stamp not same")
             return(data)
 
         else:
@@ -123,6 +141,11 @@ class Ticker:
             self.AM_candlesticks.drop(['time'], axis=1, inplace=True)
 
 
+        #Define the valid trading hours based on the first dataset pulled in
+        self.Current_time = self.AM_candlesticks.index[0]
+        self.DAY_START_TIME = self.Current_time.replace(hour=14, minute=30)
+        self.DAY_END_TIME = self.Current_time.replace(hour=21, minute=00)
+
         self.status = "Initialized"
 
 
@@ -147,8 +170,8 @@ class Ticker:
 
 
     def getStatus(self):
-        #print(self.symbol + " is @ " + str(self.AM_candlesticks.iloc[0]['close']))
-        #print(self.AM_candlesticks.tail())
+        print(self.symbol + " is @ " + str(self.AM_candlesticks.iloc[0]['close']))
+        #print(self.AM_candlesticks.head(1))
         return self.status
         
 

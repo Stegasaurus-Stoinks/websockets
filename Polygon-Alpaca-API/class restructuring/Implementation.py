@@ -1,4 +1,5 @@
-from algo import Algo
+from algo_SMA import Algo as AlgoSMA
+from algo_Trendlines import Algo as AlgoTrendlines
 from ticker import Ticker
 from database import Database
 from tradeApi import TradeApi
@@ -30,6 +31,8 @@ momentum1 = MomentumAlgo(AAPL, "testy", 2, api)
 
 #plot = LiveChartEnv("1min", 50)
 #plot.initialize_chart()
+AAPLalgo1 = AlgoSMA(AAPL, "ThreeKings", 9, Api, live = False, plotting = False)
+AAPLalgo2 = AlgoTrendlines(AAPL, "MomentumEMA", 2, Api, live = False, plotting = True)
 
 while 1:
 
@@ -47,5 +50,10 @@ while 1:
     momentum1.update()
     #AAPLalgo1.update()
     #AAPLalgo2.update()
+    
+    #time.sleep(0.01)
+
+    AAPLalgo1.update()
+    AAPLalgo2.update()
     
     #quit()
