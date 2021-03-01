@@ -25,14 +25,10 @@ AAPL.warmUp()
 AAPL.getStatus()
 
 #Initialize all algos for the day
-#AAPLalgo1 = Algo(AAPL, "ThreeKings", 9, api, live = True)
-#AAPLalgo2 = Algo(AAPL, "MomentumEMA", 2, api, live = True)
-momentum1 = MomentumAlgo(AAPL, "testy", 2, api)
+#momentum1 = MomentumAlgo(AAPL, "testy", 2, api)
 
-#plot = LiveChartEnv("1min", 50)
-#plot.initialize_chart()
-AAPLalgo1 = AlgoSMA(AAPL, "ThreeKings", 9, Api, live = False, plotting = False)
-AAPLalgo2 = AlgoTrendlines(AAPL, "MomentumEMA", 2, Api, live = False, plotting = True)
+AAPLalgo1 = AlgoSMA(AAPL, "ThreeKings", 9, api, live = False, plotting = False)
+AAPLalgo2 = AlgoTrendlines(AAPL, "MomentumEMA", 2, api, live = False, plotting = True)
 
 while 1:
 
@@ -42,16 +38,10 @@ while 1:
 
     AAPL.update()
     AAPL.getStatus()
-
-    #plot.update_chart(AAPL.getData("FULL"))
     
     #time.sleep(0.01)
 
-    momentum1.update()
-    #AAPLalgo1.update()
-    #AAPLalgo2.update()
-    
-    #time.sleep(0.01)
+    #momentum1.update()
 
     AAPLalgo1.update()
     AAPLalgo2.update()
