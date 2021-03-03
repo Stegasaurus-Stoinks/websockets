@@ -9,14 +9,13 @@ class Algo:
     
     #unique id so find trades that have been placed by this algo
 
-    def __init__(self, ticker, name, risklevel, tradeapi, live, plotting = False, plotSize = 50):
+    def __init__(self, ticker, name, risklevel, tradeapi, live, plotting = False):
         self.ticker = ticker
         self.name = name
         self.risklevel = risklevel
         self.tradeapi = tradeapi
         self.live = live
         self.plotting = plotting
-        self.plotSize = plotSize
 
         self.tradeID = name + ticker.symbol + str(risklevel)
         self.type = ticker.type
@@ -25,7 +24,7 @@ class Algo:
 
         #array for extra plot data
         self.test = []
-        self.test1 = [np.NaN] * self.plotSize
+        self.test1 = [np.NaN] * 49
 
         #initialize plot if plot variable is true
         if(self.plotting):
@@ -57,13 +56,13 @@ class Algo:
             #print('NRMSE: ' + str(nrmse))
 
             test2 = [coefficients[0]*x + coefficients[1] for x in range(len(selected))]
-            while len(test2) < self.plotSize:
+            while len(test2) < 49:
                 test2.append(np.NaN)
 
             test2.reverse()
 
             #Ensure that all the arrays are the same size before sending them to the plotter
-            if len(self.test1) > self.plotSize:
+            if len(self.test1) > 49:
                 self.test1.pop(0)
 
             self.test = [self.test1, test2]

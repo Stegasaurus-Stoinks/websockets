@@ -33,14 +33,10 @@ class Algo:
         #Initialize extra plot data arrays
         self.test1 = [np.NaN] * self.plotSize
         self.test2 = [np.NaN] * self.plotSize
-        self.test3 = [np.NaN] * self.plotSize
-        self.test4 = [np.NaN] * self.plotSize
-        self.entry = [np.NaN] * self.plotSize
-        self.exit = [np.NaN] * self.plotSize
         #array for all extra plot data
-        self.extraPlots = [self.test1, self.test2, self.test3, self.test4, self.exit, self.entry]
+        self.extraPlots = [self.test1, self.test2]
         #style for extra plot data
-        self.style = [['line','dashdot'],['line','dashdot'],['scatter','up'],['scatter','down'],['line','normal'],['line','normal']]
+        self.style = [['line','normal'],['line','normal']]
 
         #-----------STATS------------
         self.goodTrades = 0
@@ -63,57 +59,35 @@ class Algo:
         if self.ticker.validTradingHours == True:
 
             current_data = self.ticker.getData()
+            AM_candlesticks = self.ticker.getData("FULL")
             #--------------------------------------------------------
             #----------|---Trading Logic Goes Below---|--------------
             #----------v------------------------------v--------------
 
-            #SMA calcs
-            avg1 = self.ticker.getData("FULL")[0:50]['close'].mean()
-            avg2 = self.ticker.getData("FULL")[0:20]['close'].mean()
+            selected = AM_candlesticks[0:10]['close']
+            coefficients, residuals, _, _, _ = np.polyfit(range(len(selected.index)),selected,1,full=True)
+            mse = residuals[0]/(len(selected.index))
+            nrmse = np.sqrt(mse)/(selected.max() - selected.min())
+            #print('Slope ' + str(coefficients[0]))
+            #print('NRMSE: ' + str(nrmse))
+            temp = [coefficients[0]*x + coefficients[1] for x in range(len(selected))]
+            for i in range (0,len(temp)):
+                self.test2[self.plotSize - 1 - i] = temp[i]
 
-            self.test1.append(avg1)
-            self.test2.append(avg2)
-
-            #SMA Crossing Logic
-            if avg1 > avg2 and self.highest != 1:
-                num = current_data['close']*1.001
-                self.test4.append(num)
-                self.highest = 1
-                self.entry = [current_data['close']] * self.plotSize
-                self.inPosition = True 
-
-            else:
-                self.test4.append(np.NaN)
-
-            if avg2 > avg1 and self.highest != 2:
-                num = current_data['close']*0.999
-                self.test3.append(num)
-                self.highest = 2
-                self.entry = [current_data['close']] * self.plotSize
-                self.inPosition = True
-
-            else:
-                self.test3.append(np.NaN) 
-
-            #Set Exit Price based on if its an up or down trade (both set to same at the moment..)
-            if self.inPosition == True:
-                if self.highest == 1:
-                    self.exit = [current_data['close']] * self.plotSize
-
-                if self.highest == 2:
-                    self.exit = [current_data['close']] * self.plotSize
+            if(self.inPosition):
+                self.status = "In a Position. ID: " + self.tradeID
 
             else:
                 self.status = "Running"
-                time = datetime.now()
 
                 #conditions that must be met to place a trade
                 if 1:
                     #place a trade
                     volume = 10
-                    trade = Trade(self.ticker.symbol, volume, self.tradeID, 1.01, time, self.tradeapi, printInfo = True)
+                    trade = Trade(self.ticker.symbol, volume, self.tradeID, 1.01, self.ticker.AM_candlesticks.index[0], self.tradeapi, printInfo = True)
                     print("The trade is " + trade.getStatus())
                     self.inPosition = True
+
 
             #----------^------------------------------^--------------
             #----------|---Trading Logic Goes Above---|--------------
@@ -160,12 +134,8 @@ class Algo:
                 if len(array) < self.plotSize:
                     array.append(np.NaN)
 
-            if(self.inPosition):
-                self.status = "In a Position. ID: " + self.tradeID
-
             #update plot if plotting is true
             if self.plotting:
-                
                 self.plot.update_chart(self.ticker.getData("FULL")[0:self.plotSize], self.extraPlots, self.style)
                 
 
