@@ -2,6 +2,7 @@ from trade import Trade
 from datetime import datetime
 from plotter import LiveChartEnv
 
+
 import pandas as pd
 import numpy as np
 
@@ -9,13 +10,14 @@ class Algo:
     
     #unique id so find trades that have been placed by this algo
 
-    def __init__(self, ticker, name, risklevel, tradeapi, live, plotting = False):
+    def __init__(self, ticker, name, risklevel, tradeapi, live, plotting = False, plotSize = 50):
         self.ticker = ticker
         self.name = name
         self.risklevel = risklevel
         self.tradeapi = tradeapi
         self.live = live
         self.plotting = plotting
+        self.plotSize = plotSize
 
         self.tradeID = name + ticker.symbol + str(risklevel)
         self.type = ticker.type
@@ -26,12 +28,13 @@ class Algo:
         self.stoploss = 0
 
         #array for extra plot data
-        self.test = []
-        self.test1 = [np.NaN] * 49
-        self.test2 = [np.NaN] * 49
-        self.test3 = [np.NaN] * 49
-        self.entry = [np.NaN] * 49
-        self.exit = [np.NaN] * 49
+        self.extraPlots = []
+        self.test1 = [np.NaN] * self.plotSize
+        self.test2 = [np.NaN] * self.plotSize
+        self.test3 = [np.NaN] * self.plotSize
+        self.test4 = [np.NaN] * self.plotSize
+        self.entry = [np.NaN] * self.plotSize
+        self.exit = [np.NaN] * self.plotSize
         #print(self.test)
 
         #initialize plot if plot variable is true
@@ -55,7 +58,7 @@ class Algo:
             current_data = self.ticker.getData()
 
             #SMA calcs
-            avg1 = self.ticker.getData("FULL")['close'].mean()
+            avg1 = self.ticker.getData("FULL")[0:50]['close'].mean()
             avg2 = self.ticker.getData("FULL")[0:20]['close'].mean()
 
             self.test1.append(avg1)
@@ -64,44 +67,49 @@ class Algo:
             #SMA Crossing Logic
             if avg1 > avg2 and self.highest != 1:
                 num = current_data['close']*1.001
-                self.test3.append(num)
+                self.test4.append(num)
                 self.highest = 1
-                self.entry = [current_data['close']] * 49
+                self.entry = [current_data['close']] * self.plotSize
                 self.inPosition = True 
+
+            else:
+                self.test4.append(np.NaN)
 
             if avg2 > avg1 and self.highest != 2:
                 num = current_data['close']*0.999
                 self.test3.append(num)
                 self.highest = 2
-                self.entry = [current_data['close']] * 49
-                self.inPosition = True 
+                self.entry = [current_data['close']] * self.plotSize
+                self.inPosition = True
 
-            if len(self.test3) == 49:
-                #print("else")
-                self.test3.append(np.NaN)
+            else:
+                self.test3.append(np.NaN) 
 
             #Set Exit Price based on if its an up or down trade (both set to same at the moment..)
             if self.inPosition == True:
                 if self.highest == 1:
-                    self.exit = [current_data['close']] * 49
+                    self.exit = [current_data['close']] * self.plotSize
 
                 if self.highest == 2:
-                    self.exit = [current_data['close']] * 49
+                    self.exit = [current_data['close']] * self.plotSize
 
 
             #Ensure that all the arrays are the same size before sending them to the plotter
-            if len(self.test1) > 49:
+            if len(self.test1) > self.plotSize:
                 self.test1.pop(0)
-            if len(self.test2) > 49:
+            if len(self.test2) > self.plotSize:
                 self.test2.pop(0)
-            if len(self.test3) > 49:
+            if len(self.test3) > self.plotSize:
                 self.test3.pop(0)
-            if len(self.entry) > 49:
+            if len(self.test4) > self.plotSize:
+                self.test4.pop(0)
+            if len(self.entry) > self.plotSize:
                 self.entry.pop(0)
-            if len(self.exit) > 49:
+            if len(self.exit) > self.plotSize:
                 self.exit.pop(0)
 
-            self.test = [self.test1,self.test2,self.test3, self.entry, self.exit]
+            self.test = [self.test1,self.test2,self.test3, self.test4, self.entry, self.exit]
+            style = [['line','dashdot'],['line','dashdot'],['scatter','up'],['scatter','down'],['line','normal'],['line','normal']]
 
             if(self.inPosition):
                 self.status = "In a Position. ID: " + self.tradeID
@@ -120,14 +128,16 @@ class Algo:
 
             #update plot if plot is true
             if self.plotting:
-                self.plot.update_chart(self.ticker.getData("FULL"), self.test)
+                
+                self.plot.update_chart(self.ticker.getData("FULL")[0:self.plotSize], self.test, style)
+                
 
 
         #if not valid Trading hours...
         else:
             if self.plotting:
                 #update just the candles on the chart
-                self.plot.update_chart(self.ticker.getData("FULL"))
+                self.plot.update_chart(self.ticker.getData("FULL")[0:self.plotSize])
 
 
 
