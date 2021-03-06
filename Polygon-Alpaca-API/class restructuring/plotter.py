@@ -44,6 +44,8 @@ class LiveChartEnv:
                             extraPlots.append(mpf.make_addplot(extraData[i],type='scatter',markersize=200,marker='^', ax=self.ax1))
                         if style[i][1] == 'down':
                             extraPlots.append(mpf.make_addplot(extraData[i],type='scatter',markersize=200,marker='v', ax=self.ax1))
+                        if style[i][1] == 'normal':
+                            extraPlots.append(mpf.make_addplot(extraData[i],type='scatter',markersize=200, ax=self.ax1))
 
                     if style[i][0] == 'line':
                         if style[i][1] == 'normal':

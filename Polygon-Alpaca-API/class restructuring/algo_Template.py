@@ -6,6 +6,12 @@ from plotter import LiveChartEnv
 import pandas as pd
 import numpy as np
 
+"""
+This file was made as a template to create other algos,  The plotting method should work...
+In order to add extra data to the plots you need to append or replace the values in teh arrays that are
+initialized at the top.  It works with object pointers so if you create a new array object it will not 
+work properly.  Styling options are limited rn. Check the plotter function for styling details.
+"""
 class Algo:
     
     #unique id so find trades that have been placed by this algo
@@ -26,16 +32,18 @@ class Algo:
 
 
         #---------Algo Sepcific Variables--------
-        self.highest = 0
-        self.stoploss = 0
+
+
         #----------------------------------------
 
         #Initialize extra plot data arrays
         self.test1 = [np.NaN] * self.plotSize
         self.test2 = [np.NaN] * self.plotSize
-        #array for all extra plot data
+
+        #Array for all extra plot data
         self.extraPlots = [self.test1, self.test2]
-        #style for extra plot data
+
+        #Styling for extra plot data
         self.style = [['line','normal'],['line','normal']]
 
         #-----------STATS------------
@@ -60,33 +68,10 @@ class Algo:
 
             current_data = self.ticker.getData()
             AM_candlesticks = self.ticker.getData("FULL")
+
             #--------------------------------------------------------
             #----------|---Trading Logic Goes Below---|--------------
             #----------v------------------------------v--------------
-
-            selected = AM_candlesticks[0:10]['close']
-            coefficients, residuals, _, _, _ = np.polyfit(range(len(selected.index)),selected,1,full=True)
-            mse = residuals[0]/(len(selected.index))
-            nrmse = np.sqrt(mse)/(selected.max() - selected.min())
-            #print('Slope ' + str(coefficients[0]))
-            #print('NRMSE: ' + str(nrmse))
-            temp = [coefficients[0]*x + coefficients[1] for x in range(len(selected))]
-            for i in range (0,len(temp)):
-                self.test2[self.plotSize - 1 - i] = temp[i]
-
-            if(self.inPosition):
-                self.status = "In a Position. ID: " + self.tradeID
-
-            else:
-                self.status = "Running"
-
-                #conditions that must be met to place a trade
-                if 1:
-                    #place a trade
-                    volume = 10
-                    trade = Trade(self.ticker.symbol, volume, self.tradeID, 1.01, self.ticker.AM_candlesticks.index[0], self.tradeapi, printInfo = True)
-                    print("The trade is " + trade.getStatus())
-                    self.inPosition = True
 
 
             #----------^------------------------------^--------------
