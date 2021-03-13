@@ -37,12 +37,13 @@ class Algo:
         self.mins = [np.NaN] * self.plotSize
         self.maxs = [np.NaN] * self.plotSize
         self.test3 = [np.NaN] * self.plotSize
+        self.test4 = [np.NaN] * self.plotSize
 
         #Array for all extra plot data
-        self.extraPlots = [self.test1, self.test2, self.mins, self.maxs, self.test3]
+        self.extraPlots = [self.test1, self.test2, self.mins, self.maxs, self.test3, self.test4]
 
         #Styling for extra plot data
-        self.style = [['line','normal'],['line','normal'],['scatter','up'],['scatter','down'],['line','normal']]
+        self.style = [['line','normal'],['line','normal'],['scatter','up'],['scatter','down'],['line','normal'],['line','normal']]
 
         #-----------STATS------------
         self.goodTrades = 0
@@ -95,8 +96,9 @@ class Algo:
 
 
             #Calculating mins and maxs
-            ilocs_min = argrelextrema(AM_candlesticks.close.values, np.less_equal, order=3)[0]
-            ilocs_max = argrelextrema(AM_candlesticks.close.values, np.greater_equal, order=3)[0]
+            n = 2 #Adjust this to add more or less mins and maxs (2 was the best one I found for short term)
+            ilocs_min = argrelextrema(AM_candlesticks.close.values, np.less_equal, order=n)[0]
+            ilocs_max = argrelextrema(AM_candlesticks.close.values, np.greater_equal, order=n)[0]
 
             #Clear array without reinitializing... Need to find a better way of doing this
             for i in range (0,len(self.mins)):
@@ -116,29 +118,54 @@ class Algo:
             #Flip array for plotter    
             self.maxs.reverse()
 
-            x2 = ilocs_max[-1]
-            x1 = ilocs_min[-2]
-            y2 = AM_candlesticks.iloc[x2].close
-            y1 = AM_candlesticks.iloc[x1].close
-            slope = (y2-y1)/(x2-x1)
-            b = y1 - (slope*x1)
-            temp2 = [slope*x + b for x in range(0,self.plotSize)]
 
-            ilocs_max2 = []
-            for index in ilocs_max:
-                if index < self.plotSize-1:
-                    ilocs_max2.append(index)
+            #Adding min and max trend lines
+            if(True):
+                ply = 0.0005 #adjust this to make the trendlines more or less lenient
+                ilocs_min2 = []
+                for i in range (0,4):
+                    if ilocs_min[i] < self.plotSize-1:
+                        ilocs_min2.append(ilocs_min[i])
 
-            x = np.array([x.seconds for x in np.diff(np.array(AM_candlesticks.index[0:self.plotSize]))]).cumsum()
-            m, x = divmod(x, 60*1439)
-            coefficients1, residuals1, _, _, _ = np.polyfit(m[ilocs_max2],AM_candlesticks.close[ilocs_max2],1,full=True)
-            temp3 = [coefficients1[0]*x + coefficients1[1] for x in range(0,self.plotSize)]
-            
-            for i in range (0,len(self.test3)):
-                self.test3[i] = np.NaN
-            for i in range (0,len(temp3)):
-                self.test3[i] = temp3[i]
-            self.test3.reverse()
+                x = np.array([x.seconds for x in np.diff(np.array(AM_candlesticks.index[0:self.plotSize]))]).cumsum()
+                m, x = divmod(x, 60*1439)
+                coefficients1, residuals1, _, _, _ = np.polyfit(m[ilocs_min2],AM_candlesticks.close[ilocs_min2],1,full=True)
+
+                #create min trend line
+                temp4 = [coefficients1[0]*x + coefficients1[1] for x in range(0,self.plotSize)]
+
+                for i in range (0,len(self.test4)):
+                    self.test4[i] = np.NaN
+
+                #check if trend is valid by comparing it to trend line
+                if((AM_candlesticks.close[ilocs_min2[1]]*(1+ply)) >= temp4[ilocs_min2[1]]) and (AM_candlesticks.close[ilocs_min2[2]]*(1+ply)) >= temp4[ilocs_min2[2]]:           
+                    for i in range (0,ilocs_min2[-1]):
+                        self.test4[i] = temp4[i]
+                    self.test4.reverse()
+
+
+                ilocs_max2 = []
+                for i in range (0,4):
+                    if ilocs_max[i] < self.plotSize-1:
+                        ilocs_max2.append(ilocs_max[i])
+
+                x = np.array([x.seconds for x in np.diff(np.array(AM_candlesticks.index[0:self.plotSize]))]).cumsum()
+                m, x = divmod(x, 60*1439)
+                coefficients2, residuals1, _, _, _ = np.polyfit(m[ilocs_max2],AM_candlesticks.close[ilocs_max2],1,full=True)
+                #create max trend line
+                temp3 = [coefficients2[0]*x + coefficients2[1] for x in range(0,self.plotSize)]
+                
+                #print(ilocs_max2)
+                
+                for i in range (0,len(self.test3)):
+                    self.test3[i] = np.NaN
+
+                if((AM_candlesticks.close[ilocs_max2[1]]*(1-ply)) <= temp3[ilocs_max2[1]] and (AM_candlesticks.close[ilocs_max2[2]]*(1-ply)) <= temp3[ilocs_max2[2]]):
+                    for i in range (0,ilocs_max2[-1]):
+                        self.test3[i] = temp3[i]
+                    self.test3.reverse()
+
+
 
             if(self.inPosition):
                 self.status = "In a Position. ID: " + self.tradeID
@@ -165,6 +192,7 @@ class Algo:
 
         #if not valid Trading hours...
         else:
+            quit()
             if self.plotting:
                 #update just the candles on the chart
                 self.plot.update_chart(self.ticker.getData("FULL")[0:self.plotSize])

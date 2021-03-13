@@ -23,7 +23,7 @@ AAPL = Ticker("AAPL", "Stock", DB)
 TSLA = Ticker("TSLA", "Stock", DB)
 
 #Warmup all tickers
-AAPL.warmUp()
+AAPL.warmUp() 
 AAPL.getStatus()
 
 TSLA.warmUp()
@@ -33,7 +33,7 @@ TSLA.getStatus()
 #momentum1 = MomentumAlgo(AAPL, "testy", 2, api)
 
 #algo1 = AlgoSMA(AAPL, "ThreeKings", 9, api, live = False, plotting = True)
-algo1 = AlgoTrendlines(AAPL, "Trendlines", 2, api, live = False, plotting = True)
+algo1 = AlgoTrendlines(AAPL, "Trendlines", 2, api, live = False, plotting = True, plotSize = 75)
 #algo1 = AlgoTemplate(AAPL, "MomentumEMA", 2, api, live = False, plotting = True)
 
 while 1:
@@ -44,10 +44,10 @@ while 1:
     #AAPL.getStatus()
 
     TSLA.update()
-    TSLA.getStatus()
+    #TSLA.getStatus()
     
     
-    #time.sleep(0.01)
+    time.sleep(0.1)
 
     algo1.update()
 
