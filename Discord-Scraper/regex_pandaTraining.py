@@ -58,9 +58,13 @@ for testy in list:
     date = date.group()
     #print("Date = " + date)
 
+
+
     price = re.search("[@][ ]*[0-9.]+[0-9.]+", otherStuff)
     price = price.group()
-    #print("price = " + price)
+    price = str.replace(price, '@', '')
+    price = str.replace(price, ' ', '')
+    #print(price)
 
     now = datetime.now()
 
@@ -73,12 +77,25 @@ for testy in list:
 
 #print(pandy.tail())
 
-name = "Justinvred#2767"
-test = re.search("[#][0-9]+", name)
-print(test.group())
-print(test.span())
-print(name.rstrip(test.group()))
+
+tradeName = 'NFLX'
+    
+for i in range(len(pandy.ticker)):
+    if 'NFLX' == pandy.ticker[i]:
+        #save index of name
+        indx = i
+print(indx)
+
+
+
+
+#name = "Justinvred#2767"
+#test = re.search("[#][0-9]+", name)
+#print(test.group())
+#print(test.span())
+#print(name.rstrip(test.group()))
+
+
 #TODO: turn date into dateTime object
-#TODO: add names to panda
-#TODO: remove number sign from price
 #TODO: add logic for stuff
+#TODO: Check cases
