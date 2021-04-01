@@ -4,10 +4,11 @@ import config
 import re
 from datetime import datetime
 import pandas as pd
+import os
 
 nameList = ['testy', 'test', 'anotha test']
-pandy = pd.DataFrame(columns=['name' 'tradeType', 'ticker', 'strikePrice', 'optionType', 'date', 'price', 'timePlaced'])
-cur_positions = pd.DataFrame(columns=['name' 'tradeType', 'ticker', 'strikePrice', 'optionType', 'date', 'price', 'timePlaced'])
+pandy = pd.DataFrame(columns=['name', 'tradeType', 'ticker', 'strikePrice', 'optionType', 'date', 'price', 'timePlaced'])
+cur_positions = pd.DataFrame(columns=['name', 'tradeType', 'ticker', 'strikePrice', 'optionType', 'date', 'price', 'timePlaced'])
 
 
 #Primary parsey thing
@@ -17,7 +18,7 @@ async def parseAndStuff(author, message):
     #Get name variable
     tempName = re.search("[#][0-9]+", author)
     name = author.rstrip(tempName.group())
-
+    print(name)
     #split string into array
     splitString = re.split("\s", message, 2)
     
@@ -26,7 +27,9 @@ async def parseAndStuff(author, message):
     otherStuff = splitString[2]
 
     #get strike price
-    strikePrice = re.search("[$]*[0-9.]*[cCpP]", otherStuff)
+    strikePrice = re.search("[$]*[0-9.]+[cCpP]", otherStuff)
+    if strikePrice == None:
+        return
     strikePrice = strikePrice.group()
     strikePrice = str.replace(strikePrice, '@', '')
     print("Strike Price = " + strikePrice)
@@ -46,11 +49,15 @@ async def parseAndStuff(author, message):
 
     #get date
     date = re.search("[0-9]+[/][0-9]+[0-9/]*", otherStuff)
+    if date == None:
+        return
     date = date.group()
     print("Date = " + date)
 
     #get price
     price = re.search("[@][ ]*[0-9.]+[0-9.]+", otherStuff)
+    if price == None:
+        return
     price = price.group()
     price = str.replace(price, '@', '')
     price = str.replace(price, ' ', '')
@@ -64,7 +71,7 @@ async def parseAndStuff(author, message):
     print(tempList)
     pandy = pandy.append(tempList, ignore_index=True)
 
-    print(pandy.tail())
+    #print(pandy.tail())
     print("\n")
     return tempList
 
@@ -72,49 +79,72 @@ async def parseAndStuff(author, message):
 
 
 
-#Buy or sell and stuff
+#Buy or sell and stuff. Takes recent trade information and checks to see if we need to buy or sell, and adds it to recent positions if so
 async def tradeAndStuff(trade):
     global cur_positions
     tradeType = trade.get('tradeType')
     tradeName = trade.get('name')
     tradeTicker = trade.get('ticker')
     
-    #code block for if trade is sell
+    #logic block for buy or sell
     if tradeType == 'STC':
         #check if we already have a position from same author
         for i in range(len(cur_positions.name)):
             if cur_positions.name[i] == tradeName and cur_positions.ticker[i] == tradeTicker:
-                #save index of name
+                #save index of name to call later
                 indx = i
         #if we have a match, then sell and delete position from cur_positions. Could also hold record here for our buys ans sells.
         if indx != None:
-            print('Bought some '+ tradeTicker +' with '+ tradeName +'!')#########DO LE SELL HERE :D
+            print('Sold some '+ tradeTicker +' with '+ tradeName +'!')#########DO LE SELL HERE :D
             cur_positions.drop(indx)
     elif tradeType == 'BTO':
-        if tradeName in nameList:
-            print('Bought some '+ tradeTicker +' with '+ tradeName +'!')##########DO LE BUY HERE :D
+        #if tradeName in nameList:
+        print('Bought some '+ tradeTicker +' with '+ tradeName +'!')##########DO LE BUY HERE :D
+        cur_positions.append(trade)
 
 
 
 
 
+#Check if we need to load in data from previous days
+fileExist = os.path.isfile('pandy.csv')
+print('File exists: ', str(fileExist), '\n')
+if fileExist:
+    pandy = pd.read_csv('pandy.csv')
+
+fileExist2 = os.path.isfile('cur_positions.csv')
+print('File exists: ', str(fileExist2), '\n')
+if fileExist2:
+    pandy = pd.read_csv('cur_positions.csv')
 
 
 
 
+
+#Client code from here onward
 client = discord.Client()
-
+print('DataFrame:\n', pandy, '\n')
 @client.event
 async def on_ready():
-    print(await client.fetch_guild(723418405067161640))
+    print(await client.fetch_guild(723418405067161640), '\n')
 
+
+#Primary method that activates on recieving message. Uses methods above to execute scraper logic
 @client.event
 async def on_message(message):
     if message.guild != None:
-        if message.guild.name == config.GUILD_NAME and message.channel.id == config.CHANNEL_ID:
+        if message.guild.name == config.GUILD_NAME and message.channel.id == config.CHANNEL_ID and message.author != 'Xcapture#0190':
             print("from: "+ str(message.author) + ",\n" + str(message.content))
             trade =  await parseAndStuff(str(message.author), str(message.content))
-            await tradeAndStuff(trade)
+
+            if trade != None:
+                if not cur_positions.empty:
+                    await tradeAndStuff(trade)
+                    cur_positions.to_csv('cur_positions.csv', index = False)
+                print('DataFrame:\n', pandy.tail())
+                pandy.to_csv('pandy.csv', index = False)
+            else:
+                print('Bad message! Skipping')
 
 
 

@@ -1,0 +1,3 @@
+name,tradeType,ticker,strikePrice,optionType,date,price,timePlaced
+optionstrader,STC,SPY,400,C,4/1,.85,2021-04-01 13:03:10.775440
+HawaiianBeefy,STC,SPY,405,C,4/9,.92,2021-04-01 13:06:21.043259

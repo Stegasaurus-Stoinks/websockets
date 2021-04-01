@@ -72,10 +72,10 @@ for testy in list:
 
     #print(tempList)
     pandy = pandy.append(tempList, ignore_index=True)
-    
+    tempList.
     #print("\n")
 
-#print(pandy.tail())
+print(pandy.tail())
 
 
 tradeName = 'NFLX'
@@ -99,3 +99,4 @@ print(indx)
 #TODO: turn date into dateTime object
 #TODO: add logic for stuff
 #TODO: Check cases
+#TODO: add traded column and rework where data
