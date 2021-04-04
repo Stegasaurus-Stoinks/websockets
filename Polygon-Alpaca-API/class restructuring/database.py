@@ -68,6 +68,18 @@ class Database:
         results = self.sendQuery(query, data)
         return results
 
+    def QueryDate(self, ticker, firstDate, lastDate):
+        query = """
+        SELECT *
+        FROM stockamdata
+        WHERE symbol = %s
+        AND time BETWEEN %s AND %s ORDER BY time DESC;
+        """
+        data = (ticker, firstDate, lastDate)
+        
+        results = self.sendQuery(query, data)
+        return results
+
     def QuerySpecificData(self, ticker, Current_time, number = 1):
         query = """
         SELECT *

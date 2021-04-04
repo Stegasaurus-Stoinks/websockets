@@ -13,6 +13,8 @@ class Ticker:
         self.ArraySize = 50
         #backtest length minus the local array size
         self.length = 500
+        self.firstDate = '2021-03-01'
+        self.lastDate = '2021-03-02'
         #iteration to keep track of backtest
         self.iteration = 0
         #for timing the backtest
@@ -121,7 +123,8 @@ class Ticker:
         #Update for BACKTEST Data
         if self.DataBase.BackTest:
             #length of backtest
-            data = self.DataBase.QueryLast(self.symbol, self.length)
+            data = self.DataBase.QueryDate(self.symbol, self.firstDate, self.lastDate)
+            #data = self.DataBase.QueryLast(self.symbol, self.length)
             self.BackTestAM_candlesticks = pd.DataFrame(data)
             self.BackTestAM_candlesticks.columns = ['time','symbol','volume','day_volume','day_open','vwap','open','high','close','low','avg','unix']
             self.BackTestAM_candlesticks['datetime'] = pd.to_datetime(self.BackTestAM_candlesticks['time'])
