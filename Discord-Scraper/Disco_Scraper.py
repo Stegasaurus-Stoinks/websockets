@@ -82,12 +82,16 @@ async def parseAndStuff(author, message):
 #Buy or sell and stuff. Takes recent trade information and checks to see if we need to buy or sell, and adds it to recent positions if so
 async def tradeAndStuff(trade):
     global cur_positions
+
+    
     tradeType = trade.get('tradeType')
     tradeName = trade.get('name')
     tradeTicker = trade.get('ticker')
     
     #logic block for buy or sell
-    if tradeType == 'STC':
+    if tradeType.lower() == 'stc':
+        if cur_positions.empty:
+            return
         #check if we already have a position from same author
         for i in range(len(cur_positions.name)):
             if cur_positions.name[i] == tradeName and cur_positions.ticker[i] == tradeTicker:
@@ -95,13 +99,14 @@ async def tradeAndStuff(trade):
                 indx = i
         #if we have a match, then sell and delete position from cur_positions. Could also hold record here for our buys ans sells.
         if indx != None:
-            print('Sold some '+ tradeTicker +' with '+ tradeName +'!')#########DO LE SELL HERE :D
+            print('\nSold some '+ tradeTicker +' with '+ tradeName +'!\n')#########DO LE SELL HERE :D
             cur_positions.drop(indx)
-    elif tradeType == 'BTO':
+    elif tradeType.lower() == 'bto':
         #if tradeName in nameList:
-        print('Bought some '+ tradeTicker +' with '+ tradeName +'!')##########DO LE BUY HERE :D
-        cur_positions.append(trade)
-
+        print('\nBought some '+ tradeTicker +' with '+ tradeName +'!\n')##########DO LE BUY HERE :D
+        cur_positions.append(trade, ignore_index=True)
+    print('saving current positions')
+    cur_positions.to_csv('cur_positions.csv', index = False)
 
 
 
@@ -115,15 +120,15 @@ if fileExist:
 fileExist2 = os.path.isfile('cur_positions.csv')
 print('File exists: ', str(fileExist2), '\n')
 if fileExist2:
-    pandy = pd.read_csv('cur_positions.csv')
+    cur_positions = pd.read_csv('cur_positions.csv')
 
-
+print('Current Positions:\n', cur_positions, '\n')
 
 
 
 #Client code from here onward
 client = discord.Client()
-print('DataFrame:\n', pandy, '\n')
+print('pandy contents:\n', pandy, '\n')
 @client.event
 async def on_ready():
     print(await client.fetch_guild(723418405067161640), '\n')
@@ -133,15 +138,16 @@ async def on_ready():
 @client.event
 async def on_message(message):
     if message.guild != None:
-        if message.guild.name == config.GUILD_NAME and message.channel.id == config.CHANNEL_ID and message.author != 'Xcapture#0190':
+        if message.guild.name == config.GUILD_NAME and message.channel.id == config.CHANNEL_ID and str(message.author) != 'Xcapture#0190':
             print("from: "+ str(message.author) + ",\n" + str(message.content))
-            trade =  await parseAndStuff(str(message.author), str(message.content))
+            trade = await parseAndStuff(str(message.author), str(message.content))
 
             if trade != None:
-                if not cur_positions.empty:
-                    await tradeAndStuff(trade)
-                    cur_positions.to_csv('cur_positions.csv', index = False)
-                print('DataFrame:\n', pandy.tail())
+                #if not cur_positions.empty:
+                await tradeAndStuff(trade)
+                
+                
+                print('DataFrame:\n', pandy.tail(),'\n\n\n')
                 pandy.to_csv('pandy.csv', index = False)
             else:
                 print('Bad message! Skipping')
