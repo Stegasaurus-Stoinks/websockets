@@ -16,8 +16,22 @@ nameList = ['testy', 'test', 'anotha test']
 pandy = pd.DataFrame(columns=['name', 'tradeType', 'ticker', 'strikePrice', 'optionType', 'date', 'price', 'timePlaced', 'traded'])
 cur_positions = pd.DataFrame(columns=['name', 'tradeType', 'ticker', 'strikePrice', 'optionType', 'date', 'price', 'timePlaced'])
 
-ib = IB()
-ib.connect(host='127.0.0.1', port=7496, clientId=1)
+try:
+    ib = IB()
+    ib.connect(host='127.0.0.1', port=7496, clientId=1)
+    mintickrule = ib.reqMarketRule(110)
+    print(mintickrule)
+    rulelowthresh = float(mintickrule[0][0])
+    rulelowtick = float(mintickrule[0][1])
+    rulehighthresh = float(mintickrule[1][0])
+    rulehightick = float(mintickrule[1][1])
+    Trading = True
+
+except:
+    print("--------------------------------------------------------------------------------------------------------------------------------")
+    print("Trading offline: There was a problem connecting to IB. Make sure Trader Workstation is open and try restarting the python script")
+    print("--------------------------------------------------------------------------------------------------------------------------------")
+    Trading = False
 
 def orderfilled(trade, fill):
     print("order has been filled")
@@ -49,6 +63,7 @@ def openPosition(ticker, strike, date, direction, quantity, price = 0):
     #price: float
 
     call_option = Option(symbol = ticker,lastTradeDateOrContractMonth = date, strike=strike, right = direction, exchange='SMART', currency='USD')
+    
     if price == 0:
         buyOrder = MarketOrder('BUY', quantity)
 
@@ -117,18 +132,18 @@ async def tradeAndStuff(trade):
     tradeType = trade.get('tradeType')
     tradeName = trade.get('name')
     tradeTicker = trade.get('ticker')
-    price = trade.get('price')
-    print(price)
+    price = float(trade.get('price'))
     date = trade.get('date')
     dat = date.split('/')
-    date = '2021'
-    for num in dat:
-        num = num.zfill(2)
-        date = date + num 
+    dateyear = '2021'
+    datemonth = dat[0].zfill(2)
+    dateday = dat[1].zfill(2)
+    
+    date = dateyear+datemonth+dateday
 
     direction = trade.get('optionType')
     strike = trade.get('strikePrice')
-    strike = strike[:-1]
+    strike = float(strike[:-1])
 
     indx = None
     #logic block for buy or sell
@@ -145,29 +160,42 @@ async def tradeAndStuff(trade):
             print('\nSold some '+ tradeTicker +' with '+ tradeName +'!\n')#########DO LE SELL HERE :D
 
             #this will place market sell for now
-            for position in ib.positions():
+            if Trading:
+                for position in ib.positions():
+                    print(position.contract.symbol,tradeTicker,position.contract.strike,strike,position.contract.right,direction)
+                    if position.contract.symbol == tradeTicker and position.contract.strike == strike and position.contract.right == direction:
+                        closePosition(position)
+                        print(position.contract.conId)
 
-                if position.contract.symbol == tradeTicker and position.contract.strike == strike and position.contract.right == direction:
-                    closePosition(position)
-                    print(position.contract.conId)
-
-            cur_positions = cur_positions.drop(indx)
-            traded = True
+                cur_positions = cur_positions.drop(indx)
+                traded = True
 
     elif tradeType.lower() == 'bto':
         #if tradeName in nameList:
         print('\nBought some '+ tradeTicker +' with '+ tradeName +'!\n')##########DO LE BUY HERE :D
+        if Trading:
+            #calculate quatity based on price
+            quantity = round(50/price)
+            if quantity == 0:
+                quantity = 1
 
-        #calculate quatity based on price
-        quantity = round(50/float(price))
-        if quantity == 0:
-            quantity = 1
+            #calculate price
+            wiggle = 0.03 #percentage wiggle on entry price
 
-        #this will place market order for now
-        openPosition(tradeTicker, strike, date, direction, quantity)
+            if price > rulehighthresh: #rounding price to correct multiple based on trading rules
+                base = rulehightick
+            else:
+                base = rulelowtick
 
-        cur_positions = cur_positions.append(trade, ignore_index=True)
-        traded = True
+            price = price+(price*wiggle)
+            price = base * round(price/base)
+
+
+            #this will place market order for now
+            openPosition(tradeTicker, strike, date, direction, quantity, price = price)
+
+            cur_positions = cur_positions.append(trade, ignore_index=True)
+            traded = True
 
     print('saving current positions')
     cur_positions.to_csv('trade_data/cur_positions.csv', index = False)
@@ -204,8 +232,10 @@ async def on_ready():
 @client.event
 async def on_message(message):
     global pandy
+    #print("message recieved")
     if message.guild != None:
-        if message.guild.name == config.GUILD_NAME and message.channel.id == config.CHANNEL_ID and str(message.author) != 'Xcapture#0190':
+        #print(message.guild.name,config.GUILD_NAME,message.channel.id,config.CHANNEL_ID,str(message.author),str(message.content))
+        if (message.guild.name == config.GUILD_NAME and message.channel.id == config.CHANNEL_ID and str(message.author) != 'Xcapture#0190'):
             print("from: "+ str(message.author) + ",\n" + str(message.content))
             tradeData = await parseAndStuff(str(message.author), str(message.content))
 
