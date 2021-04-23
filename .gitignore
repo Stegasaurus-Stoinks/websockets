@@ -140,3 +140,4 @@ dmypy.json
 */trade_data/*.csv
 *.csv
 trade_data
+Discord-Scraper/trade_data/cur_positions.csv
