@@ -7,11 +7,15 @@ XTrades.net ID: 542224582317441034
 Channel ID's:
 Testy ID: 822972262008356964
 options-plays ID: 592829820371599451
+
+GUILD_NAME = "Stoinks"
+CHANNEL_ID = 822972262008356964
 """
+
 
 #Server stuff
 GUILD_NAME = "Stoinks"
-CHANNEL_ID = 822972262008356964 #options-plays ID
+CHANNEL_ID = 822972262008356964
 
 #Credential stuff
     #Justin's account

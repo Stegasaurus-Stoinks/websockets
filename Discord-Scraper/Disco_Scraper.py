@@ -118,21 +118,17 @@ async def tradeAndStuff(trade):
     tradeName = trade.get('name')
     tradeTicker = trade.get('ticker')
     price = trade.get('price')
+    print(price)
     date = trade.get('date')
-    print(date)
     dat = date.split('/')
-    print(dat)
     date = '2021'
     for num in dat:
-        print(num)
         num = num.zfill(2)
-        print(num)
-        date = date + num
-    print(date)  
+        date = date + num 
 
     direction = trade.get('optionType')
     strike = trade.get('strikePrice')
-    strike = int(strike[:-1])
+    strike = strike[:-1]
 
     indx = None
     #logic block for buy or sell
@@ -163,7 +159,7 @@ async def tradeAndStuff(trade):
         print('\nBought some '+ tradeTicker +' with '+ tradeName +'!\n')##########DO LE BUY HERE :D
 
         #calculate quatity based on price
-        quantity = round(50/int(price))
+        quantity = round(50/float(price))
         if quantity == 0:
             quantity = 1
 
