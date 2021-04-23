@@ -1,6 +1,6 @@
 #local imports
 import config
-import disco_util as util
+import disco_util as utily
 
 import discord
 import asyncio
@@ -10,10 +10,54 @@ from datetime import datetime
 import pandas as pd
 import os
 
+from ib_insync import *
+
 nameList = ['testy', 'test', 'anotha test']
 pandy = pd.DataFrame(columns=['name', 'tradeType', 'ticker', 'strikePrice', 'optionType', 'date', 'price', 'timePlaced', 'traded'])
 cur_positions = pd.DataFrame(columns=['name', 'tradeType', 'ticker', 'strikePrice', 'optionType', 'date', 'price', 'timePlaced'])
 
+ib = IB()
+ib.connect(host='127.0.0.1', port=7496, clientId=1)
+
+def orderfilled(trade, fill):
+    print("order has been filled")
+    print(trade)
+    print(fill)
+
+def closePosition(position, price = 0, percent=1.00):
+    position.contract.exchange = 'SMART'
+    numShares = round(percent * position.position)
+    if numShares == 0:
+        numShares = 1
+
+    if price == 0:
+        sellOrder = MarketOrder('SELL', numShares)
+
+    else:
+        sellOrder = LimitOrder('SELL', numShares, price)
+
+    sell = ib.placeOrder(position.contract,sellOrder)
+    print(sell)
+    sell.fillEvent += orderfilled   
+
+def openPosition(ticker, strike, date, direction, quantity, price = 0):
+    #ticker: 'AAPL'
+    #strike: int
+    #date: '20210430' = 'YYYYMMDD'
+    #direction: 'C' or 'P'
+    #quantity: int
+    #price: float
+
+    call_option = Option(symbol = ticker,lastTradeDateOrContractMonth = date, strike=strike, right = direction, exchange='SMART', currency='USD')
+    if price == 0:
+        buyOrder = MarketOrder('BUY', quantity)
+
+    else:
+        buyOrder = LimitOrder('BUY', quantity, price)
+
+    trade = ib.placeOrder(call_option,buyOrder)
+
+    print(trade)
 
 #Primary parsey thing
 async def parseAndStuff(author, message):
@@ -29,23 +73,23 @@ async def parseAndStuff(author, message):
 
 
     #Get name variable
-    name = util.getName(author)
+    name = utily.getName(author)
 
     #get strike price
-    strikePrice = util.getStrikePrice(otherStuff)
+    strikePrice = utily.getStrikePrice(otherStuff)
     if strikePrice == None:
         return
 
     #get option type
-    optionType = util.getOptionType(strikePrice)
+    optionType = utily.getOptionType(strikePrice)
 
     #get date
-    date = util.getDate(otherStuff)
+    date = utily.getDate(otherStuff)
     if date == None:
         return
 
     #get price
-    price = util.getPrice(otherStuff)
+    price = utily.getPrice(otherStuff)
     if price == None:
         return
 
@@ -76,6 +120,23 @@ async def tradeAndStuff(trade):
     tradeType = trade.get('tradeType')
     tradeName = trade.get('name')
     tradeTicker = trade.get('ticker')
+    price = trade.get('price')
+    date = trade.get('date')
+    print(date)
+    dat = date.split('/')
+    print(dat)
+    date = '2021'
+    for num in dat:
+        print(num)
+        num = num.zfill(2)
+        print(num)
+        date = date + num
+    print(date)  
+
+    direction = trade.get('optionType')
+    strike = trade.get('strikePrice')
+    strike = int(strike[:-1])
+
     indx = None
     #logic block for buy or sell
     if tradeType.lower() == 'stc':
@@ -89,12 +150,29 @@ async def tradeAndStuff(trade):
         #if we have a match, then sell and delete position from cur_positions. Could also hold record here for our buys ans sells.
         if indx != None:
             print('\nSold some '+ tradeTicker +' with '+ tradeName +'!\n')#########DO LE SELL HERE :D
+
+            #this will place market sell for now
+            for position in ib.positions():
+
+                if position.contract.symbol == tradeTicker and position.contract.strike == strike and position.contract.right == direction:
+                    closePosition(position)
+                    print(position.contract.conId)
+
             cur_positions = cur_positions.drop(indx)
             traded = True
 
     elif tradeType.lower() == 'bto':
         #if tradeName in nameList:
         print('\nBought some '+ tradeTicker +' with '+ tradeName +'!\n')##########DO LE BUY HERE :D
+
+        #calculate quatity based on price
+        quantity = round(50/int(price))
+        if quantity == 0:
+            quantity = 1
+
+        #this will place market order for now
+        openPosition(tradeTicker, strike, date, direction, quantity)
+
         cur_positions = cur_positions.append(trade, ignore_index=True)
         traded = True
 
@@ -130,6 +208,7 @@ async def on_ready():
 #Primary method that activates on recieving message. Uses methods above to execute scraper logic
 @client.event
 async def on_message(message):
+    global pandy
     if message.guild != None:
         if message.guild.name == config.GUILD_NAME and message.channel.id == config.CHANNEL_ID and str(message.author) != 'Xcapture#0190':
             print("from: "+ str(message.author) + ",\n" + str(message.content))
