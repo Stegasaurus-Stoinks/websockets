@@ -11,6 +11,7 @@ def getName(author):
     print(name)
     return name
 
+
 def getStrikePrice(message):
     strikePrice = re.search("[$]*[0-9.]+[cCpP]", message)
     if strikePrice == None:
@@ -23,6 +24,7 @@ def getStrikePrice(message):
         strikePrice = strikePrice[1:]
     return strikePrice
 
+
 def getOptionType(strikePrice):
     if strikePrice.endswith('c') or strikePrice.endswith('C'):
         strikePrice = strikePrice[:-1]
@@ -33,6 +35,7 @@ def getOptionType(strikePrice):
     print(optionType)
     return optionType
 
+
 #We will be converting date into dateTime object here later
 def getDate(message):
     date = re.search("[0-9]+[/][0-9]+[0-9/]*", message)
@@ -41,6 +44,7 @@ def getDate(message):
     date = date.group()
     print("Date = " + date)
     return date
+
 
 def getPrice(message):
     price = re.search("[@][ ]*[0-9.]+[0-9.]+", message)

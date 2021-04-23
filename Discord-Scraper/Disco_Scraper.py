@@ -98,10 +98,7 @@ async def parseAndStuff(author, message):
     tempList = {'name': name, 'tradeType': tradeType, 'ticker': ticker, 'strikePrice': strikePrice, 'optionType': optionType, 'date': date, 'price': price, 'timePlaced':now}
 
     print(tempList)
-    tempPandy = pd.DataFrame(columns=['name', 'tradeType', 'ticker', 'strikePrice', 'optionType', 'date', 'price', 'timePlaced'])
-    tempPandy = tempPandy.append(tempList, ignore_index=True)
-    concatFrame = [pandy, tempPandy]
-    pandy = pd.concat(concatFrame, sort=False)
+    
 
     #print(pandy.tail())
     print("\n")
@@ -141,7 +138,7 @@ async def tradeAndStuff(trade):
     #logic block for buy or sell
     if tradeType.lower() == 'stc':
         if cur_positions.empty:
-            return
+            return traded
         #check if we already have a position from same author
         for i in range(len(cur_positions.name)):
             if cur_positions.name[i] == tradeName and cur_positions.ticker[i] == tradeTicker:
@@ -197,6 +194,8 @@ print('Current Positions:\n', cur_positions, '\n')
 
 
 
+
+
 #Client code from here onward
 client = discord.Client()
 print('pandy contents:\n', pandy, '\n')
@@ -218,7 +217,7 @@ async def on_message(message):
                 #if not cur_positions.empty:
                 traded = await tradeAndStuff(tradeData)
                 tradeData.update({'traded': traded});
-                print('TESTING TO SEE IF TRADED WAS ADDED');
+
 
                 tempPandy = pd.DataFrame(columns=['name', 'tradeType', 'ticker', 'strikePrice', 'optionType', 'date', 'price', 'timePlaced','traded'])
                 tempPandy = tempPandy.append(tradeData, ignore_index=True)

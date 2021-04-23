@@ -10,8 +10,8 @@ options-plays ID: 592829820371599451
 """
 
 #Server stuff
-GUILD_NAME = "Xtrades.net"
-CHANNEL_ID = 592829820371599451 #options-plays ID
+GUILD_NAME = "Stoinks"
+CHANNEL_ID = 822972262008356964 #options-plays ID
 
 #Credential stuff
     #Justin's account
