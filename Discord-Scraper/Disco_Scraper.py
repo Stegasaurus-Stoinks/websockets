@@ -87,7 +87,7 @@ def openPosition(ticker, strike, date, direction, quantity, price = 0):
 #Primary parsey thing
 async def parseAndStuff(author, message):
     global pandy
-
+    print(message)
     #split string into array
     splitString = re.split("\s", message, 2)
     if len(splitString) < 3:
@@ -119,6 +119,10 @@ async def parseAndStuff(author, message):
         return
 
     now = datetime.now()
+
+    #get notes
+    notes = utily.getNotes(otherStuff)
+    print(notes)
 
     tempList = {'name': name, 'tradeType': tradeType, 'ticker': ticker, 'strikePrice': strikePrice, 'optionType': optionType, 'date': date, 'price': price, 'timePlaced':now}
 
@@ -242,7 +246,7 @@ async def on_ready():
 @client.event
 async def on_message(message):
     global pandy
-    #print("message recieved")
+    #print("message recieved", message)
     if message.guild != None:
         #print(message.guild.name,config.GUILD_NAME,message.channel.id,config.CHANNEL_ID,str(message.author),str(message.content))
         if (message.guild.name == config.GUILD_NAME and message.channel.id == config.CHANNEL_ID and str(message.author) != 'Xcapture#0190'):

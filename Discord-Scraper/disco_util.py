@@ -55,3 +55,13 @@ def getPrice(message):
     price = str.replace(price, ' ', '')
     print("price = " + price)
     return price
+
+
+def getNotes(message):
+    noteStart = re.search("\(", message)
+    noteStart = noteStart.span()[0]
+    notes = message[noteStart:]
+    if notes == None:
+        return
+    
+    return notes
