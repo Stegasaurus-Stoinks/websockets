@@ -1,4 +1,4 @@
-#local imports
+#local imports 
 import config
 import disco_util as utily
 
@@ -19,13 +19,23 @@ cur_positions = pd.DataFrame(columns=['name', 'tradeType', 'ticker', 'strikePric
 try:
     ib = IB()
     ib.connect(host='127.0.0.1', port=7496, clientId=1)
-    mintickrule = ib.reqMarketRule(110)
-    print(mintickrule)
-    rulelowthresh = float(mintickrule[0][0])
-    rulelowtick = float(mintickrule[0][1])
-    rulehighthresh = float(mintickrule[1][0])
-    rulehightick = float(mintickrule[1][1])
     Trading = True
+    
+    try:
+        mintickrule = ib.reqMarketRule(110)
+        print(mintickrule)
+        rulelowthresh = float(mintickrule[0][0])
+        rulelowtick = float(mintickrule[0][1])
+        rulehighthresh = float(mintickrule[1][0])
+        rulehightick = float(mintickrule[1][1])
+        
+    
+    except:
+        rulelowthresh = float(0)
+        rulelowtick = float(.05)
+        rulehighthresh = float(3.00)
+        rulehightick = float(0.1)
+
 
 except:
     print("--------------------------------------------------------------------------------------------------------------------------------")
