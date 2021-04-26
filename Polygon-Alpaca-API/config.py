@@ -1,11 +1,7 @@
-API_KEY = "AK88VYVZKTW30FTZ0X7S"
-SECRET_KEY = "8amrDP9B3OtZjAsQ78cKvmQDJZMhTwoTzb9LuxaZ"
-
-PAPER_API_KEY = "PKIW0LP3DO8QAXP0D3EF"
-PAPER_SECRET_KEY = "elgw1Is9urCKAm3i8sYfqhx33tnwW6Vo0uCd11fK"
-
 TSDB_USERNAME = "postgres"
-TSDB_PASSWORD = "password"
-TSDB_HOST = "localhost"
+TSDB_LOCAL_PASSWORD = "password"
+TSDB_AWS_PASSWORD = ""
+TSDB_LOCAL_HOST = "localhost"
+TSDB_AWS_HOST = "ec2-52-14-15-39.us-east-2.compute.amazonaws.com"
 TSDB_PORT = "5432"
-TSDB_DATABASE = "tutorial"
+TSDB_DATABASE = "stonks"
