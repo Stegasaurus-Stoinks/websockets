@@ -17,7 +17,6 @@ BackTest = True
 
 DB = Database(BackTest)
 api = TradeApi(Trading, Live_Trading)
-
 #Initiaiize all relevant tickers for the day
 AAPL = Ticker("AAPL", "Stock", DB)
 TSLA = Ticker("TSLA", "Stock", DB)
@@ -32,9 +31,8 @@ TSLA.getStatus()
 #Initialize all algos for the day
 #momentum1 = MomentumAlgo(AAPL, "testy", 2, api)
 
-#algo1 = AlgoSMA(AAPL, "ThreeKings", 9, api, live = False, plotting = True)
-algo1 = AlgoTrendlines(AAPL, "Trendlines", 2, api, live = False, plotting = True, plotSize = 75)
-#algo1 = AlgoTemplate(AAPL, "MomentumEMA", 2, api, live = False, plotting = True)
+AAPLalgo1 = AlgoSMA(AAPL, "ThreeKings", 9, api, live = False, plotting = True)
+#AAPLalgo2 = AlgoTrendlines(AAPL, "MomentumEMA", 2, api, live = False, plotting = True)
 
 while 1:
 
@@ -51,3 +49,7 @@ while 1:
 
     algo1.update()
 
+    AAPLalgo1.update()
+    #AAPLalgo2.update()
+    
+    #quit()
