@@ -13,8 +13,8 @@ import os
 from ib_insync import *
 
 nameList = ['testy', 'test', 'anotha test']
-pandy = pd.DataFrame(columns=['name', 'tradeType', 'ticker', 'strikePrice', 'optionType', 'date', 'price', 'timePlaced', 'traded'])
-cur_positions = pd.DataFrame(columns=['name', 'tradeType', 'ticker', 'strikePrice', 'optionType', 'date', 'price', 'timePlaced'])
+pandy = pd.DataFrame(columns=['name', 'tradeType', 'ticker', 'strikePrice', 'optionType', 'date', 'price', 'timePlaced', 'traded','notes'])
+cur_positions = pd.DataFrame(columns=['name', 'tradeType', 'ticker', 'strikePrice', 'optionType', 'date', 'price', 'timePlaced','notes'])
 
 try:
     ib = IB()
@@ -124,7 +124,7 @@ async def parseAndStuff(author, message):
     notes = utily.getNotes(otherStuff)
     print(notes)
 
-    tempList = {'name': name, 'tradeType': tradeType, 'ticker': ticker, 'strikePrice': strikePrice, 'optionType': optionType, 'date': date, 'price': price, 'timePlaced':now}
+    tempList = {'name': name, 'tradeType': tradeType, 'ticker': ticker, 'strikePrice': strikePrice, 'optionType': optionType, 'date': date, 'price': price, 'timePlaced':now, 'notes':notes}
 
     print(tempList)
     
@@ -173,10 +173,10 @@ async def tradeAndStuff(trade):
         if indx != None:
             print('\nSold some '+ tradeTicker +' with '+ tradeName +'!\n')#########DO LE SELL HERE :D
 
-            #this will place market sell for now
             if Trading:
                 for position in ib.positions():
                     print(position.contract.symbol,tradeTicker,position.contract.strike,strike,position.contract.right,direction)
+                    #date of contract is ignored so that we dont trade agaisnt any other positions
                     if position.contract.symbol == tradeTicker and position.contract.strike == strike and position.contract.right == direction:
                         closePosition(position)
                         print(position.contract.conId)
@@ -204,8 +204,6 @@ async def tradeAndStuff(trade):
             price = price+(price*wiggle)
             price = base * round(price/base)
 
-
-            #this will place market order for now
             openPosition(tradeTicker, strike, date, direction, quantity, price = price)
 
             cur_positions = cur_positions.append(trade, ignore_index=True)
@@ -258,7 +256,7 @@ async def on_message(message):
                 traded = await tradeAndStuff(tradeData)
                 tradeData.update({'traded': traded});
 
-                tempPandy = pd.DataFrame(columns=['name', 'tradeType', 'ticker', 'strikePrice', 'optionType', 'date', 'price', 'timePlaced','traded'])
+                tempPandy = pd.DataFrame(columns=['name', 'tradeType', 'ticker', 'strikePrice', 'optionType', 'date', 'price', 'timePlaced','traded','notes'])
                 tempPandy = tempPandy.append(tradeData, ignore_index=True)
                 concatFrame = [pandy, tempPandy]
                 pandy = pd.concat(concatFrame, sort=False)
