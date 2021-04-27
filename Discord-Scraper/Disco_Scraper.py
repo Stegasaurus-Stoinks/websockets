@@ -129,12 +129,7 @@ async def tradeAndStuff(trade):
         #if we have a match, then sell and delete position from cur_positions. Could also hold record here for our buys ans sells.
         if indx != None:
 
-            sellPercent = 1.00
-            try:
-                sellPercent = utily.checkNotes(notes)
-
-            except:
-                sellPercent = 1.00
+            sellPercent = utily.checkNotes(notes)
             
             print('\nSold '+ str(sellPercent*100) +"% of "+ tradeTicker +' with '+ tradeName +'!\n')#########DO LE SELL HERE :D
 
@@ -143,7 +138,7 @@ async def tradeAndStuff(trade):
                     print(position.contract.symbol,tradeTicker,position.contract.strike,strike,position.contract.right,direction)
                     #date of contract is ignored so that we dont trade agaisnt any other positions
                     if position.contract.symbol == tradeTicker and position.contract.strike == strike and position.contract.right == direction:
-                        closePosition(ib, position)
+                        closePosition(ib, position, percent=sellPercent)
                         print(position.contract.conId)
                         print(position.contract)
 
