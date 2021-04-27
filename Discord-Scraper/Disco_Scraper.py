@@ -152,6 +152,7 @@ async def tradeAndStuff(trade):
     dateyear = '2021'
     datemonth = dat[0].zfill(2)
     dateday = dat[1].zfill(2)
+    notes = trade.get('notes')
     
     date = dateyear+datemonth+dateday
 
@@ -171,7 +172,9 @@ async def tradeAndStuff(trade):
                 indx = i
         #if we have a match, then sell and delete position from cur_positions. Could also hold record here for our buys ans sells.
         if indx != None:
-            print('\nSold some '+ tradeTicker +' with '+ tradeName +'!\n')#########DO LE SELL HERE :D
+            sellPercent = utily.checkNotes(notes)
+            
+            print('\nSold '+ sellPercent +' of '+ tradeTicker +' with '+ tradeName +'!\n')#########DO LE SELL HERE :D
 
             if Trading:
                 for position in ib.positions():
