@@ -112,7 +112,7 @@ def getPercentage(key):
    }
    return switcher.get(key)
 
-   def checkNotes(notes):
+def checkNotes(notes):
     for i in scaleList:
         temp = re.search(i, testString)
         if temp != None:
