@@ -84,31 +84,7 @@ switcher = {
       "some more" : 0.50,
       "runner" : 0.50,
       "risky scalp" : 0.50,
-      "half" : 0.50, #Sold half, hold a few runners if you want
-      "*" : 0.50,
-      "*" : 0.50,
-      "*" : 0.50,
-      "*" : 0.50,
-      "*" : 0.50,
-      "*" : 0.50,
-      "*" : 0.50,
-      "*" : 0.50,
-      "*" : 0.50,
-      "*" : 0.50,
-      "*" : 0.50,
-      "*" : 0.50,
-      "*" : 0.50,
-      "*" : 0.50,
-      "*" : 0.50,
-      "*" : 0.50,
-      "*" : 0.50,
-      "*" : 0.50,
-      "*" : 0.50,
-      "*" : 0.50,
-      "*" : 0.50,
-      "*" : 0.50,
-      "*" : 0.50,
-
+      "half" : 0.50 #Sold half, hold a few runners if you want
    }
 
 
@@ -116,10 +92,11 @@ def getPercentage(key):
    return switcher.get(key)
 
 
-   def checkNotes(notes):
+def checkNotes(notes):
     #if notes contain any phrase in switcher, return it.
     for i in switcher:
-        temp = re.search(i, testString)
+        print(i,"test")
+        temp = re.search(i, notes)
         if temp != None:
             if temp.group().lower == i:
                 print("Found ",temp.group())

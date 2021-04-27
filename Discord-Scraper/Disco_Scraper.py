@@ -189,8 +189,8 @@ async def tradeAndStuff(trade):
                     print(order)
 
 
-                cur_positions = cur_positions.drop(indx)
                 traded = True
+            cur_positions = cur_positions.drop(indx)
 
     elif tradeType.lower() == 'bto':
         #if tradeName in nameList:
@@ -213,10 +213,10 @@ async def tradeAndStuff(trade):
             price = base * round(price/base)
 
             openPosition(tradeTicker, strike, date, direction, quantity, price = price)
-
-            cur_positions = cur_positions.append(trade, ignore_index=True)
+            
             traded = True
 
+    cur_positions = cur_positions.append(trade, ignore_index=True)
     print('saving current positions')
     cur_positions.to_csv('trade_data/cur_positions.csv', index = False)
     return traded
