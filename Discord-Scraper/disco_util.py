@@ -73,10 +73,10 @@ def getNotes(message):
 
 
       
-
-#########trade details##########
-def getPercentage(key):
-   switcher = {
+################################
+######## trade details #########
+################################
+switcher = {
       "scale" : 0.50,
       "scrape" : 0.25,
       "scalp" : 0.50,
@@ -110,14 +110,19 @@ def getPercentage(key):
       "*" : 0.50,
 
    }
+
+
+def getPercentage(key):
    return switcher.get(key)
 
+
    def checkNotes(notes):
-    for i in scaleList:
+    #if notes contain any phrase in switcher, return it.
+    for i in switcher:
         temp = re.search(i, testString)
         if temp != None:
             if temp.group().lower == i:
                 print("Found ",temp.group())
-                perc = getPercentage(temp.group())
-                return perc
+                return getPercentage(temp.group())
+    #otherwise, return 1.0
     return 1.0
