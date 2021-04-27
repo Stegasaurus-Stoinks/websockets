@@ -1,9 +1,14 @@
 import re
+from typing import Literal
 
 
 """
 This section will be the getters for every piece of data we need from the message
 """
+
+Animal = Literal['ant', 'bee', 'cat', 'dog']
+
+
 def getName(author):
     #Get name variable
     tempName = re.search("[#][0-9]+", author)
@@ -65,3 +70,54 @@ def getNotes(message):
         return
     
     return notes
+
+
+      
+
+#########trade details##########
+def getPercentage(key):
+   switcher = {
+      "scale" : 0.50,
+      "scrape" : 0.25,
+      "*" : 0.50,
+      "*" : 0.50,
+      "*" : 0.50,
+      "*" : 0.50,
+      "*" : 0.50,
+      "*" : 0.50,
+      "*" : 0.50,
+      "*" : 0.50,
+      "*" : 0.50,
+      "*" : 0.50,
+      "*" : 0.50,
+      "*" : 0.50,
+      "*" : 0.50,
+      "*" : 0.50,
+      "*" : 0.50,
+      "*" : 0.50,
+      "*" : 0.50,
+      "*" : 0.50,
+      "*" : 0.50,
+      "*" : 0.50,
+      "*" : 0.50,
+      "*" : 0.50,
+      "*" : 0.50,
+      "*" : 0.50,
+      "*" : 0.50,
+      "*" : 0.50,
+      "*" : 0.50,
+      "*" : 0.50,
+      "*" : 0.50,
+
+   }
+   return switcher.get(key)
+
+   def checkNotes(notes):
+    for i in scaleList:
+        temp = re.search(i, testString)
+        if temp != None:
+            if temp.group() == i:
+                print("Found ",temp.group())
+                perc = getPercentage(temp.group())
+                return perc
+    return 1.0

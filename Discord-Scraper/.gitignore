@@ -1,0 +1,4 @@
+trade_data/
+trade_data/*.csv
+*.csv
+trade_data
