@@ -1,4 +1,4 @@
-#local imports
+#local imports 
 import config
 import disco_util as utily
 
@@ -13,19 +13,29 @@ import os
 from ib_insync import *
 
 nameList = ['testy', 'test', 'anotha test']
-pandy = pd.DataFrame(columns=['name', 'tradeType', 'ticker', 'strikePrice', 'optionType', 'date', 'price', 'timePlaced', 'traded'])
-cur_positions = pd.DataFrame(columns=['name', 'tradeType', 'ticker', 'strikePrice', 'optionType', 'date', 'price', 'timePlaced'])
+pandy = pd.DataFrame(columns=['name', 'tradeType', 'ticker', 'strikePrice', 'optionType', 'date', 'price', 'timePlaced', 'traded','notes'])
+cur_positions = pd.DataFrame(columns=['name', 'tradeType', 'ticker', 'strikePrice', 'optionType', 'date', 'price', 'timePlaced','notes'])
 
 try:
     ib = IB()
     ib.connect(host='127.0.0.1', port=7496, clientId=1)
-    mintickrule = ib.reqMarketRule(110)
-    print(mintickrule)
-    rulelowthresh = float(mintickrule[0][0])
-    rulelowtick = float(mintickrule[0][1])
-    rulehighthresh = float(mintickrule[1][0])
-    rulehightick = float(mintickrule[1][1])
     Trading = True
+    
+    try:
+        mintickrule = ib.reqMarketRule(110)
+        print(mintickrule)
+        rulelowthresh = float(mintickrule[0][0])
+        rulelowtick = float(mintickrule[0][1])
+        rulehighthresh = float(mintickrule[1][0])
+        rulehightick = float(mintickrule[1][1])
+        
+    
+    except:
+        rulelowthresh = float(0)
+        rulelowtick = float(.05)
+        rulehighthresh = float(3.00)
+        rulehightick = float(0.1)
+
 
 except:
     print("--------------------------------------------------------------------------------------------------------------------------------")
@@ -77,7 +87,7 @@ def openPosition(ticker, strike, date, direction, quantity, price = 0):
 #Primary parsey thing
 async def parseAndStuff(author, message):
     global pandy
-
+    print(message)
     #split string into array
     splitString = re.split("\s", message, 2)
     if len(splitString) < 3:
@@ -110,7 +120,11 @@ async def parseAndStuff(author, message):
 
     now = datetime.now()
 
-    tempList = {'name': name, 'tradeType': tradeType, 'ticker': ticker, 'strikePrice': strikePrice, 'optionType': optionType, 'date': date, 'price': price, 'timePlaced':now}
+    #get notes
+    notes = utily.getNotes(otherStuff)
+    print(notes)
+
+    tempList = {'name': name, 'tradeType': tradeType, 'ticker': ticker, 'strikePrice': strikePrice, 'optionType': optionType, 'date': date, 'price': price, 'timePlaced':now, 'notes':notes}
 
     print(tempList)
     
@@ -159,13 +173,18 @@ async def tradeAndStuff(trade):
         if indx != None:
             print('\nSold some '+ tradeTicker +' with '+ tradeName +'!\n')#########DO LE SELL HERE :D
 
-            #this will place market sell for now
             if Trading:
                 for position in ib.positions():
                     print(position.contract.symbol,tradeTicker,position.contract.strike,strike,position.contract.right,direction)
+                    #date of contract is ignored so that we dont trade agaisnt any other positions
                     if position.contract.symbol == tradeTicker and position.contract.strike == strike and position.contract.right == direction:
                         closePosition(position)
                         print(position.contract.conId)
+
+                for order in ib.openOrders():
+                    print("-------------ORDERS------------")
+                    print(order)
+
 
                 cur_positions = cur_positions.drop(indx)
                 traded = True
@@ -190,8 +209,6 @@ async def tradeAndStuff(trade):
             price = price+(price*wiggle)
             price = base * round(price/base)
 
-
-            #this will place market order for now
             openPosition(tradeTicker, strike, date, direction, quantity, price = price)
 
             cur_positions = cur_positions.append(trade, ignore_index=True)
@@ -232,7 +249,7 @@ async def on_ready():
 @client.event
 async def on_message(message):
     global pandy
-    #print("message recieved")
+    #print("message recieved", message)
     if message.guild != None:
         #print(message.guild.name,config.GUILD_NAME,message.channel.id,config.CHANNEL_ID,str(message.author),str(message.content))
         if (message.guild.name == config.GUILD_NAME and message.channel.id == config.CHANNEL_ID and str(message.author) != 'Xcapture#0190'):
@@ -244,8 +261,7 @@ async def on_message(message):
                 traded = await tradeAndStuff(tradeData)
                 tradeData.update({'traded': traded});
 
-
-                tempPandy = pd.DataFrame(columns=['name', 'tradeType', 'ticker', 'strikePrice', 'optionType', 'date', 'price', 'timePlaced','traded'])
+                tempPandy = pd.DataFrame(columns=['name', 'tradeType', 'ticker', 'strikePrice', 'optionType', 'date', 'price', 'timePlaced','traded','notes'])
                 tempPandy = tempPandy.append(tradeData, ignore_index=True)
                 concatFrame = [pandy, tempPandy]
                 pandy = pd.concat(concatFrame, sort=False)

@@ -25,7 +25,7 @@ class LiveChartEnv:
         #self.fig.show()
         #self.fig.canvas.draw()
         
-    def update_chart(self, candle_data, extraData = []):
+    def update_chart(self, candle_data, extraData = [], style = []):
             candle_data = candle_data.sort_index(ascending=True)
             candle_counter = range(len(candle_data["open"]))
             ohlc = []
@@ -38,14 +38,27 @@ class LiveChartEnv:
                 ohlc.append(append_me)
             extraPlots = []
             if extraData:
-                for array in extraData:
-                    extraPlots.append(mpf.make_addplot(array, ax=self.ax1))
+                for i in range(0,len(extraData),1):
+                    if style[i][0] == 'scatter':
+                        if style[i][1] == 'up':
+                            extraPlots.append(mpf.make_addplot(extraData[i],type='scatter',markersize=200,marker='^', ax=self.ax1))
+                        if style[i][1] == 'down':
+                            extraPlots.append(mpf.make_addplot(extraData[i],type='scatter',markersize=200,marker='v', ax=self.ax1))
+                        if style[i][1] == 'normal':
+                            extraPlots.append(mpf.make_addplot(extraData[i],type='scatter',markersize=200, ax=self.ax1))
+
+                    if style[i][0] == 'line':
+                        if style[i][1] == 'normal':
+                            extraPlots.append(mpf.make_addplot(extraData[i], ax=self.ax1))
+                        if style[i][1] == 'dashdot':
+                            extraPlots.append(mpf.make_addplot(extraData[i],linestyle='dashdot', ax=self.ax1))
+
 
 
             self.ax1.clear() # - Clear the chart
             self.ax2.clear()
             #candlestick_ohlc(self.ax, ohlc, width=0.4, colorup='#075105', colordown='#AF141A')
-            mpf.plot(candle_data, addplot=extraPlots, ax=self.ax1, volume=self.ax2)
+            mpf.plot(candle_data,type='candle',style='charles', addplot=extraPlots, ax=self.ax1, volume=self.ax2)
             
             #for label in self.ax.xaxis.get_ticklabels():
             #    label.set_rotation(45)
