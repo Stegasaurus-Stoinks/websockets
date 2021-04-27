@@ -181,6 +181,11 @@ async def tradeAndStuff(trade):
                         closePosition(position)
                         print(position.contract.conId)
 
+                for order in ib.openOrders():
+                    print("-------------ORDERS------------")
+                    print(order)
+
+
                 cur_positions = cur_positions.drop(indx)
                 traded = True
 

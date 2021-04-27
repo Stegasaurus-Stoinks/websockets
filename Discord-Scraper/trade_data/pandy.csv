@@ -1,3 +1,24 @@
-name,tradeType,ticker,strikePrice,optionType,date,price,timePlaced,traded
-wildape,BTO,SE,270C,C,04/30,3.50,2021-04-26 07:53:42.128010,True
-wildape,STC,SE,270C,C,04/30,3.85,2021-04-26 07:54:29.814550,True
+name,tradeType,ticker,strikePrice,optionType,date,price,timePlaced,traded,notes
+wildape,BTO,SE,270C,C,04/30,3.5,2021-04-26 07:53:42.128010,True,
+wildape,STC,SE,270C,C,04/30,3.85,2021-04-26 07:54:29.814550,True,
+wildape,BTO,SE,270C,C,04/30,3.5,2021-04-26 09:37:30.108002,True,(RISKY SCALP) - wide spread
+wildape,STC,SE,270C,C,04/30,3.85,2021-04-26 09:37:39.566236,True,(Scale out some profits here)
+wildape,BTO,ROKU,365C,C,04/30,5.95,2021-04-26 10:15:56.932862,True,"(RISKY SCALP) 
+STC ROKU 365C 04/30 @ 6.50 (Scale out some profits here) 
+STC ROKU 365C 04/30 @ 6.75 (Sold some more here) 
+STC ROKU 365C 04/30 @ 6.65 (Profit, leave a few runners if you want) 
+STC ROKU 365C 04/30 @ 7.20 (WOOHOO! Profit, sold 1 out of 2 runners) 
+STC ROKU 365C 04/30 @ 7.10 (out on last runner)- have to go to market, cant manage it on my phone"
+wildape,BTO,ROKU,365C,C,04/30,5.95,2021-04-26 10:30:52.796283,True,(RISKY SCALP)
+wildape,STC,ROKU,365C,C,04/30,6.5,2021-04-26 10:31:01.014590,True,(Scale out some profits here)
+wildape,STC,ROKU,365C,C,04/30,6.75,2021-04-26 10:31:05.803682,True,(Sold some more here)
+wildape,STC,ROKU,365C,C,04/30,6.65,2021-04-26 10:31:12.596999,False,"(Profit, leave a few runners if you want)"
+wildape,STC,ROKU,365C,C,04/30,7.2,2021-04-26 10:31:18.941775,False,"(WOOHOO! Profit, sold 1 out of 2 runners)"
+wildape,STC,ROKU,365C,C,04/30,7.1,2021-04-26 10:31:24.824655,False,"(out on last runner)- have to go to market, cant manage it on my phone"
+wildape,BTO,ROKU,365C,C,04/30,5.95,2021-04-26 11:22:42.292252,True,(RISKY SCALP)
+wildape,STC,ROKU,365C,C,04/30,6.5,2021-04-26 11:23:05.267085,True,(Scale out some profits here)
+wildape,BTO,ROKU,365C,C,04/30,5.95,2021-04-26 11:25:12.951380,True,(RISKY SCALP)
+wildape,STC,ROKU,365C,C,04/30,6.5,2021-04-26 11:25:24.883986,True,(Scale out some profits here)
+wildape,STC,ROKU,365C,C,04/30,6.50,2021-04-26 11:37:59.127162,False,(Scale out some profits here)
+wildape,BTO,ROKU,365C,C,04/30,5.95,2021-04-26 11:38:16.249568,True,(RISKY SCALP)
+wildape,STC,ROKU,365C,C,04/30,6.50,2021-04-26 11:38:31.019990,True,(Scale out some profits here)
