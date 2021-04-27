@@ -79,12 +79,12 @@ def getPercentage(key):
    switcher = {
       "scale" : 0.50,
       "scrape" : 0.25,
-      "*" : 0.50,
-      "*" : 0.50,
-      "*" : 0.50,
-      "*" : 0.50,
-      "*" : 0.50,
-      "*" : 0.50,
+      "scalp" : 0.50,
+      "more" : 0.50,
+      "some more" : 0.50,
+      "runner" : 0.50,
+      "risky scalp" : 0.50,
+      "half" : 0.50, #Sold half, hold a few runners if you want
       "*" : 0.50,
       "*" : 0.50,
       "*" : 0.50,
@@ -116,7 +116,7 @@ def getPercentage(key):
     for i in scaleList:
         temp = re.search(i, testString)
         if temp != None:
-            if temp.group() == i:
+            if temp.group().lower == i:
                 print("Found ",temp.group())
                 perc = getPercentage(temp.group())
                 return perc
