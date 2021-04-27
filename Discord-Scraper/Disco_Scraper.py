@@ -180,10 +180,18 @@ async def tradeAndStuff(trade):
                     if position.contract.symbol == tradeTicker and position.contract.strike == strike and position.contract.right == direction:
                         closePosition(position)
                         print(position.contract.conId)
+                        print(position.contract)
 
-                for order in ib.openOrders():
-                    print("-------------ORDERS------------")
-                    print(order)
+
+                print("-------------ORDERS------------")
+                for trade in ib.openTrades():
+                    print(trade)
+                    if trade.contract.symbol == tradeTicker and trade.contract.strike == strike and trade.contract.right == direction:
+                        orderid = str(trade.order.orderId)
+                        print("Order ID:",orderid)
+                        ib.cancelOrder(trade.order)
+
+                    
 
 
                 cur_positions = cur_positions.drop(indx)
