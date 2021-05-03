@@ -21,12 +21,11 @@ GUILD_NAME = "Stoinks"
 CHANNEL_ID = 822972262008356964
 
 #Credential stuff
-TOKEN_AUTH = "MTg5NjA0MTc4MTExMjM0MDUw.YEPoQQ.-kgEiLpyPGCzIeV58bxhPe_wQqo" #Retrieved from browser local storage.
-
-
-
-
+TOKEN_AUTH = "MjMxNTAzMTc1MzgxODExMjAx.YEPafA.Ud2X2EDKYZexrkE54xJKk8sMOMs" #Retrieved from browser local storage.
 
 
 #Justin's Auth token: MTg5NjA0MTc4MTExMjM0MDUw.YEPoQQ.-kgEiLpyPGCzIeV58bxhPe_wQqo
 #Paul's Auth token: MjMxNTAzMTc1MzgxODExMjAx.YEPafA.Ud2X2EDKYZexrkE54xJKk8sMOMs
+
+MAX_POSITION_SIZE = 0.01 #Percent of account value Ex: 100,000 Account size, Max position size = MAX_POSITION*100,000 = 1,000
+ACCOUNT_SIZE = 1000000

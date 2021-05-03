@@ -1,6 +1,7 @@
 #local imports 
 import config
 import disco_util as utily
+from ib_stuff import closePosition, openPosition
 
 import discord
 import asyncio
@@ -36,53 +37,12 @@ try:
         rulehighthresh = float(3.00)
         rulehightick = float(0.1)
 
-
 except:
     print("--------------------------------------------------------------------------------------------------------------------------------")
     print("Trading offline: There was a problem connecting to IB. Make sure Trader Workstation is open and try restarting the python script")
     print("--------------------------------------------------------------------------------------------------------------------------------")
     Trading = False
 
-def orderfilled(trade, fill):
-    print("order has been filled")
-    print(trade)
-    print(fill)
-
-def closePosition(position, price = 0, percent=1.00):
-    position.contract.exchange = 'SMART'
-    numShares = round(percent * position.position)
-    if numShares == 0:
-        numShares = 1
-
-    if price == 0:
-        sellOrder = MarketOrder('SELL', numShares)
-
-    else:
-        sellOrder = LimitOrder('SELL', numShares, price)
-
-    sell = ib.placeOrder(position.contract,sellOrder)
-    print(sell)
-    sell.fillEvent += orderfilled   
-
-def openPosition(ticker, strike, date, direction, quantity, price = 0):
-    #ticker: 'AAPL'
-    #strike: int
-    #date: '20210430' = 'YYYYMMDD'
-    #direction: 'C' or 'P'
-    #quantity: int
-    #price: float
-
-    call_option = Option(symbol = ticker,lastTradeDateOrContractMonth = date, strike=strike, right = direction, exchange='SMART', currency='USD')
-    
-    if price == 0:
-        buyOrder = MarketOrder('BUY', quantity)
-
-    else:
-        buyOrder = LimitOrder('BUY', quantity, price)
-
-    trade = ib.placeOrder(call_option,buyOrder)
-
-    print(trade)
 
 #Primary parsey thing
 async def parseAndStuff(author, message):
@@ -134,15 +94,11 @@ async def parseAndStuff(author, message):
     return tempList
 
 
-
-
-
 #Buy or sell and stuff. Takes recent trade information and checks to see if we need to buy or sell, and adds it to recent positions if so
 async def tradeAndStuff(trade):
     global cur_positions
     traded = False
 
-    
     tradeType = trade.get('tradeType')
     tradeName = trade.get('name')
     tradeTicker = trade.get('ticker')
@@ -172,21 +128,31 @@ async def tradeAndStuff(trade):
                 indx = i
         #if we have a match, then sell and delete position from cur_positions. Could also hold record here for our buys ans sells.
         if indx != None:
+
             sellPercent = utily.checkNotes(notes)
             
-            print('\nSold '+ sellPercent +' of '+ tradeTicker +' with '+ tradeName +'!\n')#########DO LE SELL HERE :D
+            print('\nSold '+ str(sellPercent*100) +"% of "+ tradeTicker +' with '+ tradeName +'!\n')#########DO LE SELL HERE :D
 
             if Trading:
                 for position in ib.positions():
                     print(position.contract.symbol,tradeTicker,position.contract.strike,strike,position.contract.right,direction)
                     #date of contract is ignored so that we dont trade agaisnt any other positions
                     if position.contract.symbol == tradeTicker and position.contract.strike == strike and position.contract.right == direction:
-                        closePosition(position)
+                        closePosition(ib, position, percent=sellPercent)
                         print(position.contract.conId)
+                        print(position.contract)
 
-                for order in ib.openOrders():
-                    print("-------------ORDERS------------")
-                    print(order)
+
+                print("-------------ORDERS------------")
+                for trade in ib.openTrades():
+                    print(trade)
+                    if trade.contract.symbol == tradeTicker and trade.contract.strike == strike and trade.contract.right == direction:
+                        orderid = str(trade.order.orderId)
+                        print("Order ID:",orderid)
+                        if trade.orderStatus.remaining != 0: #check if the full order has been filled before trying to cancel
+                            ib.cancelOrder(trade.order)
+
+                    
 
 
                 traded = True
@@ -196,8 +162,20 @@ async def tradeAndStuff(trade):
         #if tradeName in nameList:
         print('\nBought some '+ tradeTicker +' with '+ tradeName +'!\n')##########DO LE BUY HERE :D
         if Trading:
+
+            #calculate risk based on price and keywords
+            risk = 1.00
+            if price < 1.00:
+                risk = risk*.5
+
+            if price < 0.5:
+                risk = risk*.5
+
+            #if notes != None:  ###############ADD KEYWORD RISK STUFF HERE
+
             #calculate quatity based on price
-            quantity = round(50/price)
+            quantity = round(((config.ACCOUNT_SIZE*config.MAX_POSITION_SIZE)*risk)/(price*100))
+            print(config.ACCOUNT_SIZE,config.MAX_POSITION_SIZE,risk,price,"quantity:",quantity)
             if quantity == 0:
                 quantity = 1
 
@@ -222,7 +200,6 @@ async def tradeAndStuff(trade):
     return traded
 
 
-
 #Check if we need to load in data from previous days
 fileExist = os.path.isfile('trade_data/pandy.csv')
 print('File exists: ', str(fileExist), '\n')
@@ -235,9 +212,6 @@ if fileExist2:
     cur_positions = pd.read_csv('trade_data/cur_positions.csv')
 
 print('Current Positions:\n', cur_positions, '\n')
-
-
-
 
 
 #Client code from here onward
