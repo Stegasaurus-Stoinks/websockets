@@ -64,10 +64,11 @@ def getPrice(message):
 
 def getNotes(message):
     noteStart = re.search("\(", message)
+    if noteStart == None:
+        return
     noteStart = noteStart.span()[0]
     notes = message[noteStart:]
-    if notes == None:
-        return
+    
     
     return notes
 
