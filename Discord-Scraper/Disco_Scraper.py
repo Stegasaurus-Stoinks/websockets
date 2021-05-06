@@ -190,7 +190,7 @@ async def tradeAndStuff(trade):
             price = price+(price*wiggle)
             price = base * round(price/base)
 
-            openPosition(tradeTicker, strike, date, direction, quantity, price = price)
+            openPosition(ib, tradeTicker, strike, date, direction, quantity, price = price)
             
             traded = True
 
