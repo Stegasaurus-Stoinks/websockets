@@ -166,6 +166,6 @@ class Algo:
             #update plot if plotting is true
             if self.plotting:
                 
-                self.plot.update_chart(self.ticker.getData("FULL")[0:self.plotSize], self.extraPlots, self.style)
+                self.plot.update_chart(self.ticker.getData("FULL")[0:self.plotSize])#, self.extraPlots, self.style)
                 
 
