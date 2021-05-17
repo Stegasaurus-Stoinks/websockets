@@ -13,7 +13,7 @@ import os, time
 
 from ib_insync import *
 
-nameList = ['testy', 'test', 'anotha test']
+nameList = ['Sweet_Louuu', 'Muse#3515', 'justinvred']
 pandy = pd.DataFrame(columns=['name', 'tradeType', 'ticker', 'strikePrice', 'optionType', 'date', 'price', 'timePlaced', 'traded','notes'])
 cur_positions = pd.DataFrame(columns=['name', 'tradeType', 'ticker', 'strikePrice', 'optionType', 'date', 'price', 'timePlaced','notes'])
 
@@ -47,7 +47,7 @@ except:
 #Primary parsey thing
 async def parseAndStuff(author, message):
     global pandy
-    print(message)
+    
     #split string into array
     splitString = re.split("\s", message, 2)
     if len(splitString) < 3:
@@ -155,8 +155,8 @@ async def tradeAndStuff(trade):
                     
 
 
-                cur_positions = cur_positions.drop(indx)
                 traded = True
+            cur_positions = cur_positions.drop(indx)
 
     elif tradeType.lower() == 'bto':
         #if tradeName in nameList:
@@ -173,7 +173,7 @@ async def tradeAndStuff(trade):
 
             #if notes != None:  ###############ADD KEYWORD RISK STUFF HERE
 
-            #calculate quatity based on price
+            #calculate quantity based on price
             quantity = round(((config.ACCOUNT_SIZE*config.MAX_POSITION_SIZE)*risk)/(price*100))
             print(config.ACCOUNT_SIZE,config.MAX_POSITION_SIZE,risk,price,"quantity:",quantity)
             if quantity == 0:
@@ -191,13 +191,13 @@ async def tradeAndStuff(trade):
             price = base * round(price/base)
 
             openPosition(ib, tradeTicker, strike, date, direction, quantity, price = price)
-
-            cur_positions = cur_positions.append(trade, ignore_index=True)
+            
             traded = True
 
-    print('saving current positions')
-    cur_positions.to_csv('trade_data/cur_positions.csv', index = False)
-    return traded
+        cur_positions = cur_positions.append(trade, ignore_index=True)
+        print('saving current positions')
+        cur_positions.to_csv('trade_data/cur_positions.csv', index = False)
+        return traded
 
 
 #Check if we need to load in data from previous days

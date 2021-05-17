@@ -64,10 +64,11 @@ def getPrice(message):
 
 def getNotes(message):
     noteStart = re.search("\(", message)
+    if noteStart == None:
+        return
     noteStart = noteStart.span()[0]
     notes = message[noteStart:]
-    if notes == None:
-        return
+    
     
     return notes
 
@@ -84,8 +85,7 @@ switcher = {
       "some more" : 0.50,
       "runner" : 0.50,
       "risky scalp" : 0.50,
-      "half" : 0.50, #Sold half, hold a few runners if you want
-
+      "half" : 0.50 #Sold half, hold a few runners if you want
    }
 
 
