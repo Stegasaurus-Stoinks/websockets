@@ -1,7 +1,11 @@
 #local imports 
 import config
 import disco_util as utily
-from ib_stuff import closePosition, openPosition
+
+#ibkr stuff
+from IBKR.ib_stuff import closePosition, openPosition
+from IBKR.ibkrApi import ibkrApi as ibkr
+from ib_insync import *
 
 import discord
 import asyncio
@@ -11,7 +15,6 @@ from datetime import datetime
 import pandas as pd
 import os
 
-from ib_insync import *
 
 nameList = ['Sweet_Louuu', 'Muse#3515', 'justinvred']
 pandy = pd.DataFrame(columns=['name', 'tradeType', 'ticker', 'strikePrice', 'optionType', 'date', 'price', 'timePlaced', 'traded','notes'])
