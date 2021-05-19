@@ -95,17 +95,16 @@ def getPercentage(key):
 
 
 def checkNotes(notes):
+    perc = 1.0
     print('notes: ',notes,'\n')
-    if notes == None:
-        return 1.0
-    #if notes contain any phrase in switcher, return it.
-    for i in switcher:
-        temp = re.search(i, notes)
-        print(temp)
-        if temp != None:
-            print(temp)
-            #if temp.group().lower == i:
-            print("Found ",temp.group())
-            return getPercentage(temp.group())
+    #if notes exist
+    if notes != None:
+        #if notes contain any phrase in switcher, set percentage.
+        for i in switcher:
+            temp = re.search(i, notes)
+            if temp != None:
+                #if temp.group().lower == i:
+                print("Found ",temp.group())
+                perc = getPercentage(temp.group())
     #otherwise, return 1.0
-    return 1.0
+    return perc

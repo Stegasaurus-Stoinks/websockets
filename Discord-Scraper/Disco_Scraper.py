@@ -155,49 +155,52 @@ async def tradeAndStuff(trade):
                     
 
 
-                traded = True
+            traded = True
             cur_positions = cur_positions.drop(indx)
+            print('saving current positions')
+            cur_positions.to_csv('trade_data/cur_positions.csv', index = False)
 
     elif tradeType.lower() == 'bto':
-        #if tradeName in nameList:
-        print('\nBought some '+ tradeTicker +' with '+ tradeName +'!\n')##########DO LE BUY HERE :D
-        if Trading:
+        if tradeName in nameList:
+            print('\nBought some '+ tradeTicker +' with '+ tradeName +'!\n')##########DO LE BUY HERE :D
+            if Trading:
 
-            #calculate risk based on price and keywords
-            risk = 1.00
-            if price < 1.00:
-                risk = risk*.5
+                #calculate risk based on price and keywords
+                risk = 1.00
+                if price < 1.00:
+                    risk = risk*.5
 
-            if price < 0.5:
-                risk = risk*.5
+                if price < 0.5:
+                    risk = risk*.5
 
-            #if notes != None:  ###############ADD KEYWORD RISK STUFF HERE
+                #if notes != None:  ###############ADD KEYWORD RISK STUFF HERE
 
-            #calculate quantity based on price
-            quantity = round(((config.ACCOUNT_SIZE*config.MAX_POSITION_SIZE)*risk)/(price*100))
-            print(config.ACCOUNT_SIZE,config.MAX_POSITION_SIZE,risk,price,"quantity:",quantity)
-            if quantity == 0:
-                quantity = 1
+                #calculate quantity based on price
+                quantity = round(((config.ACCOUNT_SIZE*config.MAX_POSITION_SIZE)*risk)/(price*100))
+                print(config.ACCOUNT_SIZE,config.MAX_POSITION_SIZE,risk,price,"quantity:",quantity)
+                if quantity == 0:
+                    quantity = 1
 
-            #calculate price
-            wiggle = 0.03 #percentage wiggle on entry price
+                #calculate price
+                wiggle = 0.03 #percentage wiggle on entry price
 
-            if price > rulehighthresh: #rounding price to correct multiple based on trading rules
-                base = rulehightick
-            else:
-                base = rulelowtick
+                if price > rulehighthresh: #rounding price to correct multiple based on trading rules
+                    base = rulehightick
+                else:
+                    base = rulelowtick
 
-            price = price+(price*wiggle)
-            price = base * round(price/base)
+                price = price+(price*wiggle)
+                price = base * round(price/base)
 
-            openPosition(ib, tradeTicker, strike, date, direction, quantity, price = price)
-            
+                openPosition(ib, tradeTicker, strike, date, direction, quantity, price = price)
+                
             traded = True
 
-        cur_positions = cur_positions.append(trade, ignore_index=True)
-        print('saving current positions')
-        cur_positions.to_csv('trade_data/cur_positions.csv', index = False)
-        return traded
+            cur_positions = cur_positions.append(trade, ignore_index=True)
+            print('saving current positions')
+            cur_positions.to_csv('trade_data/cur_positions.csv', index = False)
+    return traded
+
 
 
 #Check if we need to load in data from previous days
