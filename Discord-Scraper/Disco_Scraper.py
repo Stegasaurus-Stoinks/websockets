@@ -13,10 +13,10 @@ import asyncio
 import re
 from datetime import datetime
 import pandas as pd
-import os
+import os, time
 
 
-nameList = ['Sweet_Louuu', 'Muse#3515', 'justinvred']
+nameList = ['Sweet_Louuu', 'Muse#3515', 'justinvred','ryan-7k','Tatoepaladin','illproducer','slam','skepticule']
 pandy = pd.DataFrame(columns=['name', 'tradeType', 'ticker', 'strikePrice', 'optionType', 'date', 'price', 'timePlaced', 'traded','notes'])
 cur_positions = pd.DataFrame(columns=['name', 'tradeType', 'ticker', 'strikePrice', 'optionType', 'date', 'price', 'timePlaced','notes'])
 
@@ -232,7 +232,7 @@ async def on_ready():
 @client.event
 async def on_message(message):
     global pandy
-    #print("message recieved", message)
+    #print("message recieved :", message.content, message)
     if message.guild != None:
         #print(message.guild.name,config.GUILD_NAME,message.channel.id,config.CHANNEL_ID,str(message.author),str(message.content))
         if (message.guild.name == config.GUILD_NAME and message.channel.id == config.CHANNEL_ID and str(message.author) != 'Xcapture#0190'):

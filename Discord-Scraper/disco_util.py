@@ -83,9 +83,13 @@ switcher = {
       "scalp" : 0.50,
       "more" : 0.50,
       "some more" : 0.50,
-      "runner" : 0.50,
+      "runner" : 0.80,
       "risky scalp" : 0.50,
-      "half" : 0.50 #Sold half, hold a few runners if you want
+      "half" : 0.50, #Sold half, hold a few runners if you want
+      "2 runners" : 0.50,
+      "First exit" : 0.50,
+      "2/3 left" : 0.30,
+      "1/3 left" : 0.60
    }
 
 

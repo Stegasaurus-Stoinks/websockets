@@ -122,9 +122,9 @@ class Ticker:
 
         #Update for BACKTEST Data
         if self.DataBase.BackTest:
-            #length of backtest
-            data = self.DataBase.QueryDate(self.symbol, self.firstDate, self.lastDate)
-            #data = self.DataBase.QueryLast(self.symbol, self.length)
+            #length and type of backtest
+            #data = self.DataBase.QueryDate(self.symbol, self.firstDate, self.lastDate)
+            data = self.DataBase.QueryLast(self.symbol, self.length)
             self.BackTestAM_candlesticks = pd.DataFrame(data)
             self.BackTestAM_candlesticks.columns = ['time','symbol','volume','day_volume','day_open','vwap','open','high','close','low','avg','unix']
             self.BackTestAM_candlesticks['datetime'] = pd.to_datetime(self.BackTestAM_candlesticks['time'])
