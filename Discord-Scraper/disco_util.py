@@ -95,6 +95,9 @@ def getPercentage(key):
 
 
 def checkNotes(notes):
+    print('notes: ',notes,'\n')
+    if notes == None:
+        return 1.0
     #if notes contain any phrase in switcher, return it.
     for i in switcher:
         temp = re.search(i, notes)
