@@ -16,7 +16,7 @@ import pandas as pd
 import os, time
 
 
-nameList = ['Sweet_Louuu', 'Muse#3515', 'justinvred','ryan-7k','Tatoepaladin','illproducer','slam','skepticule']
+nameList = ['Sweet_Louuu', 'Muse', 'Justinvred','ryan-7k','Tatoepaladin','illproducer','slam','skepticule']
 pandy = pd.DataFrame(columns=['name', 'tradeType', 'ticker', 'strikePrice', 'optionType', 'date', 'price', 'timePlaced', 'traded','notes'])
 cur_positions = pd.DataFrame(columns=['name', 'tradeType', 'ticker', 'strikePrice', 'optionType', 'date', 'price', 'timePlaced','notes'])
 
