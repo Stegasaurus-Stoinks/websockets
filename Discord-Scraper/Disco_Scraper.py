@@ -21,7 +21,7 @@ pandy = pd.DataFrame(columns=['name', 'tradeType', 'ticker', 'strikePrice', 'opt
 cur_positions = pd.DataFrame(columns=['name', 'tradeType', 'ticker', 'strikePrice', 'optionType', 'date', 'price', 'timePlaced','notes'])
 
 try:
-    ib = IB()
+    ib = ibkr()
     ib.connect(host='127.0.0.1', port=7496, clientId=1)
     Trading = True
     
