@@ -10,7 +10,7 @@ class Ticker:
         self.status = "Not Initialized"
         
         #local array size
-        self.ArraySize = 100
+        self.ArraySize = 60
         #backtest length minus the local array size
         self.length = 500
         self.firstDate = '2021-03-01'
@@ -84,7 +84,8 @@ class Ticker:
 
         #check valid trading hours
         self.Current_time = self.AM_candlesticks.index[0]
-        if (self.Current_time < self.DAY_END_TIME) and (self.Current_time > self.DAY_START_TIME):
+        two_minutes = timedelta(minutes = 2)
+        if (self.Current_time < self.DAY_END_TIME - two_minutes) and (self.Current_time > self.DAY_START_TIME):
             self.validTradingHours = True
 
         else:

@@ -2,12 +2,13 @@ class Trade:
     
     #unique id so find trades that have been placed by this algo
 
-    def __init__(self, symbol, volume, ID, openPrice, openTime, tradeapi, printInfo = False):
+    def __init__(self, symbol, volume, ID, openPrice, openTime, direction, tradeapi, printInfo = False):
         self.symbol = symbol
         self.volume = volume
         self.ID = ID
         self.openPrice = openPrice
         self.openTime = openTime
+        self.direction = direction
         self.tradeapi = tradeapi
         self.printInfo = printInfo
         self.openPosition()
@@ -29,8 +30,9 @@ class Trade:
 
         #print to console trade placement info if asked for it
         if self.printInfo:
+            print("______________________________________________________________________")
             print("Opened a Postion! Bought " + str(self.volume) + " of " + self.symbol + " at time: " + str(self.openTime) + " | Trade ID: " + self.ID)
-
+            print("______________________________________________________________________")
 
 
     def closePosition(self, closePrice, closeTime):
@@ -58,3 +60,32 @@ class Trade:
 
     def getStatus(self):
         return(self.status)
+
+    def getStats(self, display = False):
+
+        PL = self.closePrice - self.openPrice
+        if self.direction == "DOWN":
+            PL = PL*(-1)
+        duration = self.closeTime - self.openTime
+        
+        if(display):
+            print("---------Trade Stats---------")
+            print("Open Price: ",self.openPrice)
+            print("Close Price: ",self.closePrice)
+            print("P/L: ",PL)
+            print(" ")
+            print("Open Time: ",self.openTime)
+            print("Close Time: ",self.closeTime)
+            print("Direction: ",self.direction)
+            print(" ")
+            print("Duration: ",duration)
+
+        d = dict(); 
+        d['openPrice'] = self.openPrice
+        d['closePrice']   = self.closePrice
+        d['PL']   = PL
+        d['openTime']   = self.openTime
+        d['closeTime']   = self.closeTime
+        d['duration']   = duration
+
+        return(d)

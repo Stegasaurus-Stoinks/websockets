@@ -13,7 +13,7 @@ import os, time
 
 from ib_insync import *
 
-nameList = ['Sweet_Louuu', 'Muse#3515', 'justinvred','ryan-7k','Tatoepaladin','illproducer','slam','skepticule']
+nameList = ['Sweet_Louuu', 'Muse#3515', 'justinvred','ryan-7k','Tatoepaladin','illproducer','slam','skepticule','The ßlind Monk','Wags']
 pandy = pd.DataFrame(columns=['name', 'tradeType', 'ticker', 'strikePrice', 'optionType', 'date', 'price', 'timePlaced', 'traded','notes'])
 cur_positions = pd.DataFrame(columns=['name', 'tradeType', 'ticker', 'strikePrice', 'optionType', 'date', 'price', 'timePlaced','notes'])
 
@@ -129,7 +129,7 @@ async def tradeAndStuff(trade):
         #if we have a match, then sell and delete position from cur_positions. Could also hold record here for our buys ans sells.
         if indx != None:
 
-            sellPercent = utily.checkNotes(notes)
+            sellPercent = utily.checkNotes(notes) #check notes for key words to decide exit percentage
             
             print('\nSold '+ str(sellPercent*100) +"% of "+ tradeTicker +' with '+ tradeName +'!\n')#########DO LE SELL HERE :D
 

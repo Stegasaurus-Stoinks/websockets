@@ -5,6 +5,7 @@ from plotter import LiveChartEnv
 
 import pandas as pd
 import numpy as np
+import talib
 
 class Algo:
     
@@ -23,6 +24,8 @@ class Algo:
         self.type = ticker.type
         self.inPosition = False
         self.status = "Initialized"
+        self.exitPrice = np.NaN
+        self.entryPrice = np.NaN
 
 
         #---------Algo Sepcific Variables--------
@@ -31,26 +34,30 @@ class Algo:
         #----------------------------------------
 
         #Initialize extra plot data arrays
-        self.test1 = [np.NaN] * self.plotSize
-        self.test2 = [np.NaN] * self.plotSize
-        self.test3 = [np.NaN] * self.plotSize
-        self.test4 = [np.NaN] * self.plotSize
+        self.trend1 = [np.NaN] * self.plotSize
+        self.trend2 = [np.NaN] * self.plotSize
+        self.upArrow = [np.NaN] * self.plotSize
+        self.downArrow = [np.NaN] * self.plotSize
         self.entry = [np.NaN] * self.plotSize
         self.exit = [np.NaN] * self.plotSize
-        #array for all extra plot data
-        self.extraPlots = [self.test1, self.test2, self.test3, self.test4, self.exit, self.entry]
-        #style for extra plot data
-        self.style = [['line','dashdot'],['line','dashdot'],['scatter','up'],['scatter','down'],['line','normal'],['line','normal']]
 
+        
         #-----------STATS------------
         self.goodTrades = 0
         self.badTrades = 0
         self.totalProfit = 0
+        self.totalTrades = 0
         #----------------------------
 
         #initialize plot if plot variable is true
         if(self.plotting):
             self.plotInit()
+
+        #array for all extra plot data
+        self.extraPlots = [self.upArrow, self.downArrow, self.exit, self.entry]
+
+        #style for extra plot data
+        self.style = [['scatter','up'],['scatter','down'],['line','dashdot'],['line','dashdot']]
 
 
     def update(self):
@@ -59,7 +66,6 @@ class Algo:
 
         #print("Run Algo Update Loop using data from " + self.ticker.symbol)
         #print("Trades placed will have the ID: " + self.tradeID)
-
         if self.ticker.validTradingHours == True:
 
             current_data = self.ticker.getData()
@@ -67,75 +73,83 @@ class Algo:
             #----------|---Trading Logic Goes Below---|--------------
             #----------v------------------------------v--------------
 
-            #SMA calcs
-            avg1 = self.ticker.getData("FULL")[0:50]['close'].mean()
-            avg2 = self.ticker.getData("FULL")[0:20]['close'].mean()
+            close = self.ticker.getData("FULL")
+            close = close['close'].to_numpy()
+            close = close[::-1]
+            
+            trendline = talib.LINEARREG(close, timeperiod=14).tolist()
+            levels = []
+            df = self.ticker.getData("FULL")
+            for i in range(2,df.shape[0]-2):    
+                if self.isSupport(df,i):
+                    if not self.isClosetoLevel(df['low'][i],levels):
+                        levels.append((df['low'][i]))
+                elif self.isResistance(df,i):
+                    if not self.isClosetoLevel(df['high'][i],levels):
+                        levels.append((df['high'][i]))
 
-            self.test1.append(avg1)
-            self.test2.append(avg2)
+            #print(levels)
+            i = 4
+            self.extraPlots = self.extraPlots[0:i-1]
+            for level in levels:
+                levelline = [level] * self.plotSize
+                self.extraPlots.append(levelline)
 
-            #SMA Crossing Logic
-            if avg1 > avg2 and self.highest != 1:
-                num = current_data['close']*1.001
-                self.test4.append(num)
-                self.highest = 1
-                self.entry = [current_data['close']] * self.plotSize
-                self.inPosition = True 
+            
+            
+            #print(len(trendline))
+            #self.extraPlots[0] = trendline
+            #self.extraPlots[1] = trendline1
+            #print(output)
 
-            else:
-                self.test4.append(np.NaN)
-
-            if avg2 > avg1 and self.highest != 2:
-                num = current_data['close']*0.999
-                self.test3.append(num)
-                self.highest = 2
-                self.entry = [current_data['close']] * self.plotSize
-                self.inPosition = True
-
-            else:
-                self.test3.append(np.NaN) 
-
-            #Set Exit Price based on if its an up or down trade (both set to same at the moment..)
-            if self.inPosition == True:
-                if self.highest == 1:
-                    self.exit = [current_data['close']] * self.plotSize
-
-                if self.highest == 2:
-                    self.exit = [current_data['close']] * self.plotSize
-
-            else:
-                self.status = "Running"
-                time = datetime.now()
-
-                #conditions that must be met to place a trade
-                if 1:
-                    #place a trade
-                    volume = 10
-                    trade = Trade(self.ticker.symbol, volume, self.tradeID, 1.01, time, self.tradeapi, printInfo = True)
-                    print("The trade is " + trade.getStatus())
-                    self.inPosition = True
+            
+            
 
             #----------^------------------------------^--------------
             #----------|---Trading Logic Goes Above---|--------------
             #--------------------------------------------------------
 
             #This function handles all the plotting garbage
+
             self.plotUpdate()
 
 
         #if not valid Trading hours...
         else:
+            self.Stats()
             if self.plotting:
                 #update just the candles on the chart
                 self.plot.update_chart(self.ticker.getData("FULL")[0:self.plotSize])
 
+            #quit()
 
 
 
-    def Statistics(self):
-        print("This will print all of the statistics of the algo")
+    def isSupport(self,df,i):
+        support = df['low'][i] < df['low'][i-1]  and df['low'][i] < df['low'][i+1] \
+        and df['low'][i+1] < df['low'][i+2] and df['low'][i-1] < df['low'][i-2]
+
+        return support
+
+    def isResistance(self,df,i):
+        resistance = df['high'][i] > df['high'][i-1]  and df['high'][i] > df['high'][i+1] \
+        and df['high'][i+1] > df['high'][i+2] and df['high'][i-1] > df['high'][i-2] 
+
+        return resistance
+
+    def isClosetoLevel(self,l,levels):
+        isClose = False
+        for level in levels:
+            #print(l,level)
+            if abs(l - level) <= .10:
+                isClose = True
+        return(isClose)
+
+
+    def Stats(self):
+        print("----------------This will print all of the statistics of the algo----------------")
         #will probably need to connect to the database to find all that data, but not rn
-        print("Good Trades: " + str(self.goodTrades) + "/" + str(self.goodTrades + self.badTrades))
+        print("Good Trades: " + str(self.goodTrades) + "/" + str(self.totalTrades))
         print("Total Profit: " + str(self.totalProfit))
 
 
@@ -147,25 +161,29 @@ class Algo:
 
 
     def plotInit(self):
-        self.plot = LiveChartEnv("1min", 50)
+        self.plot = LiveChartEnv("1min", self.plotSize)
         self.plot.initialize_chart()
 
     def plotUpdate(self):
 
         #Ensure that all the arrays are the same size before sending them to the plotter
             for array in self.extraPlots:
-                if len(array) > self.plotSize:
+                while len(array) > self.plotSize:
                     array.pop(0)
 
-                if len(array) < self.plotSize:
+                while len(array) < self.plotSize:
                     array.append(np.NaN)
 
             if(self.inPosition):
                 self.status = "In a Position. ID: " + self.tradeID
 
+            #ensure that style is always a normal line
+            while len(self.style) < len(self.extraPlots):
+                self.style.append(['line','normal'])
+
             #update plot if plotting is true
             if self.plotting:
                 
-                self.plot.update_chart(self.ticker.getData("FULL")[0:self.plotSize])#, self.extraPlots, self.style)
+                self.plot.update_chart(self.ticker.getData("FULL")[0:self.plotSize], self.extraPlots, self.style)
                 
 

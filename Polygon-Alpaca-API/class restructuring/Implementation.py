@@ -1,11 +1,13 @@
-from algo_SMA import Algo as AlgoSMA
-from algo_Trendlines import Algo as AlgoTrendlines
-from algo_Template import Algo as AlgoTemplate
-from ticker import Ticker
-from database import Database
-from tradeApi import TradeApi
-from plotter import LiveChartEnv
-from MomentumAlgo import MomentumAlgo
+from mplfinance import plotting
+from Algos.algo_EMA import Algo as AlgoEMA
+from Algos.algo_Trendlines import Algo as AlgoTrendlines
+from Algos.MomentumAlgo import MomentumAlgo
+
+from extras.ticker import Ticker
+from extras.database import Database
+from extras.tradeApi import TradeApi
+from extras.plotter import LiveChartEnv
+
 
 import time
 
@@ -18,20 +20,23 @@ BackTest = True
 DB = Database(BackTest)
 api = TradeApi(Trading, Live_Trading)
 #Initiaiize all relevant tickers for the day
-AAPL = Ticker("AAPL", "Stock", DB)
+AAPL = Ticker("AAPL", "Stock", DB) 
 TSLA = Ticker("TSLA", "Stock", DB)
 
 #Warmup all tickers
 AAPL.warmUp() 
-AAPL.getStatus()
+#AAPL.getStatus()
 
-#TSLA.warmUp()
+TSLA.warmUp()
 #TSLA.getStatus()
 
 #######Initialize all algos for the day#######
 #momentum1 = MomentumAlgo(AAPL, "testy", 2, api)
-
-AAPLalgo1 = AlgoSMA(AAPL, "ThreeKings", 9, api, live = False, plotting = True)
+ 
+AAPLalgo1 = AlgoEMA(TSLA, "ThreeKings", 9, api, False, 50, 20, plotting = True)
+#AAPLalgo2 = AlgoEMA(AAPL, "ThreeKings", 9, api, False, 50, 20)
+#AAPLalgo3 = AlgoEMA(AAPL, "ThreeKings", 9, api, False, 50, 30)
+#AAPLalgo1 = AlgoEMA(AAPL, "ThreeKings", 9, api, False, 40, 10 , plotting = True)
 #AAPLalgo1 = AlgoTrendlines(AAPL, "MomentumEMA", 2, api, live = False, plotting = True)
 
 while 1:
@@ -39,15 +44,16 @@ while 1:
     DB.awaitNewData()
 
     AAPL.update()
-    AAPL.getStatus()
+    #AAPL.getStatus()
 
-    #TSLA.update()
+    TSLA.update()
     #TSLA.getStatus()
     
     
-    time.sleep(0.1)
+    #time.sleep(0.1)
 
     AAPLalgo1.update()
     #AAPLalgo2.update()
+    #AAPLalgo3.update()
     
     #quit()
