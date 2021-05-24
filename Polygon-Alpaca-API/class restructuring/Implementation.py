@@ -1,7 +1,10 @@
+#import sys
+#sys.path.append('../')
+
 from mplfinance import plotting
-from Algos.algo_EMA import Algo as AlgoEMA
-from Algos.algo_Trendlines import Algo as AlgoTrendlines
-from Algos.MomentumAlgo import MomentumAlgo
+from . algos.algo_EMA import Algo as AlgoEMA
+#from algos.algo_Trendlines import Algo as AlgoTrendlines
+#from ..algos.MomentumAlgo import MomentumAlgo
 
 from extras.ticker import Ticker
 from extras.database import Database
