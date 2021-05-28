@@ -77,19 +77,27 @@ def getNotes(message):
 ################################
 ######## trade details #########
 ################################
+#checks in order of priority
 switcher = {
-      "scale" : 0.50,
-      "scrape" : 0.25,
-      "scalp" : 0.50,
-      "more" : 0.50,
-      "some more" : 0.50,
-      "runner" : 0.80,
-      "risky scalp" : 0.50,
-      "half" : 0.50, #Sold half, hold a few runners if you want
-      "2 runners" : 0.50,
-      "First exit" : 0.50,
-      "2/3 left" : 0.30,
-      "1/3 left" : 0.60
+    "10%" : 0.10,
+    "20%" : 0.20,
+    "30%" : 0.30,
+    "40%" : 0.40,
+    "50%" : 0.50,
+    "60%" : 0.60,
+    "70%" : 0.70,
+    "scale" : 0.50,
+    "scrape" : 0.25,
+    "scalp" : 0.50,
+    "more" : 0.50,
+    "some more" : 0.50,
+    "runner" : 0.80,
+    "risky scalp" : 0.50,
+    "half" : 0.50, #Sold half, hold a few runners if you want
+    "2 runners" : 0.50,
+    "First exit" : 0.50,
+    "2/3 left" : 0.30,
+    "1/3 left" : 0.60
    }
 
 
