@@ -1,10 +1,10 @@
-#import sys
-#sys.path.append('../')
+import sys
+sys.path.append('../')
 
-from ..extras.trade import Trade
+from extra.trade import Trade
+from extra.plotter import LiveChartEnv
+
 from datetime import datetime , timedelta
-from ..plotter import LiveChartEnv
-
 
 import pandas as pd
 import numpy as np

@@ -10,7 +10,7 @@ class Ticker:
         self.status = "Not Initialized"
         
         #local array size
-        self.ArraySize = 60
+        self.ArraySize = 100
         #backtest length minus the local array size
         self.length = 500
         self.firstDate = '2021-03-01'

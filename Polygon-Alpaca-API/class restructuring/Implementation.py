@@ -1,15 +1,15 @@
-#import sys
-#sys.path.append('../')
+import sys
+sys.path.append('../')
 
 from mplfinance import plotting
-from . algos.algo_EMA import Algo as AlgoEMA
-#from algos.algo_Trendlines import Algo as AlgoTrendlines
-#from ..algos.MomentumAlgo import MomentumAlgo
+from algos.algo_EMA import Algo as AlgoEMA
+from algos.algo_Support import Algo as AlgoSupport
+from algos.algo_Trendlines import Algo as AlgoTrend
 
-from extras.ticker import Ticker
-from extras.database import Database
-from extras.tradeApi import TradeApi
-from extras.plotter import LiveChartEnv
+from extra.ticker import Ticker
+from extra.database import Database
+from extra.tradeApi import TradeApi
+from extra.plotter import LiveChartEnv
 
 
 import time
@@ -36,11 +36,12 @@ TSLA.warmUp()
 #######Initialize all algos for the day#######
 #momentum1 = MomentumAlgo(AAPL, "testy", 2, api)
  
-AAPLalgo1 = AlgoEMA(TSLA, "ThreeKings", 9, api, False, 50, 20, plotting = True)
+#AAPLalgo1 = AlgoEMA(TSLA, "ThreeKings", 9, api, False, 50, 20)
 #AAPLalgo2 = AlgoEMA(AAPL, "ThreeKings", 9, api, False, 50, 20)
 #AAPLalgo3 = AlgoEMA(AAPL, "ThreeKings", 9, api, False, 50, 30)
 #AAPLalgo1 = AlgoEMA(AAPL, "ThreeKings", 9, api, False, 40, 10 , plotting = True)
-#AAPLalgo1 = AlgoTrendlines(AAPL, "MomentumEMA", 2, api, live = False, plotting = True)
+#AAPLalgo1 = AlgoSupport(AAPL, "MomentumEMA", 2, api, live = False, plotting = True,plotSize = 75)
+AAPLalgo1 = AlgoTrend(AAPL, "MomentumEMA", 2, api, live = False, plotting = True,plotSize = 75)
 
 while 1:
 

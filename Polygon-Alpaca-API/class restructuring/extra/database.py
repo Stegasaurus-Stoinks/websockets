@@ -2,7 +2,7 @@ import psycopg2
 import psycopg2.extensions
 import select
 
-import config
+from . import config
 
 class Database:
 
