@@ -58,6 +58,9 @@ class LiveChartEnv:
                         if style[i][1] == 'dashdot':
                             extraPlots.append(mpf.make_addplot(extraData[i],linestyle='dashdot', ax=self.ax1))
 
+            volAvg = int(candle_data["volume"].mean())
+            mean = [volAvg] * len(candle_data)
+            extraPlots.append(mpf.make_addplot(mean,markersize=200, ax=self.ax2))
             self.ax1.clear() # - Clear the chart
             self.ax2.clear()
 
