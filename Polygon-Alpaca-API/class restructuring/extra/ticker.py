@@ -14,7 +14,7 @@ class Ticker:
         #backtest length minus the local array size
         self.length = 500
         self.firstDate = '2021-01-05'
-        self.lastDate = '2021-01-07'
+        self.lastDate = '2021-01-08'
         #iteration to keep track of backtest
         self.iteration = 0
         #for timing the backtest
@@ -82,10 +82,17 @@ class Ticker:
             self.AM_candlesticks = self.AM_candlesticks.append(series)
             self.AM_candlesticks = self.AM_candlesticks.sort_index(ascending=False)
 
+        #Define the valid trading hours based on the first dataset pulled in
+        self.Current_time = self.AM_candlesticks.index[0]
+        if self.Current_time.day is not self.DAY_START_TIME.day:
+            self.DAY_START_TIME = self.Current_time.replace(hour=9, minute=30)
+            self.DAY_END_TIME = self.Current_time.replace(hour=16, minute=00)
 
         #check valid trading hours
         self.Current_time = self.AM_candlesticks.index[0]
         two_minutes = timedelta(minutes = 2)
+        #print(self.Current_time, self.DAY_START_TIME, self.DAY_END_TIME)
+        #print(self.Current_time.day, self.DAY_START_TIME.day)
         if (self.Current_time < self.DAY_END_TIME - two_minutes) and (self.Current_time > self.DAY_START_TIME):
             self.validTradingHours = True
 
@@ -145,12 +152,6 @@ class Ticker:
             self.AM_candlesticks['datetime'] = pd.to_datetime(self.AM_candlesticks['time'])
             self.AM_candlesticks = self.AM_candlesticks.set_index('datetime')
             self.AM_candlesticks.drop(['time'], axis=1, inplace=True)
-
-
-        #Define the valid trading hours based on the first dataset pulled in
-        self.Current_time = self.AM_candlesticks.index[0]
-        self.DAY_START_TIME = self.Current_time.replace(hour=9, minute=30)
-        self.DAY_END_TIME = self.Current_time.replace(hour=16, minute=00)
 
         self.status = "Initialized"
 

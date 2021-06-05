@@ -61,6 +61,7 @@ class LiveChartEnv:
             volAvg = int(candle_data["volume"].mean())
             mean = [volAvg] * len(candle_data)
             extraPlots.append(mpf.make_addplot(mean,markersize=200, ax=self.ax2))
+            #print(extraPlots)
             self.ax1.clear() # - Clear the chart
             self.ax2.clear()
 

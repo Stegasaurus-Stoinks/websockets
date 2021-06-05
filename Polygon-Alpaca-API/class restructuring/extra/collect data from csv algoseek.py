@@ -27,7 +27,7 @@ CONNECTION = "postgres://{}:{}@{}:{}/{}".format(config.TSDB_USERNAME, config.TSD
 conn = psycopg2.connect(CONNECTION)
 cur = conn.cursor()
 
-ticker = "MSFT"
+ticker = "AAPL"
 #path1 = 'C:\Users\pwild\Downloads\TestData\{}.csv'.format(ticker)
 #path2 = 'C:\Users\pwild\Downloads\{}.csv'.format(ticker)
 #path3 = 'C:\Users\pwild\Downloads\{}.csv'.format(ticker)
