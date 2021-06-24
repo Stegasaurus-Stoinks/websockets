@@ -18,7 +18,7 @@ import os, time
 
 nameList = ['Sweet_Louuu', 'Muse', 'Justinvred','ryan-7k','Tatoepaladin','illproducer','slam','skepticule', 'Wags']
 pandy = pd.DataFrame(columns=['name', 'tradeType', 'ticker', 'strikePrice', 'optionType', 'date', 'price', 'timePlaced', 'traded','notes'])
-cur_positions = pd.DataFrame(columns=['name', 'tradeType', 'ticker', 'strikePrice', 'optionType', 'date', 'price', 'timePlaced','notes'])
+all_trades = pd.DataFrame(columns=['name', 'tradeType', 'ticker', 'strikePrice', 'optionType', 'date', 'price', 'timePlaced','notes'])
 
 try:
     ib = ibkr()
@@ -99,8 +99,9 @@ async def parseAndStuff(author, message):
 
 #Buy or sell and stuff. Takes recent trade information and checks to see if we need to buy or sell, and adds it to recent positions if so
 async def tradeAndStuff(trade):
-    global cur_positions
+    global all_trades
     traded = False
+    positions = ib.refresh()
 
     tradeType = trade.get('tradeType')
     tradeName = trade.get('name')
@@ -115,32 +116,40 @@ async def tradeAndStuff(trade):
     
     date = dateyear+datemonth+dateday
 
-    direction = trade.get('optionType')
+    tradeRight = trade.get('optionType')
     strike = trade.get('strikePrice')
     strike = float(strike[:-1])
 
     indx = None
     #logic block for buy or sell
     if tradeType.lower() == 'stc':
-        if cur_positions.empty:
+        if all_trades.empty:
             return traded
         #check if we already have a position from same author
-        for i in range(len(cur_positions.name)):
-            if cur_positions.name[i] == tradeName and cur_positions.ticker[i] == tradeTicker:
+#        for i in all_trades:
+#            if all_trades.name[i] == tradeName and all_trades.ticker[i] == tradeTicker:
+#                #save index of name to call later
+#                indx = i
+#        #if we have a match, then sell and delete position from all_trades. Could also hold record here for our buys ans sells.
+#        if indx != None:
+
+        success = False
+        for i in positions:
+            if i.contract.symbol == tradeTicker and i.contract.strike == strike and i.contract.right == tradeRight:
                 #save index of name to call later
-                indx = i
-        #if we have a match, then sell and delete position from cur_positions. Could also hold record here for our buys ans sells.
-        if indx != None:
+                success = True
+        #if we have a match, then sell and delete position from all_trades. Could also hold record here for our buys ans sells.
+        if success == True:
 
             sellPercent = utily.checkNotes(notes)
             
             print('\nSold '+ str(sellPercent*100) +"% of "+ tradeTicker +' with '+ tradeName +'!\n')#########DO LE SELL HERE :D
 
             if Trading:
-                for position in ib.positions():
-                    print(position.contract.symbol,tradeTicker,position.contract.strike,strike,position.contract.right,direction)
+                for position in positions:
+                    print(position.contract.symbol,tradeTicker,position.contract.strike,strike,position.contract.right,tradeRight)
                     #date of contract is ignored so that we dont trade agaisnt any other positions
-                    if position.contract.symbol == tradeTicker and position.contract.strike == strike and position.contract.right == direction:
+                    if position.contract.symbol == tradeTicker and position.contract.strike == strike and position.contract.right == tradeRight:
                         closePosition(ib, position, percent=sellPercent)
                         print(position.contract.conId)
                         print(position.contract)
@@ -149,7 +158,7 @@ async def tradeAndStuff(trade):
                 print("-------------ORDERS------------")
                 for trade in ib.openTrades():
                     print(trade)
-                    if trade.contract.symbol == tradeTicker and trade.contract.strike == strike and trade.contract.right == direction:
+                    if trade.contract.symbol == tradeTicker and trade.contract.strike == strike and trade.contract.right == tradeRight:
                         orderid = str(trade.order.orderId)
                         print("Order ID:",orderid)
                         if trade.orderStatus.remaining != 0: #check if the full order has been filled before trying to cancel
@@ -159,9 +168,9 @@ async def tradeAndStuff(trade):
 
 
             traded = True
-            cur_positions = cur_positions.drop(indx)
+            all_trades = all_trades.drop(indx)
             print('saving current positions')
-            cur_positions.to_csv('trade_data/cur_positions.csv', index = False)
+            all_trades.to_csv('trade_data/all_trades.csv', index = False)
 
     elif tradeType.lower() == 'bto':
         if tradeName in nameList:
@@ -169,13 +178,17 @@ async def tradeAndStuff(trade):
             if Trading:
 
                 #calculate risk based on price and keywords
-                risk = 1.00
+                buyPercent = utily.checkNotes(notes)
+                risk = buyPercent
                 if price < 1.00:
                     risk = risk*.5
 
                 if price < 0.5:
                     risk = risk*.5
 
+                if price == 0.0:
+                    print("risky trade! Skipping.")
+                    return
                 #if notes != None:  ###############ADD KEYWORD RISK STUFF HERE
 
                 #calculate quantity based on price
@@ -195,13 +208,13 @@ async def tradeAndStuff(trade):
                 price = price+(price*wiggle)
                 price = base * round(price/base)
 
-                openPosition(ib, tradeTicker, strike, date, direction, quantity, price = price)
+                openPosition(ib, tradeTicker, strike, date, tradeRight, quantity, price = price)
                 
             traded = True
 
-            cur_positions = cur_positions.append(trade, ignore_index=True)
+            all_trades = all_trades.append(trade, ignore_index=True)
             print('saving current positions')
-            cur_positions.to_csv('trade_data/cur_positions.csv', index = False)
+            all_trades.to_csv('trade_data/all_trades.csv', index = False)
     return traded
 
 
@@ -217,12 +230,12 @@ print('File exists: ', str(fileExist), '\n')
 if fileExist:
     pandy = pd.read_csv('trade_data/pandy.csv')
 
-fileExist2 = os.path.isfile('trade_data/cur_positions.csv')
+fileExist2 = os.path.isfile('trade_data/all_trades.csv')
 print('File exists: ', str(fileExist2), '\n')
 if fileExist2:
-    cur_positions = pd.read_csv('trade_data/cur_positions.csv')
+    all_trades = pd.read_csv('trade_data/all_trades.csv')
 
-print('Current Positions:\n', cur_positions, '\n')
+print('Current Positions:\n', all_trades, '\n')
 
 
 #Client code from here onward
@@ -245,7 +258,7 @@ async def on_message(message):
             tradeData = await parseAndStuff(str(message.author), str(message.content))
 
             if tradeData != None:
-                #if not cur_positions.empty:
+                #if not all_trades.empty:
                 traded = await tradeAndStuff(tradeData)
                 tradeData.update({'traded': traded});
 

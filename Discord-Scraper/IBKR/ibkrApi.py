@@ -49,3 +49,8 @@ class ibkrApi(IB):
         trade = self.placeOrder(call_option,buyOrder)
 
         print(trade)
+
+    #Generate new list of positions
+    def refresh(self):
+        positions = self.positions()
+        return positions

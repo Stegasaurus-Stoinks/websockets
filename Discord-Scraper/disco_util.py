@@ -3,7 +3,7 @@ from typing import Literal
 
 
 """
-This section will be the getters for every piece of data we need from the message
+getters for every piece of data we need from message
 """
 
 Animal = Literal['ant', 'bee', 'cat', 'dog']
@@ -79,6 +79,7 @@ def getNotes(message):
 ################################
 #checks in order of priority
 switcher = {
+    "risky" : 0.0,
     "10%" : 0.10,
     "20%" : 0.20,
     "30%" : 0.30,
@@ -120,3 +121,9 @@ def checkNotes(notes):
                 perc = getPercentage(temp.group())
     #otherwise, return 1.0
     return perc
+
+
+
+########################################
+######## PRIMARY FUNCTIONALITY #########
+########################################
