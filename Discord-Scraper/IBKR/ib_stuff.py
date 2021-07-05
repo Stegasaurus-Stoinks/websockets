@@ -9,7 +9,7 @@ def closePosition(ib, position, price = 0, percent=1.00):
     position.contract.exchange = 'SMART'
     numShares = round(percent * position.position)
     if numShares == 0:
-        numShares = 1
+        return
 
     if price == 0:
         sellOrder = MarketOrder('SELL', numShares)
