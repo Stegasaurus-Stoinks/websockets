@@ -123,16 +123,11 @@ async def tradeAndStuff(trade):
     indx = None
     #logic block for buy or sell
     if tradeType.lower() == 'stc':
-        if all_trades.empty:
-            return traded
-        #check if we already have a position from same author
-#        for i in all_trades:
-#            if all_trades.name[i] == tradeName and all_trades.ticker[i] == tradeTicker:
-#                #save index of name to call later
-#                indx = i
-#        #if we have a match, then sell and delete position from all_trades. Could also hold record here for our buys ans sells.
-#        if indx != None:
 
+        if not positions:
+            return traded
+
+        #check if we have a matching position to sell
         success = False
         for i in positions:
             if i.contract.symbol == tradeTicker and i.contract.strike == strike and i.contract.right == tradeRight:
@@ -164,13 +159,8 @@ async def tradeAndStuff(trade):
                         if trade.orderStatus.remaining != 0: #check if the full order has been filled before trying to cancel
                             ib.cancelOrder(trade.order)
 
-                    
-
-
             traded = True
-            all_trades = all_trades.drop(indx)
-            print('saving current positions')
-            all_trades.to_csv('trade_data/all_trades.csv', index = False)
+            
 
     elif tradeType.lower() == 'bto':
         if tradeName in nameList:
@@ -186,7 +176,7 @@ async def tradeAndStuff(trade):
                 if price < 0.5:
                     risk = risk*.5
 
-                if price == 0.0:
+                if risk == 0.0:
                     print("risky trade! Skipping.")
                     return
                 #if notes != None:  ###############ADD KEYWORD RISK STUFF HERE
