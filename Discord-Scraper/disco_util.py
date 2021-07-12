@@ -90,10 +90,9 @@ switcher = {
     "trim half" : 0.49,
     "trim" : 0.49,
     "out most" : 0.80,
+    "leave runners" : 0.20,
     
-    
-
-    "risky" : 0.0,
+    #"risky" : 0.0,
     
     # "scale" : 0.50,
     # "scrape" : 0.25,
@@ -130,7 +129,7 @@ def checkNotes(notes):
     if notes != None:
         #if notes contain any phrase in switcher, set percentage.
         for i in switcher:
-            temp = re.search(i, notes)
+            temp = re.search(i, notes, re.IGNORECASE)
             if temp != None:
                 #if temp.group().lower == i:
                 print("Found ",temp.group())

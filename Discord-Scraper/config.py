@@ -27,5 +27,5 @@ TOKEN_AUTH = "MjMxNTAzMTc1MzgxODExMjAx.YEPafA.Ud2X2EDKYZexrkE54xJKk8sMOMs" #Retr
 #Justin's Auth token: MTg5NjA0MTc4MTExMjM0MDUw.YEPoQQ.-kgEiLpyPGCzIeV58bxhPe_wQqo
 #Paul's Auth token: MjMxNTAzMTc1MzgxODExMjAx.YEPafA.Ud2X2EDKYZexrkE54xJKk8sMOMs
 
-MAX_POSITION_SIZE = 0.005 #Percent of account value Ex: 100,000 Account size, Max position size = MAX_POSITION*100,000 = 1,000
-ACCOUNT_SIZE = 1000000
+MAX_POSITION_SIZE = 0.125 #Percent of account value Ex: 100,000 Account size, Max position size = MAX_POSITION*100,000 = 1,000
+ACCOUNT_SIZE = 4000

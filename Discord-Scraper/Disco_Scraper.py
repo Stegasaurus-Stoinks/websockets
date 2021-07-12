@@ -14,9 +14,10 @@ import re
 from datetime import datetime
 import pandas as pd
 import os, time
+import math
 
 
-nameList = ['Sweet_Louuu', 'Muse', 'Justinvred','ryan-7k','Tatoepaladin','illproducer','slam','skepticule', 'Wags']
+nameList = ['Sweet_Louuu', 'Muse', 'Justinvred','ryan-7k','Tatoepaladin','illproducer','slam','skepticule', 'Wags','EvaPanda']
 pandy = pd.DataFrame(columns=['name', 'tradeType', 'ticker', 'strikePrice', 'optionType', 'date', 'price', 'timePlaced', 'traded','notes'])
 all_trades = pd.DataFrame(columns=['name', 'tradeType', 'ticker', 'strikePrice', 'optionType', 'date', 'price', 'timePlaced','notes'])
 
@@ -170,11 +171,6 @@ async def tradeAndStuff(trade):
                 #calculate risk based on price and keywords
                 buyPercent = utily.checkNotes(notes)
                 risk = buyPercent
-                if price < 1.00:
-                    risk = risk*.5
-
-                if price < 0.5:
-                    risk = risk*.5
 
                 if risk == 0.0:
                     print("risky trade! Skipping.")
@@ -182,10 +178,9 @@ async def tradeAndStuff(trade):
                 #if notes != None:  ###############ADD KEYWORD RISK STUFF HERE
 
                 #calculate quantity based on price
-                quantity = round(((config.ACCOUNT_SIZE*config.MAX_POSITION_SIZE)*risk)/(price*100))
+                quantity = math.floor(((config.ACCOUNT_SIZE*config.MAX_POSITION_SIZE)*risk)/(price*100))
                 print(config.ACCOUNT_SIZE,config.MAX_POSITION_SIZE,risk,price,"quantity:",quantity)
-                if quantity == 0:
-                    quantity = 1
+                
 
                 #calculate price
                 wiggle = 0.03 #percentage wiggle on entry price
