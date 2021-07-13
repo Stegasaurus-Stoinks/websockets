@@ -132,7 +132,6 @@ def checkNotes(notes):
             temp = re.search(i, notes, re.IGNORECASE)
             if temp != None:
                 #if temp.group().lower == i:
-                print("Found ",temp.group())
                 catch = temp.group().lower()
                 print("Found ",catch)
                 perc = getPercentage(catch)
