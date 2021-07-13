@@ -38,7 +38,8 @@ class ibkrApi(IB):
         #direction: 'C' or 'P'
         #quantity: int
         #price: float
-
+        if quantity == 0:
+            return
         call_option = Option(symbol = ticker,lastTradeDateOrContractMonth = date, strike=strike, right = direction, exchange='SMART', currency='USD')
         if price == 0:
             buyOrder = MarketOrder('BUY', quantity)

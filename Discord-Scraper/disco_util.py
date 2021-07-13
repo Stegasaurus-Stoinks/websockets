@@ -86,11 +86,11 @@ switcher = {
     "baby profits" : 0.0,
     "holding 1/3" : 0.66,
     "holding 2/3" : 0.33,
-    "trim some" : 0.2,
+    "trim some" : 0.20,
     "trim half" : 0.49,
     "trim" : 0.49,
     "out most" : 0.80,
-    "leave runners" : 0.20,
+    "leave runners" : 0.80,
     
     #"risky" : 0.0,
     
@@ -133,7 +133,10 @@ def checkNotes(notes):
             if temp != None:
                 #if temp.group().lower == i:
                 print("Found ",temp.group())
-                perc = getPercentage(temp.group())
+                catch = temp.group().lower()
+                print("Found ",catch)
+                perc = getPercentage(catch)
+                return perc 
     #otherwise, return 1.0
     return perc
 
