@@ -85,11 +85,11 @@ class Algo:
             df = self.ticker.getData("FULL")
             for i in range(2,df.shape[0]-2):    
                 if self.isSupport(df,i):
-                    #if not self.isClosetoLevel(df['low'][i],levels):
-                    levels.append((df['close'][i]))
+                    if not self.isClosetoLevel(df['low'][i],levels,1):
+                        levels.append((df['close'][i]))
                 elif self.isResistance(df,i):
-                    #if not self.isClosetoLevel(df['high'][i],levels):
-                    levels.append((df['high'][i]))
+                    if not self.isClosetoLevel(df['high'][i],levels,1):
+                        levels.append((df['high'][i]))
                     #print("")
 
             #Adding some key price levels with local mins and maxs
@@ -101,10 +101,10 @@ class Algo:
 
 
 
-            #current_data_average = (current_data["open"] + current_data["close"])/2
-            #print(current_data_average)
-            #if self.isClosetoLevel(current_data_average, levels):
-            #    print("close to critical price level")
+            current_data_average = (self.current_data["open"] + self.current_data["close"])/2
+            print(current_data_average)
+            if self.isClosetoLevel(current_data_average, levels):
+                print("close to critical price level")
             #print(l,level)
             
                 

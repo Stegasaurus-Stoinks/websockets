@@ -44,10 +44,11 @@ class Algo:
         self.test4 = [np.NaN] * self.plotSize
 
         #Array for all extra plot data
-        self.extraPlots = [self.test1, self.test2, self.mins, self.maxs, self.test3, self.test4]
+        #self.extraPlots = [self.test1, self.test2, self.mins, self.maxs, self.test3, self.test4]
+        self.extraPlots = [self.mins, self.maxs]
 
         #Styling for extra plot data
-        self.style = [['line','normal'],['line','normal'],['scatter','up'],['scatter','down'],['line','normal'],['line','normal']]
+        self.style = [['scatter','up'],['scatter','down']]
 
         #-----------STATS------------
         self.goodTrades = 0
@@ -66,10 +67,10 @@ class Algo:
 
         #print("Run Algo Update Loop using data from " + self.ticker.symbol)
         #print("Trades placed will have the ID: " + self.tradeID)
+        self.current_data = self.ticker.getData()
 
         if self.ticker.validTradingHours == True:
-
-            current_data = self.ticker.getData()
+            
             AM_candlesticks = self.ticker.getData("FULL")
 
             #--------------------------------------------------------
@@ -171,6 +172,10 @@ class Algo:
 
 
 
+            self.extraPlots.append(self.test3)
+            self.extraPlots.append(self.test4)
+
+
             if(self.inPosition):
                 self.status = "In a Position. ID: " + self.tradeID
 
@@ -197,9 +202,9 @@ class Algo:
         #if not valid Trading hours...
         else:
             #One minute before market close: close any open positions and print stats
-            if current_data.name == self.ticker.DAY_END_TIME - timedelta(minutes=1):
+            if self.current_data.name == self.ticker.DAY_END_TIME - timedelta(minutes=1):
                 if self.inPosition:
-                    self.trade.closePosition(current_data['close'],datetime.now())
+                    self.trade.closePosition(self.current_data['close'],datetime.now())
                     self.trades.append(self.trade)
 
                 self.Stats()
