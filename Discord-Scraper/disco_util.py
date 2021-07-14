@@ -13,7 +13,7 @@ def getName(author):
     #Get name variable
     tempName = re.search("[#][0-9]+", author)
     name = author.rstrip(tempName.group())
-    print(name)
+    #print(name)
     return name
 
 
@@ -23,7 +23,7 @@ def getStrikePrice(message):
         return
     strikePrice = strikePrice.group()
     strikePrice = str.replace(strikePrice, '@', '')
-    print("Strike Price = " + strikePrice)
+    #print("Strike Price = " + strikePrice)
 
     if strikePrice.startswith('$'):
         strikePrice = strikePrice[1:]
@@ -37,7 +37,7 @@ def getOptionType(strikePrice):
     elif strikePrice.endswith('p') or strikePrice.endswith('P'):
         strikePrice = strikePrice[:-1]
         optionType = "P"
-    print(optionType)
+    #print(optionType)
     return optionType
 
 
@@ -47,7 +47,7 @@ def getDate(message):
     if date == None:
         return
     date = date.group()
-    print("Date = " + date)
+    #print("Date = " + date)
     return date
 
 
@@ -58,7 +58,7 @@ def getPrice(message):
     price = price.group()
     price = str.replace(price, '@', '')
     price = str.replace(price, ' ', '')
-    print("price = " + price)
+    #print("price = " + price)
     return price
 
 
@@ -92,7 +92,7 @@ switcher = {
     "out most" : 0.80,
     "leave runners" : 0.80,
     
-    #"risky" : 0.0,
+    "lotto" : 0.0,
     
     # "scale" : 0.50,
     # "scrape" : 0.25,
@@ -107,13 +107,13 @@ switcher = {
     
 
 
-    "10%" : 0.10,
-    "20%" : 0.20,
-    "30%" : 0.30,
-    "40%" : 0.40,
-    "50%" : 0.50,
-    "60%" : 0.60,
-    "70%" : 0.70,
+    #"10%" : 0.10,
+    #"20%" : 0.20,
+    #"30%" : 0.30,
+    #"40%" : 0.40,
+    #"50%" : 0.50,
+    #"60%" : 0.60,
+    #"70%" : 0.70,
    }
 
 
@@ -124,7 +124,7 @@ def getPercentage(key):
 
 def checkNotes(notes):
     perc = 1.0
-    print('notes: ',notes,'\n')
+    
     #if notes exist
     if notes != None:
         #if notes contain any phrase in switcher, set percentage.

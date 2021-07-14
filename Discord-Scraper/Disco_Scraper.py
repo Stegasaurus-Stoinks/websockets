@@ -15,9 +15,9 @@ from datetime import datetime
 import pandas as pd
 import os, time
 import math
+#'Sweet_Louuu', 'Muse', 'Justinvred','ryan-7k','illproducer','slam','skepticule', 'Wags'
 
-
-nameList = ['Sweet_Louuu', 'Muse', 'Justinvred','ryan-7k','Tatoepaladin','illproducer','slam','skepticule', 'Wags','EvaPanda']
+nameList = ['Tatoepaladin','EvaPanda']
 pandy = pd.DataFrame(columns=['name', 'tradeType', 'ticker', 'strikePrice', 'optionType', 'date', 'price', 'timePlaced', 'traded','notes'])
 all_trades = pd.DataFrame(columns=['name', 'tradeType', 'ticker', 'strikePrice', 'optionType', 'date', 'price', 'timePlaced','notes'])
 
@@ -86,15 +86,15 @@ async def parseAndStuff(author, message):
 
     #get notes
     notes = utily.getNotes(otherStuff)
-    print(notes)
+    
 
     tempList = {'name': name, 'tradeType': tradeType, 'ticker': ticker, 'strikePrice': strikePrice, 'optionType': optionType, 'date': date, 'price': price, 'timePlaced':now, 'notes':notes}
 
-    print(tempList)
+    #print(tempList)
     
 
-    #print(pandy.tail())
-    print("\n")
+    
+    #print("\n")
     return tempList
 
 
@@ -172,6 +172,11 @@ async def tradeAndStuff(trade):
                 buyPercent = utily.checkNotes(notes)
                 risk = buyPercent
 
+                if price <= 0.75:
+                    risk = 0.75
+                if price <= 0.50:
+                    risk = 0.50
+
                 if risk == 0.0:
                     print("risky trade! Skipping.")
                     return
@@ -193,7 +198,7 @@ async def tradeAndStuff(trade):
                 price = price+(price*wiggle)
                 price = base * round(price/base)
 
-                openPosition(ib, tradeTicker, strike, date, tradeRight, quantity, price = price)
+                ib.openPosition(tradeTicker, strike, date, tradeRight, quantity, price = price)
                 
             traded = True
 
@@ -238,23 +243,28 @@ async def on_message(message):
     #print("message recieved :", message.content, message)
     if message.guild != None:
         #print(message.guild.name,config.GUILD_NAME,message.channel.id,config.CHANNEL_ID,str(message.author),str(message.content))
-        if (message.guild.name == config.GUILD_NAME and message.channel.id == config.CHANNEL_ID and str(message.author) != 'Xcapture#0190'):
-            print("from: "+ str(message.author) + ",\n" + str(message.content))
+        if ((message.guild.name == config.GUILD_NAME and message.channel.id == config.CHANNEL_ID) or
+         (message.guild.name == config.GUILD_NAME2 and message.channel.id == config.CHANNEL_ID2 and str(message.author) != 'Xcapture#0190')):
+            #print("from: "+ str(message.author) + ",\n" + str(message.content))
             tradeData = await parseAndStuff(str(message.author), str(message.content))
 
             if tradeData != None:
-                #if not all_trades.empty:
-                traded = await tradeAndStuff(tradeData)
-                tradeData.update({'traded': traded});
+                if tradeData.get('name') in nameList:
+                    #if not all_trades.empty:
+                    print("from: "+ str(message.author) + ",\n" + str(message.content))
+                    print(tradeData)
+                    
+                    traded = await tradeAndStuff(tradeData)
+                    tradeData.update({'traded': traded});
 
-                tempPandy = pd.DataFrame(columns=['name', 'tradeType', 'ticker', 'strikePrice', 'optionType', 'date', 'price', 'timePlaced','traded','notes'])
-                tempPandy = tempPandy.append(tradeData, ignore_index=True)
-                concatFrame = [pandy, tempPandy]
-                pandy = pd.concat(concatFrame, sort=False)
+                    tempPandy = pd.DataFrame(columns=['name', 'tradeType', 'ticker', 'strikePrice', 'optionType', 'date', 'price', 'timePlaced','traded','notes'])
+                    tempPandy = tempPandy.append(tradeData, ignore_index=True)
+                    concatFrame = [pandy, tempPandy]
+                    pandy = pd.concat(concatFrame, sort=False)
 
 
-                print('DataFrame:\n', pandy.tail(),'\n\n\n')
-                pandy.to_csv('trade_data/pandy.csv', index = False)
+                    print('DataFrame:\n', pandy.tail(),'\n\n\n')
+                    pandy.to_csv('trade_data/pandy.csv', index = False)
 
             else:
                 print('Bad message! Skipping')

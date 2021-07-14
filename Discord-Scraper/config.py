@@ -20,6 +20,9 @@ eva-panda-trades ID: 821479719161561168
 GUILD_NAME = "Wall Street Bible LLC"
 CHANNEL_ID = 821479719161561168
 
+GUILD_NAME2 = "Xtrades.net"
+CHANNEL_ID2 = 592829820371599451
+
 #Credential stuff
 TOKEN_AUTH = "MjMxNTAzMTc1MzgxODExMjAx.YEPafA.Ud2X2EDKYZexrkE54xJKk8sMOMs" #Retrieved from browser local storage.
 
