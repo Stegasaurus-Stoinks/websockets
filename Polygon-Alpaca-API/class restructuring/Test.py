@@ -13,8 +13,11 @@ from extra.database import Database
 from extra.tradeApi import TradeApi
 from extra.plotter import LiveChartEnv
 
-
 import time
+import mplfinance as mpf
+import matplotlib.pyplot as plt
+
+plt.ion()
 
 #------Config Variables------
 Trading = False
@@ -25,21 +28,24 @@ BackTest = True
 DB = Database(BackTest)
 api = TradeApi(Trading, Live_Trading)
 #Initiaiize all relevant tickers for the day
-AAPL = Ticker("AAPL", "Stock", DB)
+
+#pick from {CCL, AAPL, MSFT, HD, NFLX, GOOG, TSLA, VZ, INTC, AMZN, FB}
+
+AAPL = Ticker("VZ", "Stock", DB, startDate='2021-01-04', endDate='2021-01-14')
 MSFT = Ticker("MSFT", "Stock", DB)  
 TSLA = Ticker("TSLA", "Stock", DB)
 
-#Warmup all tickers
-#AAPL.warmUp() 
-#AAPL.getStatus()
+AAPL.warmUp()
 
-#TSLA.warmUp()
-#TSLA.getStatus()
+backtest = AAPL.BackTestAM_candlesticks
+backtest = backtest.sort_index(ascending=True)
+print(backtest)
+print(len(backtest))
 
-#MSFT.warmUp()
-#MSFT.getStatus()
+#fig = mpf.figure(figsize=(7,8))
 
-data = DB.QueryLast("MSFT", number = 1)
-data1 = DB.QueryDate("MSFT", "2021-01-05", "2021-01-07")
-print(data)
-print(data1)
+mpf.plot(backtest,type='candle',style='charles')
+plt.show()
+plt.pause(30)
+#mpf.plot(backtest[0:100])
+

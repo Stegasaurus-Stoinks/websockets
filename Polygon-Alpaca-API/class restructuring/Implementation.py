@@ -1,7 +1,6 @@
 import sys
 sys.path.append('../')
 
-from mplfinance import plotting
 from algos.algo_EMA import Algo as AlgoEMA
 from algos.algo_Support import Algo as AlgoSupport
 from algos.algo_Support2 import Algo as AlgoSupport2
@@ -13,7 +12,7 @@ from extra.database import Database
 from extra.tradeApi import TradeApi
 from extra.plotter import LiveChartEnv
 
-
+from mplfinance import plotting
 import time
 
 #------Config Variables------
@@ -43,7 +42,7 @@ TSLA.getStatus()
 #momentum1 = MomentumAlgo(AAPL, "testy", 2, api)
  
 #AAPLalgo1 = AlgoEMA(TSLA, "ThreeKings", 9, api, False, 40, 10 , plotting = True)
-#AAPLalgo1 = AlgoSupport2(TSLA, "MomentumEMA", 2, api, live = False, plotting = True,plotSize = 75)
+# AAPLalgo1 = AlgoSupport2(TSLA, "MomentumEMA", 2, api, live = False, plotting = True,plotSize = 75)
 #AAPLalgo1 = AlgoHigherLows(TSLA, "MomentumEMA", 2, api, live = False, plotting = True,plotSize = 75)
 
 AAPLalgo1 = AlgoTrend(TSLA, "MomentumEMA", 2, api, live = False, plotting = True,plotSize = 75)
