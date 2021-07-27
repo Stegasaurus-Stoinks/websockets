@@ -137,7 +137,7 @@ async def tradeAndStuff(trade):
         #if we have a match, then sell and delete position from all_trades. Could also hold record here for our buys ans sells.
         if success == True:
 
-            sellPercent = utily.checkNotes(notes)
+            sellPercent = utily.checkNotes(notes) #check notes for key words to decide exit percentage
             
             print('\nSold '+ str(sellPercent*100) +"% of "+ tradeTicker +' with '+ tradeName +'!\n')#########DO LE SELL HERE :D
 

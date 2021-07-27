@@ -1,6 +1,10 @@
-from trade import Trade
-from datetime import datetime
-from plotter import LiveChartEnv
+import sys
+sys.path.append('../')
+
+from extra.trade import Trade
+from extra.plotter import LiveChartEnv
+
+from datetime import datetime, timedelta
 from scipy.signal import argrelextrema
 
 
@@ -177,7 +181,7 @@ class Algo:
                 if 1:
                     #place a trade
                     volume = 10
-                    trade = Trade(self.ticker.symbol, volume, self.tradeID, 1.01, self.ticker.AM_candlesticks.index[0], self.tradeapi, printInfo = True)
+                    trade = Trade(self.ticker.symbol, volume, self.tradeID, 1.01, self.ticker.AM_candlesticks.index[0], "UP",self.tradeapi, printInfo = True)
                     print("The trade is " + trade.getStatus())
                     self.inPosition = True
 
@@ -192,19 +196,42 @@ class Algo:
 
         #if not valid Trading hours...
         else:
-            quit()
+            #One minute before market close: close any open positions and print stats
+            if current_data.name == self.ticker.DAY_END_TIME - timedelta(minutes=1):
+                if self.inPosition:
+                    self.trade.closePosition(current_data['close'],datetime.now())
+                    self.trades.append(self.trade)
+
+                self.Stats()
+
             if self.plotting:
                 #update just the candles on the chart
                 self.plot.update_chart(self.ticker.getData("FULL")[0:self.plotSize])
 
+            
 
 
 
-    def Statistics(self):
-        print("This will print all of the statistics of the algo")
+
+
+    def Stats(self):
+        print(" ")
+        print("--------------------ALGO STATS--------------------")
         #will probably need to connect to the database to find all that data, but not rn
-        print("Good Trades: " + str(self.goodTrades) + "/" + str(self.goodTrades + self.badTrades))
-        print("Total Profit: " + str(self.totalProfit))
+        #print(self.trades)
+        goodTrades = 0
+        totalTrades = 0
+        PL = 0
+        for trade in self.trades:
+            stats = trade.getStats(display = True)
+            if stats["PL"] > 0:
+                goodTrades += 1
+            PL += stats["PL"]
+            totalTrades += 1
+
+        print("Good Trades: " + str(goodTrades) + "/" + str(totalTrades))
+        print("Total Profit: " + str(PL))
+        print(" ")
 
 
 
@@ -215,7 +242,7 @@ class Algo:
 
 
     def plotInit(self):
-        self.plot = LiveChartEnv("1min", 50)
+        self.plot = LiveChartEnv("1min", self.plotSize)
         self.plot.initialize_chart()
 
     def plotUpdate(self):
@@ -228,6 +255,14 @@ class Algo:
                 if len(array) < self.plotSize:
                     array.append(np.NaN)
 
+            if(self.inPosition):
+                self.status = "In a Position. ID: " + self.tradeID
+
+            #ensure that style is always a normal line if not specified
+            while len(self.style) < len(self.extraPlots):
+                self.style.append(['line','normal'])
+
             #update plot if plotting is true
             if self.plotting:
+                
                 self.plot.update_chart(self.ticker.getData("FULL")[0:self.plotSize], self.extraPlots, self.style)

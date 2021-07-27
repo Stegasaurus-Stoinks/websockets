@@ -1,0 +1,15 @@
+python 3.9.5
+
+-pip install mplfinance
+
+-install Visual Studio C++ redistributable (x64)
+
+-download TA_Lib-0.4.20-cp39-cp39-win_amd64.whl from internet or discord classroom
+
+-pip install TA_Lib-0.4.20-cp39-cp39-win_amd64.whl
+
+-pip install scipy
+
+-pip install psycopg2
+
+-get keystore.py file

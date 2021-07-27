@@ -13,8 +13,8 @@ class Ticker:
         self.ArraySize = 100
         #backtest length minus the local array size
         self.length = 500
-        self.firstDate = '2021-03-01'
-        self.lastDate = '2021-03-02'
+        self.firstDate = '2021-01-05'
+        self.lastDate = '2021-01-08'
         #iteration to keep track of backtest
         self.iteration = 0
         #for timing the backtest
@@ -38,7 +38,7 @@ class Ticker:
         self.Current_time = datetime(2020, 11, 18, 18, 30, 0)
         self.Last_time = datetime(2020, 11, 18, 18, 30, 0)
 
-        #Start and End times of normal market hours
+        #Start and End times of normal market hours(just place holders)
         self.DAY_START_TIME = datetime(2020, 11, 18, 18, 30, 0)
         self.DAY_END_TIME = datetime(2020, 11, 18, 18, 30, 0)
 
@@ -49,7 +49,7 @@ class Ticker:
 
 
     #main update function
-    def update(self):
+    def update(self, PrintStats = False):
         """Call this Function to update the local data array with new data from database or backtest data"""
         #print("Update the local data array")
         self.Last_time = self.Current_time
@@ -61,12 +61,13 @@ class Ticker:
                 self.exe_start_time = time.time()
 
             self.iteration += 1
-            #print("Update local array with backtest data")
+            if PrintStats:
+                print("Update local array with backtest data: ",self.iteration ,"/",self.length)
             self.AM_candlesticks = self.BackTestAM_candlesticks.iloc[self.length-self.ArraySize-self.iteration:self.length-1-self.iteration]
-            if self.iteration >= self.length-self.ArraySize:
+            if self.iteration+self.ArraySize >= self.BackTestAM_candlesticks.shape[0]:
                 self.exe_end_time = time.time()
                 print("Backtesting Complete!")
-                print("Backtesting " + str(self.length-self.ArraySize) + " points took " + str(self.exe_end_time-self.exe_start_time) + " seconds")
+                print("Backtesting " + str(self.iteration) + " points took " + str(self.exe_end_time-self.exe_start_time) + " seconds")
                 quit()
 
 
@@ -81,10 +82,18 @@ class Ticker:
             self.AM_candlesticks = self.AM_candlesticks.append(series)
             self.AM_candlesticks = self.AM_candlesticks.sort_index(ascending=False)
 
+        #Define the valid trading hours based on the first dataset pulled in
+        self.Current_time = self.AM_candlesticks.index[0]
+        if self.Current_time.day is not self.DAY_START_TIME.day:
+            self.DAY_START_TIME = self.Current_time.replace(hour=9, minute=30)
+            self.DAY_END_TIME = self.Current_time.replace(hour=16, minute=00)
 
         #check valid trading hours
         self.Current_time = self.AM_candlesticks.index[0]
-        if (self.Current_time < self.DAY_END_TIME) and (self.Current_time > self.DAY_START_TIME):
+        two_minutes = timedelta(minutes = 2)
+        #print(self.Current_time, self.DAY_START_TIME, self.DAY_END_TIME)
+        #print(self.Current_time.day, self.DAY_START_TIME.day)
+        if (self.Current_time < self.DAY_END_TIME - two_minutes) and (self.Current_time > self.DAY_START_TIME):
             self.validTradingHours = True
 
         else:
@@ -123,8 +132,8 @@ class Ticker:
         #Update for BACKTEST Data
         if self.DataBase.BackTest:
             #length and type of backtest
-            #data = self.DataBase.QueryDate(self.symbol, self.firstDate, self.lastDate)
-            data = self.DataBase.QueryLast(self.symbol, self.length)
+            data = self.DataBase.QueryDate(self.symbol, self.firstDate, self.lastDate)
+            #data = self.DataBase.QueryLast(self.symbol, self.length)
             self.BackTestAM_candlesticks = pd.DataFrame(data)
             self.BackTestAM_candlesticks.columns = ['time','symbol','volume','day_volume','day_open','vwap','open','high','close','low','avg','unix']
             self.BackTestAM_candlesticks['datetime'] = pd.to_datetime(self.BackTestAM_candlesticks['time'])
@@ -132,6 +141,7 @@ class Ticker:
             self.BackTestAM_candlesticks.drop(['time'], axis=1, inplace=True)
 
             self.AM_candlesticks = self.BackTestAM_candlesticks.iloc[self.length-self.ArraySize:self.length-1]
+            self.length = self.BackTestAM_candlesticks.shape[0]
 
         #Update for LIVE Data
         else:
@@ -142,12 +152,6 @@ class Ticker:
             self.AM_candlesticks['datetime'] = pd.to_datetime(self.AM_candlesticks['time'])
             self.AM_candlesticks = self.AM_candlesticks.set_index('datetime')
             self.AM_candlesticks.drop(['time'], axis=1, inplace=True)
-
-
-        #Define the valid trading hours based on the first dataset pulled in
-        self.Current_time = self.AM_candlesticks.index[0]
-        self.DAY_START_TIME = self.Current_time.replace(hour=14, minute=30)
-        self.DAY_END_TIME = self.Current_time.replace(hour=21, minute=00)
 
         self.status = "Initialized"
 
@@ -173,7 +177,7 @@ class Ticker:
 
 
     def getStatus(self):
-        print(self.symbol + " is @ " + str(self.AM_candlesticks.iloc[0]['close']))
+        print(self.symbol + " is @ " + str(self.AM_candlesticks.iloc[0]['close']) + " Time: " + str(self.Current_time) + "Valid Trading Hours: " + str(self.validTradingHours))
         #print(self.AM_candlesticks.head(1))
         return self.status
         
