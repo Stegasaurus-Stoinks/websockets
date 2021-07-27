@@ -16,6 +16,8 @@ from extra.plotter import LiveChartEnv
 import time
 import mplfinance as mpf
 import matplotlib.pyplot as plt
+from scipy.signal import argrelextrema
+import numpy as np
 
 plt.ion()
 
@@ -23,6 +25,9 @@ plt.ion()
 Trading = False
 Live_Trading = False
 BackTest = True
+
+start = 0
+plotSize = 450
 #----------------------------
 
 DB = Database(BackTest)
@@ -39,13 +44,33 @@ AAPL.warmUp()
 
 backtest = AAPL.BackTestAM_candlesticks
 backtest = backtest.sort_index(ascending=True)
-print(backtest)
-print(len(backtest))
+#print(backtest)
+#print(len(backtest))
+
+backtest = backtest[start:start + plotSize]
 
 #fig = mpf.figure(figsize=(7,8))
 
-mpf.plot(backtest,type='candle',style='charles')
+#Calculating mins and maxs
+n = 2 #Adjust this to add more or less mins and maxs (2 was the best one I found for short term)
+ilocs_min = argrelextrema(backtest.close.values, np.less_equal, order=n)[0]
+ilocs_max = argrelextrema(backtest.close.values, np.greater_equal, order=n)[0]
+
+print(ilocs_min)
+
+mins = [np.NaN] * plotSize
+for i in range (0,len(ilocs_min)):
+    mins[ilocs_min[i]] = backtest.iloc[ilocs_min[i]].close * 0.999
+
+maxs = [np.NaN] * plotSize
+for i in range (0,len(ilocs_max)):
+    maxs[ilocs_max[i]] = backtest.iloc[ilocs_max[i]].close * 0.999
+
+print(mins)
+extraplots = []
+extraplots.append(plotting.make_addplot(mins,markersize=200))
+mpf.plot(backtest,type='candle',style='charles',addplot= extraplots)
 plt.show()
-plt.pause(30)
+plt.pause(60)
 #mpf.plot(backtest[0:100])
 
