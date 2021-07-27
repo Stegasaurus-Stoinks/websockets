@@ -17,7 +17,7 @@ import os, time
 import math
 #'Sweet_Louuu', 'Muse', 'Justinvred','ryan-7k','illproducer','slam','skepticule', 'Wags'
 
-nameList = ['Tatoepaladin','EvaPanda']
+nameList = ['EvaPanda', 'Justinvred']
 pandy = pd.DataFrame(columns=['name', 'tradeType', 'ticker', 'strikePrice', 'optionType', 'date', 'price', 'timePlaced', 'traded','notes'])
 all_trades = pd.DataFrame(columns=['name', 'tradeType', 'ticker', 'strikePrice', 'optionType', 'date', 'price', 'timePlaced','notes'])
 
@@ -103,6 +103,7 @@ async def tradeAndStuff(trade):
     global all_trades
     traded = False
     positions = ib.refresh()
+    orders = ib.openOrders()
 
     tradeType = trade.get('tradeType')
     tradeName = trade.get('name')
@@ -124,6 +125,14 @@ async def tradeAndStuff(trade):
     indx = None
     #logic block for buy or sell
     if tradeType.lower() == 'stc':
+        if not orders:
+            pass
+        else:
+            print(orders)
+            for i in orders:
+                print(ib.cancelOrder(i))
+                    
+
 
         if not positions:
             return traded
@@ -132,8 +141,8 @@ async def tradeAndStuff(trade):
         success = False
         for i in positions:
             if i.contract.symbol == tradeTicker and i.contract.strike == strike and i.contract.right == tradeRight:
-                #save index of name to call later
                 success = True
+
         #if we have a match, then sell and delete position from all_trades. Could also hold record here for our buys ans sells.
         if success == True:
 
@@ -172,14 +181,16 @@ async def tradeAndStuff(trade):
                 buyPercent = utily.checkNotes(notes)
                 risk = buyPercent
 
+                if risk == 0.0:
+                    print("risky trade! Skipping.")
+                    return
+
                 if price <= 0.75:
                     risk = 0.75
                 if price <= 0.50:
                     risk = 0.50
 
-                if risk == 0.0:
-                    print("risky trade! Skipping.")
-                    return
+                
                 #if notes != None:  ###############ADD KEYWORD RISK STUFF HERE
 
                 #calculate quantity based on price
