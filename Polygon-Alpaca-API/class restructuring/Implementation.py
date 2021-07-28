@@ -50,6 +50,8 @@ AAPLalgo1 = AlgoSupport2(TSLA, "MomentumEMA", 2, api, live = False, plotting = F
 #AAPLalgo1 = AlgoTrend(AAPL, "MomentumEMA", 2, api, live = False, plotting = True,plotSize = 75)
 #AAPLalgo1 = AlgoHigherLows(TSLA, "MomentumEMA", 2, api, live = False, plotting = True,plotSize = 75)
 
+AAPLalgo1 = AlgoHigherLows(TSLA, "MomentumEMA", 2, api, live = False, plotting = True,plotSize = 75)
+
 while 1:
 
     DB.awaitNewData()
