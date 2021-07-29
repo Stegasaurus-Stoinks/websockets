@@ -52,7 +52,7 @@ backtest = backtest[start:start + plotSize]
 #fig = mpf.figure(figsize=(7,8))
 
 #Calculating mins and maxs
-n = 10 #Adjust this to add more or less mins and maxs (2 was the best one I found for short term)
+n = 20 #Adjust this to add more or less mins and maxs (2 was the best one I found for short term)
 ilocs_min = argrelextrema(backtest.close.values, np.less_equal, order=n)[0]
 ilocs_max = argrelextrema(backtest.close.values, np.greater_equal, order=n)[0]
 
@@ -69,7 +69,7 @@ for i in range (0,len(ilocs_max)):
 print(mins)
 extraplots = []
 extraplots.append(plotting.make_addplot(mins,type='scatter',markersize=200,marker='^'))
-extraplots.append(plotting.make_addplot(maxs,type='scatter',markersize=200,marker='v'))
+extraplots.append(plotting.make_addplot(maxs,type='scatter',markersize=200,marker='.',color='b'))
 mpf.plot(backtest,type='candle',style='charles',addplot= extraplots)
 plt.show()
 plt.pause(60)
