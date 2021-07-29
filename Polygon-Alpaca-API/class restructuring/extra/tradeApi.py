@@ -1,6 +1,6 @@
 #file to simplify the alpaca api into universal funtions inorder to create seperation and modularity
 import alpaca_trade_api as tradeapi
-import keystore
+from . import keystore
 import json, requests
 
 BASE_URL = "https://paper-api.alpaca.markets"
