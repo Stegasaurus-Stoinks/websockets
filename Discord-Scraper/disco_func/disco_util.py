@@ -1,12 +1,10 @@
 import re
-from typing import Literal
+from datetime import datetime
 
 
 """
 getters for every piece of data we need from message
 """
-
-Animal = Literal['ant', 'bee', 'cat', 'dog']
 
 
 def getName(author):
@@ -144,3 +142,51 @@ def checkNotes(notes):
 ########################################
 ######## PRIMARY FUNCTIONALITY #########
 ########################################
+
+#Primary parsey thing
+async def parseAndStuff(author, message):
+    
+    #split string into array
+    splitString = re.split("\s", message, 2)
+    if len(splitString) < 3:
+        return
+    tradeType = splitString[0]
+    ticker = splitString[1]
+    otherStuff = splitString[2]
+
+
+    #Get name variable
+    name = getName(author)
+
+    #get strike price
+    strikePrice = getStrikePrice(otherStuff)
+    if strikePrice == None:
+        return
+
+    #get option type
+    optionType = getOptionType(strikePrice)
+
+    #get date
+    date = getDate(otherStuff)
+    if date == None:
+        return
+
+    #get price
+    price = getPrice(otherStuff)
+    if price == None:
+        return
+
+    now = datetime.now()
+
+    #get notes
+    notes = getNotes(otherStuff)
+    
+
+    tempList = {'name': name, 'tradeType': tradeType, 'ticker': ticker, 'strikePrice': strikePrice, 'optionType': optionType, 'date': date, 'price': price, 'timePlaced':now, 'notes':notes}
+
+    #print(tempList)
+    
+
+    
+    #print("\n")
+    return tempList

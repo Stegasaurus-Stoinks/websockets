@@ -1,3 +1,4 @@
+import datetime
 """
 Guild ID's:
 Stoinks ID: 723418405067161640
@@ -32,3 +33,10 @@ TOKEN_AUTH = "MjMxNTAzMTc1MzgxODExMjAx.YEPafA.Ud2X2EDKYZexrkE54xJKk8sMOMs" #Retr
 
 MAX_POSITION_SIZE = 0.125 #Percent of account value Ex: 100,000 Account size, Max position size = MAX_POSITION*100,000 = 1,000
 ACCOUNT_SIZE = 4000
+
+
+
+#-----------------------BACKTESTER VARIABLES-----------------------#
+TEST_CHANNEL = 821479719161561168
+TEST_USERNAME = "EvaPanda"
+CHANNEL_HISTORY = datetime.datetime(2021, 7, 3)
