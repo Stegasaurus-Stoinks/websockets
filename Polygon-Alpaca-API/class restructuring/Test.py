@@ -36,7 +36,7 @@ backtest = backtest.sort_index(ascending=True)
 #print(backtest)
 #print(len(backtest))
 
-backtest = backtest[start:start + plotSize]
+#backtest = backtest[start:start + plotSize]
 
 #fig = mpf.figure(figsize=(7,8))
 

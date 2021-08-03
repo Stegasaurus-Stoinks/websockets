@@ -7,6 +7,8 @@ from IBKR.ib_stuff import closePosition, openPosition
 from IBKR.ibkrApi import ibkrApi as ibkr
 from ib_insync import *
 
+import PhoneMessage
+
 import discord
 import asyncio
 
@@ -17,12 +19,18 @@ import os, time
 import math
 #'Sweet_Louuu', 'Muse', 'Justinvred','ryan-7k','illproducer','slam','skepticule', 'Wags'
 
-nameList = ['EvaPanda', 'Justinvred']
+nameList = ['EvaPanda', 'Justinvred', 'wildape']
 pandy = pd.DataFrame(columns=['name', 'tradeType', 'ticker', 'strikePrice', 'optionType', 'date', 'price', 'timePlaced', 'traded','notes'])
 all_trades = pd.DataFrame(columns=['name', 'tradeType', 'ticker', 'strikePrice', 'optionType', 'date', 'price', 'timePlaced','notes'])
 
+#phone message stuff (could be removed if i can figure out how to add more args to event)
+def onOrderUpdate(trade):
+    trade_data = all_trades.tail()
+    PhoneMessage.manageOrderUpdate(trade, ib, trade_data)
+
 try:
     ib = ibkr()
+    ib.orderStatusEvent += onOrderUpdate
     ib.connect(host='127.0.0.1', port=7496, clientId=1)
     Trading = True
     
@@ -170,6 +178,8 @@ async def tradeAndStuff(trade):
                             ib.cancelOrder(trade.order)
 
             traded = True
+
+            all_trades = all_trades.append(trade, ignore_index=True)
             
 
     elif tradeType.lower() == 'bto':
