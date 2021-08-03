@@ -37,6 +37,7 @@ ACCOUNT_SIZE = 4000
 
 
 #-----------------------BACKTESTER VARIABLES-----------------------#
-TEST_CHANNEL = 821479719161561168
-TEST_USERNAME = "EvaPanda"
-CHANNEL_HISTORY = datetime.datetime(2021, 7, 3)
+TEST_CHANNEL = 592829820371599451
+TEST_USERNAME = "snipergang"
+CHANNEL_HISTORY = datetime.datetime(2021, 7, 26)
+DETAILS = False

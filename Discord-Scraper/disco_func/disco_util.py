@@ -79,7 +79,7 @@ def getNotes(message):
 switcher = {
     
 
-    "all" : 1.0,
+    " all" : 1.0,
     "out on runners" : 1.0,
     "baby profits" : 0.0,
     "holding 1/3" : 0.66,

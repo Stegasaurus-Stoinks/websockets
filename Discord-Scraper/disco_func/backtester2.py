@@ -5,21 +5,42 @@ import config
 
 TOKEN_AUTH = "MjMxNTAzMTc1MzgxODExMjAx.YEPafA.Ud2X2EDKYZexrkE54xJKk8sMOMs" # Retrieved from browser local storage
 results = pd.DataFrame(columns=['name', 'tradeType', 'ticker', 'strikePrice', 'optionType', 'date', 'price', 'timePlaced', 'traded','notes'])
-
+messages = []
 
 async def collectList(username):
-    messageList = []
+    userMessages = []
     channel = client.get_channel(config.TEST_CHANNEL)
-    messages = await channel.history(limit=500, after=config.CHANNEL_HISTORY).flatten()
-    print("test")
-    messages.reverse()
-    for m in messages:
+    messageList = await channel.history(limit=None, after=config.CHANNEL_HISTORY).flatten()
+    for m in messageList:
         if username in str(m.author):
-            messageList.append(m)
-            print(m.content)
+            userMessages.append(m)
+            #print(m.content)
         
-    print(len(messages))
-    return messages
+    print("total messages from",config.TEST_USERNAME,":",len(userMessages))
+    return userMessages
+
+def stringify(data):
+    tradeType = data.get('tradeType')
+    ticker = data.get('ticker')
+    strikePrice = data.get('strikePrice')
+    myString = (str(tradeType) + ' ' + str(ticker) + ' ' + str(strikePrice))
+    return myString
+
+def getNearMessages(data, messages):
+    stringy = stringify(data)
+    print(stringy)
+    #search for message we want
+    messageObject = [s for s in messages if stringy in s.content]
+    print(messageObject)
+    print(messageObject[0])
+    #get index of message
+    indexy = (messages.index(messageObject[0]))
+    #print other messages
+    for i in range(0,5):
+        if indexy-i < 0:
+            return
+        print(i)
+        print(messages[indexy-i].content)
 
 print("BLAHHHHH")
 
@@ -49,9 +70,13 @@ async def on_connect():
         if tradeData != None:        
             #add to pd
             tempResults = pd.DataFrame(columns=['name', 'tradeType', 'ticker', 'strikePrice', 'optionType', 'date', 'price', 'timePlaced','traded','notes'])
+            stringify(tradeData)
             tempResults = tempResults.append(tradeData, ignore_index=True)
             concatFrame = [results, tempResults]
             results = pd.concat(concatFrame, sort=False)
+
+    #make tradeType lowercase
+    results['tradeType'].str.lower()
 
     #collect data
     for i in range(len(results)):
@@ -59,18 +84,19 @@ async def on_connect():
         
         
         #variables
-        tradeType = entry.get('tradeType').lower()
+        tradeType = entry.get('tradeType')
         ticker = entry.get('ticker')
         date = entry.get('date')
         strikePrice = entry.get('strikePrice')
         price = float(entry.get('price'))
 
+        #if trade was a buy, check if it has any matching sells and fill in data accordingly
         if tradeType == "bto":
             totalTrades += 1
             sellNum = 0
             bto += 1
-            sellTrades = results.loc[(results['strikePrice'] == strikePrice) & (results['ticker'] == ticker) & (results['date'] == date) & ((results['tradeType'] == "STC"))]
-            print(sellTrades)
+            sellTrades = results.loc[(results['strikePrice'] == strikePrice) & (results['ticker'] == ticker) & (results['date'] == date) & ((results['tradeType'] == "stc"))]
+            
             if not sellTrades.empty:
                 #add sells together
                 for i in range(len(sellTrades)):
@@ -84,14 +110,26 @@ async def on_connect():
                 else:
                     goodTrades += 1 
                 percentMade += percent
-                print('price: ',price)
-                print('sellNum: ',sellNum)
-                print('curTradePercent',round(percent,2),"%")
-                print('percentMade: ',round(percentMade,2),'%\n\n')
+
+                if config.DETAILS:
+                    print(sellTrades)
+                    print('price: ',price)
+                    print('sellNum: ',sellNum)
+                    print('curTradePercent',round(percent,2),"%")
+                    print('percentMade: ',round(percentMade,2),'%\n\n')
+            #print incomplete trade stuff if it couldnt find any sells
             else:
                 incompleteTrades += 1
-                print("\nINCOMPLETE TRADE\n",entry,"\n\n")
-        #compare against pd
+                
+                print("\nINCOMPLETE TRADE\n")
+                # try:
+                #     getNearMessages(entry,messages)
+                # except:
+                #     print("couldnt get nearby messages")
+                # print('\n')
+
+
+        #add sell count if it was a sell
         if tradeType == "stc":
             stc += 1
         
