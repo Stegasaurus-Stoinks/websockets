@@ -81,21 +81,31 @@ def onUpdateport(portfolio):
 
 def manageOrderUpdate(trade, ib, dfentry = 0):
     global entryprice
-    try:
+    if True:
+    #try:
         if trade.orderStatus.status == "Filled":
             print("Phone Message Order Update, Status: Filled")
 
             #if dfentry !=0:
-            print(dfentry)
-            
-            #for row in dfentry:
+            #print(dfentry)
+            for index, row in dfentry[::-1].iterrows():
                 #print(row)
-                #if (row['tradeType'] == "stc" and trade.order.action == "SELL") or (row['tradeType'] == "bto" and trade.order.action == "BUY"):
-                #    if row['ticker'] == trade.contract.symbol:
-                #        if row['strikePrice'[:-1]] == trade.contract.strike:
-                #            trader = row['name']
+                strike = row['strikePrice'][:-1]
+                #print(strike)
+                #print(row['tradeType'],trade.order.action,row['ticker'],trade.contract.symbol,row['strikePrice'],trade.contract.strike)
+                
+                if (row['tradeType'] == "stc" and trade.order.action == "SELL") or (row['tradeType'] == "bto" and trade.order.action == "BUY"):
+                    
+                    if row['ticker'] == trade.contract.symbol:
+                        
+                        if int(row['strikePrice'][:-1]) == trade.contract.strike:
+                           
+                            trader = row['name']
+                            #print(trader)
+                            pass
 
-            trader = "Dumb Idiot"
+                            
+
 
             message = " {} / \nFrom: {}\n{} {}{} {} {} @ ${}".format(trade.order.action, trader, trade.contract.symbol, trade.contract.strike, trade.contract.right, trade.orderStatus.status, trade.orderStatus.filled,trade.orderStatus.avgFillPrice)
 
@@ -126,7 +136,8 @@ def manageOrderUpdate(trade, ib, dfentry = 0):
                         #print(entryprice)
                 
 
-    except:
+    else:
+    #except:
         print("Something wrong with phone stuff")
         print(trade)
     #print(trade)

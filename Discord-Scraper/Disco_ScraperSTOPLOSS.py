@@ -1,6 +1,6 @@
 #local imports 
-import config
-import disco_util as utily
+import disco_func.config as config
+import disco_func.disco_util as utily
 
 #ibkr stuff
 from IBKR.ibkrApi import ibkrApi as ibkr
@@ -12,13 +12,13 @@ import discord
 import asyncio
 
 import re
-from datetime import datetime
+
 import pandas as pd
 import os, time
 import math
 #'Sweet_Louuu', 'Muse', 'Justinvred','ryan-7k','illproducer','slam','skepticule', 'Wags'
 
-nameList = ['JTrader', 'moonshot', 'Jingle', 'Pikayou', 'TatoePaladin','wildape','Justinvred']
+nameList = ['EvaPanda', 'Justinvred', 'wildape']
 pandy = pd.DataFrame(columns=['name', 'tradeType', 'ticker', 'strikePrice', 'optionType', 'date', 'price', 'timePlaced', 'traded','notes'])
 all_trades = pd.DataFrame(columns=['name', 'tradeType', 'ticker', 'strikePrice', 'optionType', 'date', 'price', 'timePlaced','notes'])
 
@@ -55,54 +55,7 @@ except:
     Trading = False
 
 
-#Primary parsey thing
-async def parseAndStuff(author, message):
-    global pandy
-    
-    #split string into array
-    splitString = re.split("\s", message, 2)
-    if len(splitString) < 3:
-        return
-    tradeType = splitString[0]
-    ticker = splitString[1]
-    otherStuff = splitString[2]
 
-
-    #Get name variable
-    name = utily.getName(author)
-
-    #get strike price
-    strikePrice = utily.getStrikePrice(otherStuff)
-    if strikePrice == None:
-        return
-
-    #get option type
-    optionType = utily.getOptionType(strikePrice)
-
-    #get date
-    date = utily.getDate(otherStuff)
-    if date == None:
-        return
-
-    #get price
-    price = utily.getPrice(otherStuff)
-    if price == None:
-        return
-
-    now = datetime.now()
-
-    #get notes
-    notes = utily.getNotes(otherStuff)
-    
-
-    tempList = {'name': name, 'tradeType': tradeType, 'ticker': ticker, 'strikePrice': strikePrice, 'optionType': optionType, 'date': date, 'price': price, 'timePlaced':now, 'notes':notes}
-
-    #print(tempList)
-    
-
-    
-    #print("\n")
-    return tempList
 
 
 #Buy or sell and stuff. Takes recent trade information and checks to see if we need to buy or sell, and adds it to recent positions if so
@@ -112,9 +65,9 @@ async def tradeAndStuff(trade):
     positions = ib.refresh()
     orders = ib.openOrders()
 
-    tradeType = trade.get('tradeType')
+    tradeType = trade.get('tradeType').lower()
     tradeName = trade.get('name')
-    tradeTicker = trade.get('ticker')
+    tradeTicker = trade.get('ticker').upper()
     price = float(trade.get('price'))
     date = trade.get('date')
     dat = date.split('/')
@@ -218,7 +171,7 @@ async def tradeAndStuff(trade):
                 price = price+(price*wiggle)
                 price = base * round(price/base)
 
-                ib.openPosition(tradeTicker, strike, date, tradeRight, quantity, price = price, stoplosspercent = 40)
+                ib.openPosition(tradeTicker, strike, date, tradeRight, quantity, price = price, stoplosspercent=40)
                 
             traded = True
 
@@ -266,7 +219,7 @@ async def on_message(message):
         if ((message.guild.name == config.GUILD_NAME and message.channel.id == config.CHANNEL_ID) or
          (message.guild.name == config.GUILD_NAME2 and message.channel.id == config.CHANNEL_ID2 and str(message.author) != 'Xcapture#0190')):
             #print("from: "+ str(message.author) + ",\n" + str(message.content))
-            tradeData = await parseAndStuff(str(message.author), str(message.content))
+            tradeData = await utily.parseAndStuff(str(message.author), str(message.content))
 
             if tradeData != None:
                 if tradeData.get('name') in nameList:
@@ -283,11 +236,11 @@ async def on_message(message):
                     pandy = pd.concat(concatFrame, sort=False)
 
 
-                    #print('DataFrame:\n', pandy.tail(),'\n\n\n')
+                    print('DataFrame:\n', pandy.tail(),'\n\n\n')
                     pandy.to_csv('trade_data/pandy.csv', index = False)
 
-            else:
-                print('Bad message! Skipping')
+            #else:
+            #    print('Bad message! Skipping')
 
 
 
