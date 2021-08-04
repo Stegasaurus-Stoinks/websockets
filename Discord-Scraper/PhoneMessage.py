@@ -86,13 +86,18 @@ def manageOrderUpdate(trade, ib, dfentry = 0):
             print("Phone Message Order Update, Status: Filled")
 
             #if dfentry !=0:
-            for row in dfentry.reverse():
-                if (row['tradeType'] == "stc" and trade.order.action == "SELL") or (row['tradeType'] == "bto" and trade.order.action == "BUY"):
-                    if row['ticker'] == trade.contract.symbol:
-                        if row['strikePrice'[:-1]] == trade.contract.strike:
-                            trader = row['name']
+            print(dfentry)
+            
+            #for row in dfentry:
+                #print(row)
+                #if (row['tradeType'] == "stc" and trade.order.action == "SELL") or (row['tradeType'] == "bto" and trade.order.action == "BUY"):
+                #    if row['ticker'] == trade.contract.symbol:
+                #        if row['strikePrice'[:-1]] == trade.contract.strike:
+                #            trader = row['name']
 
-            message = " {} /\n{} {}{} {} {} @ ${}".format(trade.order.action, trade.contract.symbol, trade.contract.strike, trade.contract.right, trade.orderStatus.status, trade.orderStatus.filled,trade.orderStatus.avgFillPrice)
+            trader = "Dumb Idiot"
+
+            message = " {} / \nFrom: {}\n{} {}{} {} {} @ ${}".format(trade.order.action, trader, trade.contract.symbol, trade.contract.strike, trade.contract.right, trade.orderStatus.status, trade.orderStatus.filled,trade.orderStatus.avgFillPrice)
 
             if trade.order.action == "SELL":
                 if entryprice != 0.00:
@@ -122,7 +127,7 @@ def manageOrderUpdate(trade, ib, dfentry = 0):
                 
 
     except:
-        print("Probably not a trade object")
+        print("Something wrong with phone stuff")
         print(trade)
     #print(trade)
     #print("IS THIS WORKING????")
