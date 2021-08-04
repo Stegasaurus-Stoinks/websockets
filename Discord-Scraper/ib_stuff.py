@@ -21,7 +21,7 @@ def closePosition(ib, position, price = 0, percent=1.00):
     print(sell)
     sell.fillEvent += orderfilled   
 
-def openPosition(ib, ticker, strike, date, direction, quantity, price = 0):
+def openPosition(ib, ticker, strike, date, direction, quantity, price = 0, stoplosspercent = 0):
     #ticker: 'AAPL'
     #strike: int
     #date: '20210430' = 'YYYYMMDD'
@@ -37,5 +37,11 @@ def openPosition(ib, ticker, strike, date, direction, quantity, price = 0):
         buyOrder = LimitOrder('BUY', quantity, price)
 
     trade = ib.placeOrder(call_option,buyOrder)
+
+    if stoploss != 0:
+        stoploss = price - (stoplosspercent/100 * price)
+        stopOrder = StopOrder('SELL', quantity, stoploss)
+
+    stoptrade = ib.placeOrder(call_option, stopOrder)
 
     print(trade)
