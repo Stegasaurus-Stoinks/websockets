@@ -3,7 +3,6 @@ import disco_func.config as config
 import disco_func.disco_util as utily
 
 #ibkr stuff
-from IBKR.ib_stuff import closePosition, openPosition
 from IBKR.ibkrApi import ibkrApi as ibkr
 from ib_insync import *
 
@@ -66,9 +65,9 @@ async def tradeAndStuff(trade):
     positions = ib.refresh()
     orders = ib.openOrders()
 
-    tradeType = trade.get('tradeType')
+    tradeType = trade.get('tradeType').lower()
     tradeName = trade.get('name')
-    tradeTicker = trade.get('ticker')
+    tradeTicker = trade.get('ticker').upper()
     price = float(trade.get('price'))
     date = trade.get('date')
     dat = date.split('/')
@@ -116,7 +115,7 @@ async def tradeAndStuff(trade):
                     print(position.contract.symbol,tradeTicker,position.contract.strike,strike,position.contract.right,tradeRight)
                     #date of contract is ignored so that we dont trade agaisnt any other positions
                     if position.contract.symbol == tradeTicker and position.contract.strike == strike and position.contract.right == tradeRight:
-                        closePosition(ib, position, percent=sellPercent)
+                        ib.closePosition(position, percent=sellPercent)
                         print(position.contract.conId)
                         print(position.contract)
 

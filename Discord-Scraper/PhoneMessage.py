@@ -90,7 +90,7 @@ def manageOrderUpdate(trade, ib, dfentry = 0):
                 if (row['tradeType'] == "stc" and trade.order.action == "SELL") or (row['tradeType'] == "bto" and trade.order.action == "BUY"):
                     if row['ticker'] == trade.contract.symbol:
                         if row['strikePrice'[:-1]] == trade.contract.strike:
-                trader = row['name']
+                            trader = row['name']
 
             message = " {} /\n{} {}{} {} {} @ ${}".format(trade.order.action, trade.contract.symbol, trade.contract.strike, trade.contract.right, trade.orderStatus.status, trade.orderStatus.filled,trade.orderStatus.avgFillPrice)
 
