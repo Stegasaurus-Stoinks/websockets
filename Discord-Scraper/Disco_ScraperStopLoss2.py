@@ -24,7 +24,7 @@ all_trades = pd.DataFrame(columns=['name', 'tradeType', 'ticker', 'strikePrice',
 
 #phone message stuff (could be removed if i can figure out how to add more args to event)
 def onOrderUpdate(trade):
-    trade_data = all_trades.tail()
+    trade_data = pandy.tail()
     PhoneMessage.manageOrderUpdate(trade, ib, trade_data)
 
 try:
@@ -162,7 +162,7 @@ async def tradeAndStuff(trade):
                     print(position.contract.symbol,tradeTicker,position.contract.strike,strike,position.contract.right,tradeRight)
                     #date of contract is ignored so that we dont trade agaisnt any other positions
                     if position.contract.symbol == tradeTicker and position.contract.strike == strike and position.contract.right == tradeRight:
-                        closePosition(ib, position, percent=sellPercent)
+                        ib.closePosition(position, percent=sellPercent)
                         print(position.contract.conId)
                         print(position.contract)
 
