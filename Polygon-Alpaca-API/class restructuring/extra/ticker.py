@@ -4,17 +4,22 @@ import time
 
 class Ticker:
 
-    def __init__(self, symbol, type, Database):
+    def __init__(self, symbol, type, Database, datasize = 100, startDate = 0, endDate = 0):
         self.symbol = symbol
         self.type = type
         self.status = "Not Initialized"
         
         #local array size
-        self.ArraySize = 100
+        self.ArraySize = datasize
         #backtest length minus the local array size
         self.length = 500
-        self.firstDate = '2021-01-05'
-        self.lastDate = '2021-01-08'
+        if startDate == 0:
+            self.firstDate = '2021-01-05'
+            self.lastDate = '2021-01-08'
+        else:
+            self.firstDate = startDate
+            self.lastDate = endDate
+
         #iteration to keep track of backtest
         self.iteration = 0
         #for timing the backtest
@@ -38,7 +43,7 @@ class Ticker:
         self.Current_time = datetime(2020, 11, 18, 18, 30, 0)
         self.Last_time = datetime(2020, 11, 18, 18, 30, 0)
 
-        #Start and End times of normal market hours(just place holders)
+        #Start and End times of normal market hours(just place holders, they are configured correctly below, trust me)
         self.DAY_START_TIME = datetime(2020, 11, 18, 18, 30, 0)
         self.DAY_END_TIME = datetime(2020, 11, 18, 18, 30, 0)
 

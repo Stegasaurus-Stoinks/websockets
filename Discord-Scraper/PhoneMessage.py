@@ -16,7 +16,7 @@ carriers = {
 def send(message_text):
 
     fromaddr = 'pwilda100@gmail.com'
-    toaddr = ['4804630030@tmomail.net']#,'4807346105@vtext.com']
+    toaddr = ['4804630030@tmomail.net','4807346105@vtext.com']
     cc = ['test@gmail.com','wildakids@gmail.com']
     message_subject = 'TRADE UPDATE'
 
