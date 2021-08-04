@@ -15,13 +15,13 @@ eva-panda-trades ID: 821479719161561168
 
 
 #Server stuff
-#GUILD_NAME = "Stoinks"
-#CHANNEL_ID = 822972262008356964
+GUILD_NAME = "Stoinks"
+CHANNEL_ID = 822972262008356964
 
-GUILD_NAME = "Wall Street Bible LLC"
-CHANNEL_ID = 821479719161561168
+#GUILD_NAME = "Wall Street Bible LLC"
+#CHANNEL_ID = 821479719161561168
 
-GUILD_NAME2 = "BULLPRINT LLC"
+GUILD_NAME2 = "Xtrades.net"
 CHANNEL_ID2 = 592829820371599451
 
 #Credential stuff
@@ -38,11 +38,6 @@ ACCOUNT_SIZE = 4000
 
 #-----------------------BACKTESTER VARIABLES-----------------------#
 TEST_CHANNEL = 592829820371599451
-TEST_USERNAME = "Tatoepaladin"
-CHANNEL_HISTORY = datetime.datetime(2021, 7, 19)
-DETAILS = True
-
-#JTrader,moonshot,Jingle
-
-#check back:
-#Pikayou
+TEST_USERNAME = "snipergang"
+CHANNEL_HISTORY = datetime.datetime(2021, 7, 26)
+DETAILS = False

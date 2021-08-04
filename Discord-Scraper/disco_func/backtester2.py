@@ -76,7 +76,9 @@ async def on_connect():
             results = pd.concat(concatFrame, sort=False)
 
     #make tradeType lowercase
-    results['tradeType'].str.lower()
+    results['tradeType'] = results['tradeType'].str.lower()
+    results['ticker'] = results['ticker'].str.lower()
+    results['strikePrice'] = results['strikePrice'].str.upper()
 
     #collect data
     for i in range(len(results)):
@@ -121,12 +123,12 @@ async def on_connect():
             else:
                 incompleteTrades += 1
                 
-                print("\nINCOMPLETE TRADE\n")
-                # try:
-                #     getNearMessages(entry,messages)
-                # except:
-                #     print("couldnt get nearby messages")
-                # print('\n')
+                print("INCOMPLETE TRADE")
+                try:
+                    getNearMessages(entry,messages)
+                except:
+                    print("")
+                print('\n')
 
 
         #add sell count if it was a sell
@@ -139,8 +141,8 @@ async def on_connect():
     print("Sells: ",stc)
     print("Good trades: ",goodTrades)
     print("Bad trades: ",badTrades)
-    print("total trades: ",totalTrades)
     print("incomplete trades: ",incompleteTrades)
+    print("total trades: ",totalTrades)
     print("percent made: ",round(percentMade,2),"%")
 
 
