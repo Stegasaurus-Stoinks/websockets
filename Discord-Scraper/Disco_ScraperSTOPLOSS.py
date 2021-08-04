@@ -121,17 +121,19 @@ async def tradeAndStuff(trade):
 
 
                 print("-------------ORDERS------------")
-                for trade in ib.openTrades():
-                    print(trade)
-                    if trade.contract.symbol == tradeTicker and trade.contract.strike == strike and trade.contract.right == tradeRight:
-                        orderid = str(trade.order.orderId)
+                for curTrade in ib.openTrades():
+                    print(curTrade)
+                    if curTrade.contract.symbol == tradeTicker and curTrade.contract.strike == strike and curTrade.contract.right == tradeRight:
+                        orderid = str(curTrade.order.orderId)
                         print("Order ID:",orderid)
-                        if trade.orderStatus.remaining != 0: #check if the full order has been filled before trying to cancel
-                            ib.cancelOrder(trade.order)
+                        if curTrade.orderStatus.remaining != 0: #check if the full order has been filled before trying to cancel
+                            ib.cancelOrder(curTrade.order)
 
             traded = True
 
             all_trades = all_trades.append(trade, ignore_index=True)
+            print('saving current positions')
+            all_trades.to_csv('trade_data/all_trades.csv', index = False)
             
 
     elif tradeType.lower() == 'bto':
