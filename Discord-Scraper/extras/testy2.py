@@ -12,7 +12,8 @@ async def on_ready():
 @client.event
 async def on_message(message):
     if message.guild != None:
-        if message.guild.name == "Stoinks" and message.channel.id == 822972262008356964:
-            print("from: "+ str(message.author) + ",\n" + str(message.content))
-
+        if message.guild.name == "Wall Street War - VIP":
+            print("Channel: ", message.channel.name, "\n")
+            print("from: "+ str(message.author) + ",\n" + str(message))
+            print("\nmessage contents: ",str(message.content))
 client.run(TOKEN_AUTH, bot=False)
