@@ -16,7 +16,7 @@ carriers = {
 def send(message_text):
 
     fromaddr = 'pwilda100@gmail.com'
-    toaddr = ['4804630030@tmomail.net','4807346105@vtext.com']
+    toaddr = ['4804630030@tmomail.net']#,'4807346105@vtext.com']
     cc = ['test@gmail.com','wildakids@gmail.com']
     message_subject = 'TRADE UPDATE'
 
@@ -81,11 +81,11 @@ def onUpdateport(portfolio):
 
 def manageOrderUpdate(trade, ib, dfentry = 0):
     global entryprice
-    if True:
-    #try:
+    #if True:
+    try:
         if trade.orderStatus.status == "Filled":
             print("Phone Message Order Update, Status: Filled")
-
+            trader = "Name not Found"
             #if dfentry !=0:
             #print(dfentry)
             for index, row in dfentry[::-1].iterrows():
@@ -136,8 +136,8 @@ def manageOrderUpdate(trade, ib, dfentry = 0):
                         #print(entryprice)
                 
 
-    else:
-    #except:
+    #else:
+    except:
         print("Something wrong with phone stuff")
         print(trade)
     #print(trade)

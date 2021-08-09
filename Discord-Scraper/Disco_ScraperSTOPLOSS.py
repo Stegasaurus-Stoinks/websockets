@@ -18,14 +18,27 @@ import os, time
 import math
 #'Sweet_Louuu', 'Muse', 'Justinvred','ryan-7k','illproducer','slam','skepticule', 'Wags'
 
-nameList = ['EvaPanda', 'Justinvred', 'wildape']
+nameList = ['EvaPanda', 'Justinvred', 'wildape','JTrader','moonshot','Jingle','Pikayou','TatoePaladin']
 pandy = pd.DataFrame(columns=['name', 'tradeType', 'ticker', 'strikePrice', 'optionType', 'date', 'price', 'timePlaced', 'traded','notes'])
 all_trades = pd.DataFrame(columns=['name', 'tradeType', 'ticker', 'strikePrice', 'optionType', 'date', 'price', 'timePlaced','notes'])
+
+stoploss = 40#%
 
 #phone message stuff (could be removed if i can figure out how to add more args to event)
 def onOrderUpdate(trade):
     trade_data = pandy.tail()
     PhoneMessage.manageOrderUpdate(trade, ib, trade_data)
+
+    #Places the stop loss order
+    if trade.orderStatus.status == "Filled" and trade.order.action == "BUY":
+        print("Buy order filled, placing stoploss @ {}%".format(stoploss))
+        #print(trade)
+        quantity = trade.order.totalQuantity
+        stopPrice = round(trade.orderStatus.lastFillPrice * (1-(stoploss/100)) , 2)
+        print(quantity, stopPrice)
+        stopOrder = StopOrder('SELL', quantity, stopPrice)
+        trade = ib.placeOrder(trade.contract,stopOrder)
+
 
 try:
     ib = ibkr()
@@ -173,7 +186,7 @@ async def tradeAndStuff(trade):
                 price = price+(price*wiggle)
                 price = base * round(price/base)
 
-                ib.openPosition(tradeTicker, strike, date, tradeRight, quantity, price = price, stoplosspercent=40)
+                ib.openPosition(tradeTicker, strike, date, tradeRight, quantity, price = price)
                 
             traded = True
 
