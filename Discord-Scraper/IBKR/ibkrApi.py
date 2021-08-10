@@ -29,7 +29,7 @@ class ibkrApi(IB):
         print(sell)
         sell.fillEvent += self.orderfilled   
 
-    def openPosition(self, ticker, strike, date, direction, quantity, price = 0, stoplosspercent = 0):
+    def openPosition(self, ticker, strike, date, direction, quantity, price = 0):
         #ticker: 'AAPL'
         #strike: int
         #date: '20210430' = 'YYYYMMDD'
@@ -46,11 +46,6 @@ class ibkrApi(IB):
             buyOrder = LimitOrder('BUY', quantity, price)
 
         trade = self.placeOrder(call_option,buyOrder)
-
-        #trade.fillevent += buyorderfilled
-
-        if stoplosspercent != 0:
-            print(trade)
 
 
     #Generate new list of positions
