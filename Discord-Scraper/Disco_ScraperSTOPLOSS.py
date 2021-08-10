@@ -18,7 +18,7 @@ import os, time
 import math
 #'Sweet_Louuu', 'Muse', 'Justinvred','ryan-7k','illproducer','slam','skepticule', 'Wags'
 
-nameList = ['EvaPanda', 'Justinvred', 'wildape','JTrader','moonshot','Jingle','Pikayou','TatoePaladin']
+nameList = ['EvaPanda', 'Justinvred', 'wildape','JTrader','moonshot','Jingle','Pikayou','TatoePaladin','Shubham Patel']
 pandy = pd.DataFrame(columns=['name', 'tradeType', 'ticker', 'strikePrice', 'optionType', 'date', 'price', 'timePlaced', 'traded','notes'])
 all_trades = pd.DataFrame(columns=['name', 'tradeType', 'ticker', 'strikePrice', 'optionType', 'date', 'price', 'timePlaced','notes'])
 

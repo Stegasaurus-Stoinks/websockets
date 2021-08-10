@@ -22,6 +22,13 @@ from matplotlib import gridspec
 
 plt.ion()
 
+extraplots = []
+spec = gridspec.GridSpec(ncols=1, nrows=2, hspace=0.5, height_ratios=[2, 1])
+fig = mpf.figure(figsize=(7,8))
+ax1 = fig.subplot(spec[0])
+ax2 = fig.add_subplot(spec[1])
+fig.gridspec_kw={'height_ratios': [1, 2]}
+
 #------Config Variables------
 Trading = False
 Live_Trading = False
@@ -49,9 +56,9 @@ backtest = backtest.sort_index(ascending=True)
 
 #removes all the data that is outside of market hours
 backtest = backtest.between_time('9:30', '15:59')
-print(backtest.shape)
+#print(backtest.shape)
 
-print(backtest.head())
+#print(backtest.head())
 
 backtest = backtest[start:start + plotSize]
 
@@ -73,15 +80,42 @@ maxs = [np.NaN] * plotSize
 for i in range (0,len(ilocs_max)):
     maxs[ilocs_max[i]] = backtest.iloc[ilocs_max[i]].close * 1.001
 
+# for i in range(0, len(mins), 1):
+#     if (not np.isnan(mins[i])):
+#         print(mins[i])
+
+for i in range (0,len(ilocs_min)):
+    try:
+        
+        startx = ilocs_min[i]
+        endx = ilocs_min[i+1]
+        starty = mins[ilocs_min[i]]
+
+        print(startx)
+
+        for j in range (startx,endx):
+            if (not np.isnan(maxs[j])):
+                print("Found a max between two mins")
+                maxx = j
+                maxy = maxs[j]
+                slope = (maxy-starty)/(maxx-startx)
+                line = [np.NaN] * plotSize
+                print(slope)
+                x = 0
+                for k in range (startx, maxx):
+                    line[k] = float(slope*x) + starty
+                    extraplots.append(plotting.make_addplot(line,ax=ax1))
+                    x += 1
+                    
+
+                
+
+
+    except:    
+        print("something broke in the try thingy")
+
 #setup the figure and subplots
-spec = gridspec.GridSpec(ncols=1, nrows=2, hspace=0.5, height_ratios=[2, 1])
 
-fig = mpf.figure(figsize=(7,8))
-ax1 = fig.subplot(spec[0])
-ax2 = fig.add_subplot(spec[1])
-fig.gridspec_kw={'height_ratios': [1, 2]}
-
-extraplots = []
 extraplots.append(plotting.make_addplot(mins,type='scatter',markersize=200,marker='^',ax=ax1))
 extraplots.append(plotting.make_addplot(maxs,type='scatter',markersize=200,marker='.',color='b',ax=ax1))
 
