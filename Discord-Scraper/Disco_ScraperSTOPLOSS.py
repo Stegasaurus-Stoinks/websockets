@@ -98,14 +98,6 @@ async def tradeAndStuff(trade):
     indx = None
     #logic block for buy or sell
     if tradeType.lower() == 'stc':
-        if not orders:
-            pass
-        else:
-            print(orders)
-            for i in orders:
-                print(ib.cancelOrder(i))
-                    
-
 
         if not positions:
             return traded
