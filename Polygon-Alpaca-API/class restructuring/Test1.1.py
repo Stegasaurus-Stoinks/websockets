@@ -13,6 +13,8 @@ from extra.database import Database
 from extra.tradeApi import TradeApi
 from extra.plotter import LiveChartEnv
 
+import Elliotfuncs
+
 import time
 import mplfinance as mpf
 import matplotlib.pyplot as plt
@@ -83,21 +85,19 @@ for i in range (0,len(ilocs_max)):
 # for i in range(0, len(mins), 1):
 #     if (not np.isnan(mins[i])):
 #         print(mins[i])
+reach = 2
 
 for i in range (0,len(ilocs_min)):
-    #try:
-    if(1):
+    try:
+    
         x1 = ilocs_min[i]
         y1 = mins[ilocs_min[i]]
         x3 = 0
         y3 = 0
-        subarray = ilocs_min[i:i+3]
-        #print(subarray)
-        for m in subarray:
-            #print(mins[m], y1)
-            if mins[m] > y1:
-                x3 = m
-                y3 = mins[m]
+        for m in range(0,reach+1):
+            if mins[ilocs_min[i+m]] > y1:
+                x3 = ilocs_min[i+m]
+                y3 = mins[ilocs_min[i+m]]
 
             if x3 != 0 and y3 != 0:
                 #print("found valid second minimum")
@@ -119,6 +119,8 @@ for i in range (0,len(ilocs_min)):
                         for k in range (x2, x3+1):
                             line[k] = float(slope*x) + y2
                             x += 1
+
+                        
                             
                         extraplots.append(plotting.make_addplot(line,ax=ax1))
                     
@@ -126,8 +128,8 @@ for i in range (0,len(ilocs_min)):
                 
 
 
-    #except:
-    else:    
+    except:
+        
         print("something broke in the try thingy")
 
 #setup the figure and subplots

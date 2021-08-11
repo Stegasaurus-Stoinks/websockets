@@ -13,6 +13,8 @@ from extra.database import Database
 from extra.tradeApi import TradeApi
 from extra.plotter import LiveChartEnv
 
+import Elliotfuncs
+
 import time
 import mplfinance as mpf
 import matplotlib.pyplot as plt
@@ -80,54 +82,95 @@ maxs = [np.NaN] * plotSize
 for i in range (0,len(ilocs_max)):
     maxs[ilocs_max[i]] = backtest.iloc[ilocs_max[i]].close * 1.001
 
-# for i in range(0, len(mins), 1):
-#     if (not np.isnan(mins[i])):
-#         print(mins[i])
+#Now I just need to find these points automatically 
+i = 4
+j = 4
+#valleys
+x1 = ilocs_min[i]
+y1 = mins[ilocs_min[i]]
+
+x3 = ilocs_min[i+1]
+y3 = mins[ilocs_min[i+1]]
+
+x5 = ilocs_min[i+2]
+y5 = mins[ilocs_min[i+2]]
+
+#peaks
+x2 = ilocs_max[j]
+y2 = maxs[ilocs_max[j]]
+
+x4 = ilocs_max[j+1]
+y4 = maxs[ilocs_max[j+1]]
+
+x6 = ilocs_max[j+2]
+y6 = maxs[ilocs_max[j+2]]
+
+wave = Elliotfuncs.ElliotImpulse(plotSize)
+wave.definepoints(x1,y1,x2,y2,x3,y3,x4,y4,x5,y5,x6,y6)
+#wave.printdata()
+waveplot = wave.assemble()
+#print(waveplot)
+extraplots.append(plotting.make_addplot(waveplot,ax=ax1))
+
+reach = 2
 
 for i in range (0,len(ilocs_min)):
-    #try:
     if(1):
-        x1 = ilocs_min[i]
-        y1 = mins[ilocs_min[i]]
-        x3 = 0
-        y3 = 0
-        subarray = ilocs_min[i:i+3]
-        #print(subarray)
-        for m in subarray:
-            #print(mins[m], y1)
-            if mins[m] > y1:
-                x3 = m
-                y3 = mins[m]
+    #try:
+        wave = Elliotfuncs.ElliotImpulse(plotSize)
+        wave.x1 = ilocs_min[i]
+        wave.y1 = mins[ilocs_min[i]]
 
-            if x3 != 0 and y3 != 0:
-                #print("found valid second minimum")
-                for j in range (x1,x3):
-                    if (not np.isnan(maxs[j])):
-                        #print("Found a max between two mins")
-                        x2 = j
-                        y2 = maxs[j]
-                        slope = (y2-y1)/(x2-x1)
-                        line = [np.NaN] * plotSize
-                        #print(slope)
-                        x = 0
-                        for k in range (x1, x2+1):
-                            line[k] = float(slope*x) + y1
-                            x += 1
+        ilocs_max_valid = [x for x in ilocs_max if x>wave.x1]
 
-                        slope = (y3-y2)/(x3-x2)
-                        x = 0
-                        for k in range (x2, x3+1):
-                            line[k] = float(slope*x) + y2
-                            x += 1
-                            
-                        extraplots.append(plotting.make_addplot(line,ax=ax1))
-                    
+        #print(wave.x1, ilocs_max_valid)
 
-                
+        for x in ilocs_max_valid[0:reach+1]:
+            wave.x2 = x
+            wave.y2 = maxs[x]
+
+            ilocs_min_valid = [x for x in ilocs_min if x>wave.x2]
+
+            for x in ilocs_min_valid[0:reach+1]:
+                if(wave.checkpoint3(x,mins[x])):
+                    wave.x3 = x
+                    wave.y3 = mins[x]
+
+                    ilocs_max_valid = [x for x in ilocs_max if x>wave.x3]
+
+                    for x in ilocs_max_valid[0:reach+1]:
+
+                        if(wave.checkpoint4(x,maxs[x])):
+                            wave.x4 = x
+                            wave.y4 = maxs[x]
+
+                            ilocs_min_valid = [x for x in ilocs_min if x>wave.x4]
+
+                            for x in ilocs_min_valid[0:reach+1]:
+                                if(wave.checkpoint5(x,mins[x])):
+                                    wave.x5 = x
+                                    wave.y5 = mins[x]
+
+                                    ilocs_max_valid = [x for x in ilocs_max if x>wave.x5]
+
+                                    for x in ilocs_max_valid[0:reach+1]:
+
+                                        if(wave.checkpoint6(x,maxs[x])):
+                                            wave.x6 = x
+                                            wave.y6 = maxs[x]
 
 
+                                            waveplot = wave.assemble()
+                                            #print(waveplot)
+                                            extraplots.append(plotting.make_addplot(waveplot,ax=ax1))
+
+
+        
+        
+
+    else:
     #except:
-    else:    
+        
         print("something broke in the try thingy")
 
 #setup the figure and subplots
