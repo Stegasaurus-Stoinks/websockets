@@ -4,33 +4,51 @@ def calculateslope(x1,y1,x2,y2):
         slope = (y2-y1)/(x2-x1)
         return slope
 
+def displaywaves(possibleWaves, array = []):
+    wavesfordisplay = []
+    print(array)
+    if array == []:
+        for wave in possibleWaves:
+            waveplot = wave.assemble()
+            wavesfordisplay.append(waveplot)
+
+    else:
+        for i in array:
+            print(i)
+            waveplot = possibleWaves[i].assemble()
+            #print(waveplot)
+            wavesfordisplay.append(waveplot)
+
+    return wavesfordisplay
+            
+
 class ElliotImpulse:
 
     # |              6
     # |         4   /
     # |    2   / \ /
-    # |   / \ /   5
+    # |   / \ /   5 
     # |  /   3
     # | 1
     # |________________
 
 
-    def __init__(self, plotSize):
+    def __init__(self, plotSize,x1= np.NaN,y1= np.NaN,x2= np.NaN,y2= np.NaN,x3= np.NaN,y3= np.NaN,x4= np.NaN,y4= np.NaN,x5= np.NaN,y5= np.NaN,x6= np.NaN,y6= np.NaN):
 
         self.plotSize = plotSize
 
-        self.x1 = np.NaN
-        self.y1 = np.NaN
-        self.x2 = np.NaN
-        self.y2 = np.NaN
-        self.x3 = np.NaN
-        self.y3 = np.NaN
-        self.x4 = np.NaN
-        self.y4 = np.NaN
-        self.x5 = np.NaN
-        self.y5 = np.NaN
-        self.x6 = np.NaN
-        self.y6 = np.NaN
+        self.x1 = x1
+        self.y1 = y1
+        self.x2 = x2
+        self.y2 = y2
+        self.x3 = x3
+        self.y3 = y3
+        self.x4 = x4
+        self.y4 = y4
+        self.x5 = x5
+        self.y5 = y5 
+        self.x6 = x6
+        self.y6 = y6
 
     def printdata(self):
         print(self.x1,self.y1,self.x2,self.y2,self.x3,self.y3,self.x4,self.y4,self.x5,self.y5,self.x6,self.y6)
@@ -44,7 +62,7 @@ class ElliotImpulse:
             print("Error! Could not assemble the Elliot wave due to missing/undefined data")
             print("Y1:{} Y2:{} Y3:{} Y4:{} Y5:{} Y6:{}".format(self.y1,self.y2,self.y3,self.y4,self.y5,self.y6))
             return()
-            
+
         if(print):
             print("Assembling the Elliot wave with the given parameters")
             self.printdata()
