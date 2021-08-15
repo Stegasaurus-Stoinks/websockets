@@ -45,10 +45,9 @@ api = TradeApi(Trading, Live_Trading)
 #Initiaiize all relevant tickers for the day
 
 #pick from {CCL, AAPL, MSFT, HD, NFLX, GOOG, TSLA, VZ, INTC, AMZN, FB}
-
 AAPL = Ticker("AAPL", "Stock", DB, startDate='2021-01-04', endDate='2021-01-14')
-MSFT = Ticker("MSFT", "Stock", DB)  
-TSLA = Ticker("TSLA", "Stock", DB)
+MSFT = Ticker("MSFT", "Stock", DB, startDate='2021-01-04', endDate='2021-01-14')  
+TSLA = Ticker("TSLA", "Stock", DB, startDate='2021-01-04', endDate='2021-01-14')
 
 AAPL.warmUp()
 
@@ -58,31 +57,28 @@ backtest = backtest.sort_index(ascending=True)
 
 #removes all the data that is outside of market hours
 backtest = backtest.between_time('9:30', '15:59')
-#print(backtest.shape)
 
-#print(backtest.head())
-
+#skrinks the working data so its easier to use/analyze
 backtest = backtest[start:start + plotSize]
-
-#fig = mpf.figure(figsize=(7,8))
+print(backtest.head())
 
 #Calculating mins and maxs
-n = 15 #Adjust this to add more or less mins and maxs (2 was the best one I found for short term)
-ilocs_min = argrelextrema(backtest.close.values, np.less_equal, order=n)[0]
-ilocs_max = argrelextrema(backtest.close.values, np.greater_equal, order=n)[0]
+n = 20 #Adjust this to add more or less mins and maxs (2 was the best one I found for short term)
+ilocs_min = argrelextrema(backtest.low.values, np.less_equal, order=n)[0]
+ilocs_max = argrelextrema(backtest.high.values, np.greater_equal, order=n)[0]
 
 #print(ilocs_min)
 #print(ilocs_max)
 
 mins = [np.NaN] * plotSize
 for i in range (0,len(ilocs_min)):
-    mins[ilocs_min[i]] = backtest.iloc[ilocs_min[i]].close * 0.999
+    mins[ilocs_min[i]] = backtest.iloc[ilocs_min[i]].low * 0.999
 
 maxs = [np.NaN] * plotSize
 for i in range (0,len(ilocs_max)):
-    maxs[ilocs_max[i]] = backtest.iloc[ilocs_max[i]].close * 1.001
+    maxs[ilocs_max[i]] = backtest.iloc[ilocs_max[i]].high * 1.001
 
-#Now I just need to find these points automatically 
+#---------------Now I just need to find these points automatically----------------
 i = 4
 j = 4
 #valleys
@@ -105,14 +101,18 @@ y4 = maxs[ilocs_max[j+1]]
 x6 = ilocs_max[j+2]
 y6 = maxs[ilocs_max[j+2]]
 
-wave = Elliotfuncs.ElliotImpulse(plotSize)
-wave.definepoints(x1,y1,x2,y2,x3,y3,x4,y4,x5,y5,x6,y6)
+#wave = Elliotfuncs.ElliotImpulse(plotSize)
+#wave.definepoints(x1,y1,x2,y2,x3,y3,x4,y4,x5,y5,x6,y6)
 #wave.printdata()
-waveplot = wave.assemble()
+#waveplot = wave.assemble()
 #print(waveplot)
-extraplots.append(plotting.make_addplot(waveplot,ax=ax1))
+#extraplots.append(plotting.make_addplot(waveplot,ax=ax1))
+
+#-----------------------------------------------------------------------------------
 
 reach = 2
+possibleWaves = []
+counter = 0
 
 for i in range (0,len(ilocs_min)):
     if(1):
@@ -124,54 +124,78 @@ for i in range (0,len(ilocs_min)):
         ilocs_max_valid = [x for x in ilocs_max if x>wave.x1]
 
         #print(wave.x1, ilocs_max_valid)
-
+        maxval2 = wave.y1
         for x in ilocs_max_valid[0:reach+1]:
-            wave.x2 = x
-            wave.y2 = maxs[x]
+            if(maxs[x] > maxval2):
+                maxval2 = maxs[x]
+                wave.x2 = x
+                wave.y2 = maxs[x]
+                
 
-            ilocs_min_valid = [x for x in ilocs_min if x>wave.x2]
+                ilocs_min_valid = [x for x in ilocs_min if x>wave.x2]
 
-            for x in ilocs_min_valid[0:reach+1]:
-                if(wave.checkpoint3(x,mins[x])):
-                    wave.x3 = x
-                    wave.y3 = mins[x]
+                minval3 = wave.y2
+                for x in ilocs_min_valid[0:reach+1]:
+                    if(wave.checkpoint3(x,mins[x])):
+                        if(mins[x] < minval3):
+                            minval3 = mins[x]
+                            wave.x3 = x
+                            wave.y3 = mins[x]
 
-                    ilocs_max_valid = [x for x in ilocs_max if x>wave.x3]
+                            ilocs_max_valid = [x for x in ilocs_max if x>wave.x3]
+                        
+                            maxval4 = wave.y3
+                            for x in ilocs_max_valid[0:reach+1]:
 
-                    for x in ilocs_max_valid[0:reach+1]:
+                                if(wave.checkpoint4(x,maxs[x])):
+                                    if(maxs[x] > maxval4):
+                                        maxval4 = maxs[x]
+                                        wave.x4 = x
+                                        wave.y4 = maxs[x]
+                                        #print("found valid 4")
 
-                        if(wave.checkpoint4(x,maxs[x])):
-                            wave.x4 = x
-                            wave.y4 = maxs[x]
+                                        ilocs_min_valid = [x for x in ilocs_min if x>wave.x4]
 
-                            ilocs_min_valid = [x for x in ilocs_min if x>wave.x4]
+                                        minval5 = wave.y4
+                                        for x in ilocs_min_valid[0:reach+1]:
+                                            if(wave.checkpoint5(x,mins[x])):
+                                                if(mins[x] < minval5):
+                                                    minval5 = mins[x]
+                                                    wave.x5 = x
+                                                    wave.y5 = mins[x]
+                                                    #print("found valid 5")
 
-                            for x in ilocs_min_valid[0:reach+1]:
-                                if(wave.checkpoint5(x,mins[x])):
-                                    wave.x5 = x
-                                    wave.y5 = mins[x]
+                                                    ilocs_max_valid = [x for x in ilocs_max if x>wave.x5]
 
-                                    ilocs_max_valid = [x for x in ilocs_max if x>wave.x5]
+                                                    maxval6 = wave.y5
+                                                    for x in ilocs_max_valid[0:reach+1]:
 
-                                    for x in ilocs_max_valid[0:reach+1]:
-
-                                        if(wave.checkpoint6(x,maxs[x])):
-                                            wave.x6 = x
-                                            wave.y6 = maxs[x]
-
-
-                                            waveplot = wave.assemble()
-                                            #print(waveplot)
-                                            extraplots.append(plotting.make_addplot(waveplot,ax=ax1))
-
-
+                                                        if(wave.checkpoint6(x,maxs[x])):
+                                                            if(maxs[x] > maxval6):
+                                                                maxval6 = maxs[x]
+                                                                wave.x6 = x
+                                                                wave.y6 = maxs[x]
+                                                                #print("found valid 6")
+                                                                
+                                                                possibleWaves.append(Elliotfuncs.ElliotImpulse(wave.plotSize,wave.x1,wave.y1,wave.x2,wave.y2,wave.x3,wave.y3,wave.x4,wave.y4,wave.x5,wave.y5,wave.x6,wave.y6))
+                                                                counter += 1
+                                                                #waveplot = wave.assemble()
+                                                                #print(wave.printdata())
+                                                                #print(waveplot)
+                                                                #extraplots.append(plotting.make_addplot(waveplot,ax=ax1))        
         
-        
-
     else:
     #except:
         
         print("something broke in the try thingy")
+
+print("found", len(possibleWaves),"possible elliot wave impulses")
+
+#[2,9] give decent results
+toDisplay = Elliotfuncs.displaywaves(possibleWaves)
+for wave in toDisplay:
+    extraplots.append(plotting.make_addplot(wave,ax=ax1))
+    
 
 #setup the figure and subplots
 
