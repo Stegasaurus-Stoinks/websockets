@@ -88,9 +88,13 @@ async def tradeAndStuff(trade):
         if not orders:
             pass
         else:
-            print(orders)
-            for i in orders:
-                print(ib.cancelOrder(i))
+            for curTrade in ib.openTrades():
+                    print(curTrade)
+                    if curTrade.contract.symbol == tradeTicker and curTrade.contract.strike == strike and curTrade.contract.right == tradeRight:
+                        orderid = str(curTrade.order.orderId)
+                        print("checking if needs to be cancelled:",orderid)
+                        if curTrade.orderStatus.remaining != 0: #check if the full order has been filled before trying to cancel
+                            ib.cancelOrder(curTrade.order)   
                     
 
 
