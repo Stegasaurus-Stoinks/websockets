@@ -18,7 +18,7 @@ class ibkrApi(IB):
         position.contract.exchange = 'SMART'
         numShares = round(percent * position.position)
         if numShares == 0:
-            numShares = 1   
+            return   
         if price == 0:
             sellOrder = MarketOrder('SELL', numShares)
 
