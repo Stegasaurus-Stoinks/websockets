@@ -110,7 +110,7 @@ async def tradeAndStuff(trade):
 
             sellPercent = utily.checkNotes(notes) #check notes for key words to decide exit percentage
             
-            print('\nSold '+ str(sellPercent*100) +"% of "+ tradeTicker +' with '+ tradeName +'!\n')#########DO LE SELL HERE :D
+            print('\nSelling '+ str(sellPercent*100) +"% of "+ tradeTicker +' with '+ tradeName +'!\n')#########DO LE SELL HERE :D
 
             if Trading:
                 for position in positions:

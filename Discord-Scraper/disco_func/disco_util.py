@@ -101,6 +101,8 @@ switcher = {
     "baby profits" : 0.0,
     "holding 1/3" : 0.66,
     "holding 2/3" : 0.33,
+    "profit" : 1.0,
+    "half" : 0.49,
     "trim some" : 0.20,
     "trim half" : 0.49,
     "trim most" : 0.80,
