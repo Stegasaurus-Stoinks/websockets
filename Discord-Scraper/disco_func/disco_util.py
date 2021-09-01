@@ -103,11 +103,12 @@ switcher = {
     "holding 2/3" : 0.33,
     "trim some" : 0.20,
     "trim half" : 0.49,
+    "trim most" : 0.80,
     "trim" : 0.49,
     "out most" : 0.80,
     "leave runners" : 0.80,
     
-    "lotto" : 0.0,
+    #"lotto" : 0.0,
     
     # "scale" : 0.50,
     # "scrape" : 0.25,

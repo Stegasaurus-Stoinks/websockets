@@ -11,10 +11,8 @@ import PhoneMessage
 import discord
 import asyncio
 
-import re
-
 import pandas as pd
-import os, time
+import os
 import math
 #'Sweet_Louuu', 'Muse', 'Justinvred','ryan-7k','illproducer','slam','skepticule', 'Wags'
 
@@ -181,7 +179,7 @@ async def tradeAndStuff(trade):
 
             all_trades = all_trades.append(trade, ignore_index=True)
             print('saving current positions')
-            all_trades.to_csv('trade_data/all_trades.csv', index = False)
+            all_trades.to_csv(allTradesFile, index = False)
     return traded
 
 
@@ -192,15 +190,18 @@ async def tradeAndStuff(trade):
 
 
 #Check if we need to load in data from previous days
-fileExist = os.path.isfile('trade_data/pandy.csv')
+file = os.path.dirname(__file__)
+pandyFile = os.path.join(file,'trade_data/pandy.csv')
+fileExist = os.path.isfile(pandyFile)
 print('File exists: ', str(fileExist), '\n')
 if fileExist:
-    pandy = pd.read_csv('trade_data/pandy.csv')
+    pandy = pd.read_csv(pandyFile)
 
-fileExist2 = os.path.isfile('trade_data/all_trades.csv')
+allTradesFile = os.path.join(file,'trade_data/all_trades.csv')
+fileExist2 = os.path.isfile(allTradesFile)
 print('File exists: ', str(fileExist2), '\n')
 if fileExist2:
-    all_trades = pd.read_csv('trade_data/all_trades.csv')
+    all_trades = pd.read_csv(allTradesFile)
 
 print('Current Positions:\n', all_trades, '\n')
 
@@ -241,7 +242,7 @@ async def on_message(message):
 
 
                     print('DataFrame:\n', pandy.tail(),'\n\n\n')
-                    pandy.to_csv('trade_data/pandy.csv', index = False)
+                    pandy.to_csv(pandyFile, index = False)
 
             else:
                 print('Bad message! Skipping')
