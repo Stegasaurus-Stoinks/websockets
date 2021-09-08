@@ -1,5 +1,6 @@
-import sys
-sys.path.append('../')
+import sys, os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))))
+
 
 from mplfinance import plotting
 from algos.algo_EMA import Algo as AlgoEMA
