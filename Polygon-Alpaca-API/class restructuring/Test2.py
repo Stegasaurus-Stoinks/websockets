@@ -61,17 +61,8 @@ backtest = backtest.between_time('9:30', '15:59')
 #skrinks the working data so its easier to use/analyze
 backtest = backtest[start:start + plotSize]
 print(backtest.head())
-
-#Calculating mins and maxs
-n = 20 #Adjust this to add more or less mins and maxs (2 was the best one I found for short term)
-ilocs_min = argrelextrema(backtest.low.values, np.less_equal, order=n)[0]
-ilocs_max = argrelextrema(backtest.high.values, np.greater_equal, order=n)[0]
-
-#print(ilocs_min)
-#print(ilocs_max)
-
-#array of min and max plotpoints
-#fill array with nan's first, then replace nan's with min and max values where necessary
+ilocs_min = argrelextrema(backtest.low.values, np.less_equal, order=20)[0]
+ilocs_max = argrelextrema(backtest.high.values, np.greater_equal, order=20)[0]
 mins = [np.NaN] * plotSize
 for i in range (0,len(ilocs_min)):
     mins[ilocs_min[i]] = backtest.iloc[ilocs_min[i]].low * 0.999
@@ -80,103 +71,16 @@ maxs = [np.NaN] * plotSize
 for i in range (0,len(ilocs_max)):
     maxs[ilocs_max[i]] = backtest.iloc[ilocs_max[i]].high * 1.001
 
-#---------------Now I just need to find these points automatically----------------
 
-#wave = Elliotfuncs.ElliotImpulse(plotSize)
-#wave.definepoints(x1,y1,x2,y2,x3,y3,x4,y4,x5,y5,x6,y6)
-#wave.printdata()
-#waveplot = wave.assemble()
-#print(waveplot)
-#extraplots.append(plotting.make_addplot(waveplot,ax=ax1))
 
-#-----------------------------------------------------------------------------------
+possibleWaves = Elliotfuncs.elliotRecursiveBlast(backtest,plotSize,5,0,165,237)
 
-reach = 2
-possibleWaves = []
-counter = 0
 
-#for every min in chart
-for i in range (0,len(ilocs_min)):
-    if(1):
-    #try:
-        wave = Elliotfuncs.ElliotImpulse(plotSize)
-        wave.x1 = ilocs_min[i]
-        wave.y1 = mins[ilocs_min[i]]
-
-        if(endX != np.NaN):
-            ilocs_max_valid = [x for x in ilocs_max if (x>wave.x1 and x<endX)]#max's in wave 1
-        else:    
-            ilocs_max_valid = [x for x in ilocs_max if x>wave.x1]#all max's past point 1
-
-        #print(wave.x1, ilocs_max_valid)
-        maxval2 = wave.y1
-        for x in ilocs_max_valid[0:reach+1]:
-            if(maxs[x] > maxval2):
-                maxval2 = maxs[x]
-                wave.x2 = x
-                wave.y2 = maxs[x]
-                
-
-                ilocs_min_valid = [x for x in ilocs_min if x>wave.x2]
-
-                minval3 = wave.y2
-                for x in ilocs_min_valid[0:reach+1]:
-                    if(wave.checkpoint3(x,mins[x])):
-                        if(mins[x] < minval3):
-                            minval3 = mins[x]
-                            wave.x3 = x
-                            wave.y3 = mins[x]
-
-                            ilocs_max_valid = [x for x in ilocs_max if x>wave.x3]
-                        
-                            maxval4 = wave.y3
-                            for x in ilocs_max_valid[0:reach+1]:
-
-                                if(wave.checkpoint4(x,maxs[x])):
-                                    if(maxs[x] > maxval4):
-                                        maxval4 = maxs[x]
-                                        wave.x4 = x
-                                        wave.y4 = maxs[x]
-                                        #print("found valid 4")
-
-                                        ilocs_min_valid = [x for x in ilocs_min if x>wave.x4]
-
-                                        minval5 = wave.y4
-                                        for x in ilocs_min_valid[0:reach+1]:
-                                            if(wave.checkpoint5(x,mins[x])):
-                                                if(mins[x] < minval5):
-                                                    minval5 = mins[x]
-                                                    wave.x5 = x
-                                                    wave.y5 = mins[x]
-                                                    #print("found valid 5")
-
-                                                    ilocs_max_valid = [x for x in ilocs_max if x>wave.x5]
-
-                                                    maxval6 = wave.y5
-                                                    for x in ilocs_max_valid[0:reach+1]:
-
-                                                        if(wave.checkpoint6(x,maxs[x])):
-                                                            if(maxs[x] > maxval6):
-                                                                maxval6 = maxs[x]
-                                                                wave.x6 = x
-                                                                wave.y6 = maxs[x]
-                                                                #print("found valid 6")
-                                                                
-                                                                possibleWaves.append(wave)
-                                                                counter += 1
-                                                                #waveplot = wave.assemble()
-                                                                #print(wave.printdata())
-                                                                #print(waveplot)
-                                                                #extraplots.append(plotting.make_addplot(waveplot,ax=ax1))        
-        
-    else:
-    #except:
-        
-        print("something broke in the try thingy")
 
 print("found", len(possibleWaves),"possible elliot wave impulses")
 
 #[2,9] give decent results
+print(possibleWaves)
 toDisplay = Elliotfuncs.displaywaves(possibleWaves)
 for wave in toDisplay:
     extraplots.append(plotting.make_addplot(wave,ax=ax1))

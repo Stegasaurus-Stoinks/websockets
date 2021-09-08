@@ -70,6 +70,8 @@ ilocs_max = argrelextrema(backtest.high.values, np.greater_equal, order=n)[0]
 #print(ilocs_min)
 #print(ilocs_max)
 
+#array of min and max plotpoints
+#fill array with nan's first, then replace nan's with min and max values where necessary
 mins = [np.NaN] * plotSize
 for i in range (0,len(ilocs_min)):
     mins[ilocs_min[i]] = backtest.iloc[ilocs_min[i]].low * 0.999
@@ -79,27 +81,6 @@ for i in range (0,len(ilocs_max)):
     maxs[ilocs_max[i]] = backtest.iloc[ilocs_max[i]].high * 1.001
 
 #---------------Now I just need to find these points automatically----------------
-i = 4
-j = 4
-#valleys
-x1 = ilocs_min[i]
-y1 = mins[ilocs_min[i]]
-
-x3 = ilocs_min[i+1]
-y3 = mins[ilocs_min[i+1]]
-
-x5 = ilocs_min[i+2]
-y5 = mins[ilocs_min[i+2]]
-
-#peaks
-x2 = ilocs_max[j]
-y2 = maxs[ilocs_max[j]]
-
-x4 = ilocs_max[j+1]
-y4 = maxs[ilocs_max[j+1]]
-
-x6 = ilocs_max[j+2]
-y6 = maxs[ilocs_max[j+2]]
 
 #wave = Elliotfuncs.ElliotImpulse(plotSize)
 #wave.definepoints(x1,y1,x2,y2,x3,y3,x4,y4,x5,y5,x6,y6)
@@ -114,6 +95,7 @@ reach = 2
 possibleWaves = []
 counter = 0
 
+#for every min in chart
 for i in range (0,len(ilocs_min)):
     if(1):
     #try:
@@ -121,7 +103,10 @@ for i in range (0,len(ilocs_min)):
         wave.x1 = ilocs_min[i]
         wave.y1 = mins[ilocs_min[i]]
 
-        ilocs_max_valid = [x for x in ilocs_max if x>wave.x1]
+        if(endX != np.NaN):
+            ilocs_max_valid = [x for x in ilocs_max if (x>wave.x1 and x<endX)]#max's in wave 1
+        else:    
+            ilocs_max_valid = [x for x in ilocs_max if x>wave.x1]#all max's past point 1
 
         #print(wave.x1, ilocs_max_valid)
         maxval2 = wave.y1
@@ -177,7 +162,7 @@ for i in range (0,len(ilocs_min)):
                                                                 wave.y6 = maxs[x]
                                                                 #print("found valid 6")
                                                                 
-                                                                possibleWaves.append(Elliotfuncs.ElliotImpulse(wave.plotSize,wave.x1,wave.y1,wave.x2,wave.y2,wave.x3,wave.y3,wave.x4,wave.y4,wave.x5,wave.y5,wave.x6,wave.y6))
+                                                                possibleWaves.append(wave)
                                                                 counter += 1
                                                                 #waveplot = wave.assemble()
                                                                 #print(wave.printdata())
@@ -199,8 +184,8 @@ for wave in toDisplay:
 
 #setup the figure and subplots
 
-extraplots.append(plotting.make_addplot(mins,type='scatter',markersize=200,marker='^',ax=ax1))
-extraplots.append(plotting.make_addplot(maxs,type='scatter',markersize=200,marker='.',color='b',ax=ax1))
+#extraplots.append(plotting.make_addplot(mins,type='scatter',markersize=200,marker='^',ax=ax1))
+#extraplots.append(plotting.make_addplot(maxs,type='scatter',markersize=200,marker='.',color='b',ax=ax1))
 
 mpf.plot(backtest,type='candle',style='charles',addplot= extraplots,warn_too_much_data=10000000000,ax=ax1, volume=ax2)
 plt.show()

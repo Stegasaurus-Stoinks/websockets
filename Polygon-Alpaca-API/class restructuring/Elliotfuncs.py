@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.signal import argrelextrema
 
 def calculateslope(x1,y1,x2,y2):
         slope = (y2-y1)/(x2-x1)
@@ -165,12 +166,23 @@ class ElliotImpulse:
 
 ############ Big boy function. father of all functions. Tamper with if you dare. A single wrong change will cause a cataclysmic chain of events
 
-def elliotRecursiveBlast(backtest,plotSize):
+def elliotRecursiveBlast(backtest,plotSize,n,level,startX=np.NaN,endX=np.NaN):
+    print("level: ",level)
     #Calculating mins and maxs
-    n = 20 #Adjust this to add more or less mins and maxs (2 was the best one I found for short term)
-    ilocs_min = argrelextrema(backtest.low.values, np.less_equal, order=n)[0]
-    ilocs_max = argrelextrema(backtest.high.values, np.greater_equal, order=n)[0]
-
+    print("startX:",startX)
+    print("endX:",endX)
+    print("BEFORE RODER: ",n)
+    
+    if np.isnan(startX):
+        o = n
+        ilocs_min = argrelextrema(backtest.low.values, np.less_equal, order=o)[0]
+        ilocs_max = argrelextrema(backtest.high.values, np.greater_equal, order=o)[0]
+    else:
+        o = int(n/4) #Adjust this to add more or less mins and maxs (2 was the best one I found for short term)
+        ilocs_min = argrelextrema(backtest.low.values[startX:endX+1], np.less_equal, order=o)[0]
+        ilocs_max = argrelextrema(backtest.high.values[startX:endX+1], np.greater_equal, order=o)[0]
+        print("CURRENT RODER: ",o)
+    
     #print(ilocs_min)
     #print(ilocs_max)
 
@@ -197,20 +209,19 @@ def elliotRecursiveBlast(backtest,plotSize):
 
     reach = 2
     possibleWaves = []
-    counter = 0
 
     #for every min in chart
     for i in range (0,len(ilocs_min)):
         if(1):
         #try:
-            wave = Elliotfuncs.ElliotImpulse(plotSize)
+            wave = ElliotImpulse(plotSize)
             wave.x1 = ilocs_min[i]
             wave.y1 = mins[ilocs_min[i]]
 
-            if(endX != np.NaN):
-                ilocs_max_valid = [x for x in ilocs_max if (x>wave.x1 and x<endX)]#max's in wave 1
-            else:    
-                ilocs_max_valid = [x for x in ilocs_max if x>wave.x1]#all max's past point 1
+            # if(endX != np.NaN):
+            #     ilocs_max_valid = [x for x in ilocs_max if (x>wave.x1 and x<endX)]#max's in wave 1
+            # else:    
+            ilocs_max_valid = [x for x in ilocs_max if x>wave.x1]#all max's past point 1
 
             #print(wave.x1, ilocs_max_valid)
             maxval2 = wave.y1
@@ -267,9 +278,14 @@ def elliotRecursiveBlast(backtest,plotSize):
                                                                     #print("found valid 6")
                                                                     
                                                                     possibleWaves.append(wave)
-                                                                    possWaves1 = elliotRecursiveBlast()
-                                                                    possibleWaves.append(possWaves1)
-                                                                    counter += 1
+                                                                    print("^current level^:",level)
+                                                                    # possWaves1 = elliotRecursiveBlast(backtest,plotSize,o,level+1,wave.x1,wave.x2)
+                                                                    # if possWaves1 != []:
+                                                                    #     possibleWaves.append(possWaves1)
+                                                                    # possWaves3 = elliotRecursiveBlast(backtest,plotSize,o,wave.x3,wave.x4,level+1)
+                                                                    # if possWaves1 != []:
+                                                                    #     possibleWaves.append(possWaves3)
+                                                                    
                                                                     #waveplot = wave.assemble()
                                                                     #print(wave.printdata())
                                                                     #print(waveplot)
@@ -278,4 +294,4 @@ def elliotRecursiveBlast(backtest,plotSize):
         else:
         #except:       
             print("something broke in the try thingy")
-        return
+    return possibleWaves
