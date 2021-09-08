@@ -30,3 +30,22 @@ def createline(slope,x1,y1,x2,y2,data,keypoints,plotSize,wiggle = 0.02):
     
     if plot:
         return line,score
+
+def HA(df):
+    df['HA_Close']=(df['open']+ df['high']+ df['low']+df['close'])/4
+
+    idx = df.index.name
+    df.reset_index(inplace=True)
+
+    for i in range(0, len(df)):
+        if i == 0:
+            df.at[i, 'HA_Open'] = ((df._get_value(i, 'open') + df._get_value(i, 'close')) / 2)
+        else:
+            df.at[i, 'HA_Open'] = ((df._get_value(i - 1, 'HA_Open') + df._get_value(i - 1, 'HA_Close')) / 2)
+
+    if idx:
+        df.set_index(idx, inplace=True)
+
+    df['HA_High']=df[['HA_Open','HA_Close','high']].max(axis=1)
+    df['HA_Low']=df[['HA_Open','HA_Close','low']].min(axis=1)
+    return df
