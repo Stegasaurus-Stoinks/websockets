@@ -149,17 +149,24 @@ async def tradeAndStuff(trade):
                     print("risky trade! Skipping.")
                     return
 
-                if price <= 0.75:
-                    risk = 0.75
-                if price <= 0.50:
-                    risk = 0.50
+                # if price <= 1.0:
+                #     risk = 1.75
+                # if price <= 0.75:
+                #     risk = 0.75
+                # if price <= 0.50:
+                #     risk = 0.50
 
                 
                 #if notes != None:  ###############ADD KEYWORD RISK STUFF HERE
 
                 #calculate quantity based on price
                 quantity = math.floor(((config.ACCOUNT_SIZE*config.MAX_POSITION_SIZE)*risk)/(price*100))
+                if quantity == 0:
+                    quantity = 1
+                if quantity > 5:
+                    quantity = 5
                 print(config.ACCOUNT_SIZE,config.MAX_POSITION_SIZE,risk,price,"quantity:",quantity)
+                
                 
 
                 #calculate price
