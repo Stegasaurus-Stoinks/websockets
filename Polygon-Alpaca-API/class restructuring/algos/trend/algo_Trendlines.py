@@ -213,7 +213,6 @@ class Algo:
                 #update just the candles on the chart
                 self.plot.update_chart(self.ticker.getData("FULL")[0:self.plotSize])
 
-            
 
 
 

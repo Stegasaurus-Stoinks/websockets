@@ -79,6 +79,7 @@ class Algo:
             close = close[::-1]
             
             trendline = talib.LINEARREG(close, timeperiod=14).tolist()
+            trendline = trendline[len(close)-self.plotSize::] #shorten trendline calc to plotsize
 
             levels = []
             #Finding key price levels by matching candle pattern
@@ -122,8 +123,8 @@ class Algo:
 
             
             
-            #print(len(trendline))
-            #self.extraPlots[0] = trendline
+            print(len(trendline))
+            self.extraPlots.append(trendline)
             #self.extraPlots[1] = trendline1
             #print(output)
 
