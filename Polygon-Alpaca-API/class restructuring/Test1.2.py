@@ -92,7 +92,7 @@ for i in range (0,len(ilocs_max)):
 #-----------------------------------------------------------------------------------
 
 reach = 2
-possibleWaves = []
+possibleWaves = list()
 counter = 0
 
 #for every min in chart
@@ -103,10 +103,9 @@ for i in range (0,len(ilocs_min)):
         wave.x1 = ilocs_min[i]
         wave.y1 = mins[ilocs_min[i]]
 
-        if(endX != np.NaN):
-            ilocs_max_valid = [x for x in ilocs_max if (x>wave.x1 and x<endX)]#max's in wave 1
-        else:    
-            ilocs_max_valid = [x for x in ilocs_max if x>wave.x1]#all max's past point 1
+        
+           
+        ilocs_max_valid = [x for x in ilocs_max if x>wave.x1]#all max's past point 1
 
         #print(wave.x1, ilocs_max_valid)
         maxval2 = wave.y1
@@ -161,8 +160,10 @@ for i in range (0,len(ilocs_min)):
                                                                 wave.x6 = x
                                                                 wave.y6 = maxs[x]
                                                                 #print("found valid 6")
-                                                                
+                                                                print("wave:",counter)
+                                                                wave.printdata()
                                                                 possibleWaves.append(wave)
+                                                                possibleWaves[counter].printdata()
                                                                 counter += 1
                                                                 #waveplot = wave.assemble()
                                                                 #print(wave.printdata())
@@ -173,13 +174,13 @@ for i in range (0,len(ilocs_min)):
     #except:
         
         print("something broke in the try thingy")
-
+possibleWaves[0].printdata()
 print("found", len(possibleWaves),"possible elliot wave impulses")
 
 #[2,9] give decent results
 toDisplay = Elliotfuncs.displaywaves(possibleWaves)
-for wave in toDisplay:
-    extraplots.append(plotting.make_addplot(wave,ax=ax1))
+for waves in toDisplay:
+    extraplots.append(plotting.make_addplot(waves,ax=ax1))
     
 
 #setup the figure and subplots

@@ -23,7 +23,7 @@ def displaywaves(possibleWaves, array = []):
     return wavesfordisplay
             
 
-class ElliotImpulse:
+class ElliotImpulse(object):
 
     # |              6
     # |         4   /
@@ -166,7 +166,7 @@ class ElliotImpulse:
 
 ############ Big boy function. father of all functions. Tamper with if you dare. A single wrong change will cause a cataclysmic chain of events
 
-def elliotRecursiveBlast(backtest,plotSize,n,level,startX=np.NaN,endX=np.NaN):
+def elliotRecursiveBlast(backtest,plotSize,n,startX=np.NaN,endX=np.NaN,level=0):
     print("level: ",level)
     #Calculating mins and maxs
     print("startX:",startX)
@@ -178,7 +178,9 @@ def elliotRecursiveBlast(backtest,plotSize,n,level,startX=np.NaN,endX=np.NaN):
         ilocs_min = argrelextrema(backtest.low.values, np.less_equal, order=o)[0]
         ilocs_max = argrelextrema(backtest.high.values, np.greater_equal, order=o)[0]
     else:
-        o = int(n/4) #Adjust this to add more or less mins and maxs (2 was the best one I found for short term)
+        o = round(n/8) #Adjust this to add more or less mins and maxs (2 was the best one I found for short term)
+        if o == 0:
+            o = 1
         ilocs_min = argrelextrema(backtest.low.values[startX:endX+1], np.less_equal, order=o)[0]
         ilocs_max = argrelextrema(backtest.high.values[startX:endX+1], np.greater_equal, order=o)[0]
         print("CURRENT RODER: ",o)
@@ -208,7 +210,7 @@ def elliotRecursiveBlast(backtest,plotSize,n,level,startX=np.NaN,endX=np.NaN):
     #-----------------------------------------------------------------------------------
 
     reach = 2
-    possibleWaves = []
+    possibleWaves = list()
 
     #for every min in chart
     for i in range (0,len(ilocs_min)):
@@ -277,14 +279,14 @@ def elliotRecursiveBlast(backtest,plotSize,n,level,startX=np.NaN,endX=np.NaN):
                                                                     wave.y6 = maxs[x]
                                                                     #print("found valid 6")
                                                                     
-                                                                    possibleWaves.append(wave)
-                                                                    print("^current level^:",level)
-                                                                    # possWaves1 = elliotRecursiveBlast(backtest,plotSize,o,level+1,wave.x1,wave.x2)
-                                                                    # if possWaves1 != []:
-                                                                    #     possibleWaves.append(possWaves1)
-                                                                    # possWaves3 = elliotRecursiveBlast(backtest,plotSize,o,wave.x3,wave.x4,level+1)
-                                                                    # if possWaves1 != []:
-                                                                    #     possibleWaves.append(possWaves3)
+                                                                    possibleWaves.append(ElliotImpulse(wave.plotSize,wave.x1,wave.y1,wave.x2,wave.y2,wave.x3,wave.y3,wave.x4,wave.y4,wave.x5,wave.y5,wave.x6,wave.y6))
+                                                                    
+                                                                    possWaves1 = elliotRecursiveBlast(backtest,plotSize,o,wave.x1,wave.x2,level+1)
+                                                                    if possWaves1 != []:
+                                                                        possibleWaves.extend(possWaves1)
+                                                                    possWaves3 = elliotRecursiveBlast(backtest,plotSize,o,wave.x3,wave.x4,level+1)
+                                                                    if possWaves1 != []:
+                                                                        possibleWaves.extend(possWaves3)
                                                                     
                                                                     #waveplot = wave.assemble()
                                                                     #print(wave.printdata())
