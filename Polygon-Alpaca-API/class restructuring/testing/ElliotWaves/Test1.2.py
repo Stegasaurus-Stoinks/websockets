@@ -1,4 +1,4 @@
-import sys, os
+import sys, os, copy
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))))
 
 from mplfinance import plotting
@@ -78,37 +78,6 @@ maxs = [np.NaN] * plotSize
 for i in range (0,len(ilocs_max)):
     maxs[ilocs_max[i]] = backtest.iloc[ilocs_max[i]].high * 1.001
 
-#---------------Now I just need to find these points automatically----------------
-i = 4
-j = 4
-#valleys
-x1 = ilocs_min[i]
-y1 = mins[ilocs_min[i]]
-
-x3 = ilocs_min[i+1]
-y3 = mins[ilocs_min[i+1]]
-
-x5 = ilocs_min[i+2]
-y5 = mins[ilocs_min[i+2]]
-
-#peaks
-x2 = ilocs_max[j]
-y2 = maxs[ilocs_max[j]]
-
-x4 = ilocs_max[j+1]
-y4 = maxs[ilocs_max[j+1]]
-
-x6 = ilocs_max[j+2]
-y6 = maxs[ilocs_max[j+2]]
-
-#wave = Elliotfuncs.ElliotImpulse(plotSize)
-#wave.definepoints(x1,y1,x2,y2,x3,y3,x4,y4,x5,y5,x6,y6)
-#wave.printdata()
-#waveplot = wave.assemble()
-#print(waveplot)
-#extraplots.append(plotting.make_addplot(waveplot,ax=ax1))
-
-#-----------------------------------------------------------------------------------
 
 reach = 2
 possibleWaves = []
@@ -176,13 +145,18 @@ for i in range (0,len(ilocs_min)):
                                                                 wave.x6 = x
                                                                 wave.y6 = maxs[x]
                                                                 #print("found valid 6")
+                                                                #stack = stack[:] + [element["a"]]
+                                                                temp = copy.deepcopy(wave)
+                                                                possibleWaves = possibleWaves[:] + [temp]
+                                                                #possibleWaves.append(Elliotfuncs.ElliotImpulse(wave.plotSize,wave.x1,wave.y1,wave.x2,wave.y2,wave.x3,wave.y3,wave.x4,wave.y4,wave.x5,wave.y5,wave.x6,wave.y6))
                                                                 
-                                                                possibleWaves.append(Elliotfuncs.ElliotImpulse(wave.plotSize,wave.x1,wave.y1,wave.x2,wave.y2,wave.x3,wave.y3,wave.x4,wave.y4,wave.x5,wave.y5,wave.x6,wave.y6))
-                                                                counter += 1
-                                                                #waveplot = wave.assemble()
-                                                                #print(wave.printdata())
-                                                                #print(waveplot)
-                                                                #extraplots.append(plotting.make_addplot(waveplot,ax=ax1))        
+                                                                print("check data_________")
+                                                                #print(possibleWaves)
+                                                                for wave in possibleWaves:
+                                                                    wave.printdata()
+
+                                                                #counter+=1
+        
         
     else:
     #except:
@@ -193,8 +167,9 @@ print("found", len(possibleWaves),"possible elliot wave impulses")
 
 #[2,9] give decent results
 toDisplay = Elliotfuncs.displaywaves(possibleWaves)
-for wave in toDisplay:
-    extraplots.append(plotting.make_addplot(wave,ax=ax1))
+for wave in range(0,len(toDisplay)):
+    #if wave == 8:
+    extraplots.append(plotting.make_addplot(toDisplay[wave],ax=ax1))
     
 
 #setup the figure and subplots
