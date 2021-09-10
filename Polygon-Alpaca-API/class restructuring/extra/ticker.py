@@ -144,6 +144,7 @@ class Ticker:
             self.BackTestAM_candlesticks['datetime'] = pd.to_datetime(self.BackTestAM_candlesticks['time'])
             self.BackTestAM_candlesticks = self.BackTestAM_candlesticks.set_index('datetime')
             self.BackTestAM_candlesticks.drop(['time'], axis=1, inplace=True)
+            self.BackTestAM_candlesticks = self.BackTestAM_candlesticks.between_time('8:00', '16:30')
 
             self.AM_candlesticks = self.BackTestAM_candlesticks.iloc[self.length-self.ArraySize:self.length-1]
             self.length = self.BackTestAM_candlesticks.shape[0]
