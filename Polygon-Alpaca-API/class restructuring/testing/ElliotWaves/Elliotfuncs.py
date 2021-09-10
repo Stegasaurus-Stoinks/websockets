@@ -196,7 +196,7 @@ def elliotRecursiveBlast(backtest,plotSize,n,startX=np.NaN,endX=np.NaN,level=0):
     if np.isnan(startX):
         o = n
     else:
-        o = round(n/2) #Adjust this to add more or less mins and maxs (2 was the best one I found for short term)
+        o = round(n/3) #Adjust this to add more or less mins and maxs (2 was the best one I found for short term)
         if o == 0:
             return list()
         print("CURRENT RODER: ",o)
@@ -234,10 +234,16 @@ def elliotRecursiveBlast(backtest,plotSize,n,startX=np.NaN,endX=np.NaN,level=0):
     for i in range (0,len(ilocs_min)):
         if(1):
         #try:
+            temp = False
+            if not np.isnan(startX):
+                if ilocs_min[i] != startX:
+                    temp = True
+            if temp is True:
+                continue
             wave = ElliotImpulse(plotSize)
             wave.x1 = ilocs_min[i]
             wave.y1 = mins[ilocs_min[i]]
-
+            
             #ilocs_max_valid = [x for x in ilocs_max if x>wave.x1]
             ilocs_max_valid = findLine(endX,wave.x1,ilocs_max)
 
@@ -311,7 +317,7 @@ def elliotRecursiveBlast(backtest,plotSize,n,startX=np.NaN,endX=np.NaN,level=0):
                                                                     #print(wave.printdata())
                                                                     #print(waveplot)
                                                                     #extraplots.append(plotting.make_addplot(waveplot,ax=ax1))        
-            
+        
         else:
         #except:       
             print("something broke in the try thingy")
