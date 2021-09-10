@@ -1,5 +1,5 @@
-import sys
-sys.path.append('../')
+import sys, os, copy
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))))
 
 from mplfinance import plotting
 from algos.algo_EMA import Algo as AlgoEMA
@@ -80,16 +80,6 @@ maxs = [np.NaN] * plotSize
 for i in range (0,len(ilocs_max)):
     maxs[ilocs_max[i]] = backtest.iloc[ilocs_max[i]].high * 1.001
 
-#---------------Now I just need to find these points automatically----------------
-
-#wave = Elliotfuncs.ElliotImpulse(plotSize)
-#wave.definepoints(x1,y1,x2,y2,x3,y3,x4,y4,x5,y5,x6,y6)
-#wave.printdata()
-#waveplot = wave.assemble()
-#print(waveplot)
-#extraplots.append(plotting.make_addplot(waveplot,ax=ax1))
-
-#-----------------------------------------------------------------------------------
 
 reach = 2
 possibleWaves = list()
@@ -179,8 +169,9 @@ print("found", len(possibleWaves),"possible elliot wave impulses")
 
 #[2,9] give decent results
 toDisplay = Elliotfuncs.displaywaves(possibleWaves)
-for waves in toDisplay:
-    extraplots.append(plotting.make_addplot(waves,ax=ax1))
+for wave in range(0,len(toDisplay)):
+    #if wave == 8:
+    extraplots.append(plotting.make_addplot(toDisplay[wave],ax=ax1))
     
 
 #setup the figure and subplots

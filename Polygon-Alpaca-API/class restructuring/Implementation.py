@@ -24,28 +24,33 @@ BackTest = True
 DB = Database(BackTest)
 api = TradeApi(Trading, Live_Trading)
 #Initiaiize all relevant tickers for the day
-AAPL = Ticker("AAPL", "Stock", DB)
-MSFT = Ticker("MSFT", "Stock", DB)  
-TSLA = Ticker("TSLA", "Stock", DB)
+#AAPL = Ticker("AAPL", "Stock", DB)
+#MSFT = Ticker("MSFT", "Stock", DB)  
+#TSLA = Ticker("TSLA", "Stock", DB)
+
+AAPL = Ticker("AAPL", "Stock", DB, startDate='2021-01-08', endDate='2021-01-09')
+MSFT = Ticker("MSFT", "Stock", DB, startDate='2021-01-04', endDate='2021-01-14')  
+TSLA = Ticker("TSLA", "Stock", DB, startDate='2021-01-04', endDate='2021-01-14')
+
 
 #Warmup all tickers
 #AAPL.warmUp() 
 #AAPL.getStatus()
 
-TSLA.warmUp()
-TSLA.getStatus()
+AAPL.warmUp()
+#AAPL.getStatus()
 
 #MSFT.warmUp()
 #MSFT.getStatus()
 
 #######Initialize all algos for the day#######
-#momentum1 = MomentumAlgo(AAPL, "testy", 2, api)
+
  
 #AAPLalgo1 = AlgoEMA(TSLA, "ThreeKings", 9, api, False, 40, 10 , plotting = True)
 # AAPLalgo1 = AlgoSupport2(TSLA, "MomentumEMA", 2, api, live = False, plotting = True,plotSize = 75)
 #AAPLalgo1 = AlgoHigherLows(TSLA, "MomentumEMA", 2, api, live = False, plotting = True,plotSize = 75)
 
-AAPLalgo1 = AlgoTrend(TSLA, "MomentumEMA", 2, api, live = False, plotting = True,plotSize = 75)
+AAPLalgo1 = AlgoSupport2(AAPL, "MomentumEMA", 2, api, live = False, plotting = True,plotSize = 75)
 
 while 1:
 
@@ -54,7 +59,7 @@ while 1:
     #AAPL.update()
     #AAPL.getStatus()
 
-    TSLA.update()
+    AAPL.update()
     #TSLA.getStatus()
 
     #MSFT.update()

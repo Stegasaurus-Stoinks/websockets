@@ -7,10 +7,11 @@ def calculateslope(x1,y1,x2,y2):
 
 def displaywaves(possibleWaves, array = []):
     wavesfordisplay = []
-    print(array)
+    #print(array)
     if array == []:
         for wave in possibleWaves:
             waveplot = wave.assemble()
+            wave.printdata()
             wavesfordisplay.append(waveplot)
 
     else:
@@ -153,6 +154,20 @@ class ElliotImpulse(object):
         self.y5 = y5
         self.x6 = x6
         self.y6 = y6
+
+    def clear(self):
+        self.x1 = np.NaN
+        self.y1 = np.NaN
+        self.x2 = np.NaN
+        self.y2 = np.NaN
+        self.x3 = np.NaN
+        self.y3 = np.NaN
+        self.x4 = np.NaN
+        self.y4 = np.NaN
+        self.x5 = np.NaN
+        self.y5 = np.NaN
+        self.x6 = np.NaN
+        self.y6 = np.NaN
 
         
     def score():
