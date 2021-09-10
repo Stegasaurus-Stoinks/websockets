@@ -160,7 +160,12 @@ class ElliotImpulse(object):
 
     
 
-
+def findLine(endX,wave_x,ilocs_minMax):
+    if np.isnan(endX):
+        ilocs_minMax_valid = [x for x in ilocs_minMax if x>wave_x]#all max's past point 1
+    else:
+        ilocs_minMax_valid = [x for x in ilocs_minMax if (x>wave_x and x<endX)]#max's in wave 1
+    return ilocs_minMax_valid
 
     
 
@@ -175,16 +180,14 @@ def elliotRecursiveBlast(backtest,plotSize,n,startX=np.NaN,endX=np.NaN,level=0):
     
     if np.isnan(startX):
         o = n
-        ilocs_min = argrelextrema(backtest.low.values, np.less_equal, order=o)[0]
-        ilocs_max = argrelextrema(backtest.high.values, np.greater_equal, order=o)[0]
     else:
-        o = round(n/8) #Adjust this to add more or less mins and maxs (2 was the best one I found for short term)
+        o = round(n/2) #Adjust this to add more or less mins and maxs (2 was the best one I found for short term)
         if o == 0:
-            o = 1
-        ilocs_min = argrelextrema(backtest.low.values[startX:endX+1], np.less_equal, order=o)[0]
-        ilocs_max = argrelextrema(backtest.high.values[startX:endX+1], np.greater_equal, order=o)[0]
+            return list()
         print("CURRENT RODER: ",o)
-    
+        
+    ilocs_min = argrelextrema(backtest.low.values, np.less_equal, order=o)[0]
+    ilocs_max = argrelextrema(backtest.high.values, np.greater_equal, order=o)[0]
     #print(ilocs_min)
     #print(ilocs_max)
 
@@ -220,10 +223,8 @@ def elliotRecursiveBlast(backtest,plotSize,n,startX=np.NaN,endX=np.NaN,level=0):
             wave.x1 = ilocs_min[i]
             wave.y1 = mins[ilocs_min[i]]
 
-            # if(endX != np.NaN):
-            #     ilocs_max_valid = [x for x in ilocs_max if (x>wave.x1 and x<endX)]#max's in wave 1
-            # else:    
-            ilocs_max_valid = [x for x in ilocs_max if x>wave.x1]#all max's past point 1
+            #ilocs_max_valid = [x for x in ilocs_max if x>wave.x1]
+            ilocs_max_valid = findLine(endX,wave.x1,ilocs_max)
 
             #print(wave.x1, ilocs_max_valid)
             maxval2 = wave.y1
@@ -233,8 +234,8 @@ def elliotRecursiveBlast(backtest,plotSize,n,startX=np.NaN,endX=np.NaN,level=0):
                     wave.x2 = x
                     wave.y2 = maxs[x]
                     
-
-                    ilocs_min_valid = [x for x in ilocs_min if x>wave.x2]
+                    #ilocs_min_valid = [x for x in ilocs_min if x>wave.x2]
+                    ilocs_min_valid = findLine(endX,wave.x2,ilocs_min)
 
                     minval3 = wave.y2
                     for x in ilocs_min_valid[0:reach+1]:
@@ -244,8 +245,9 @@ def elliotRecursiveBlast(backtest,plotSize,n,startX=np.NaN,endX=np.NaN,level=0):
                                 wave.x3 = x
                                 wave.y3 = mins[x]
 
-                                ilocs_max_valid = [x for x in ilocs_max if x>wave.x3]
-                            
+                                #ilocs_max_valid = [x for x in ilocs_max if x>wave.x3]
+                                ilocs_max_valid = findLine(endX,wave.x3,ilocs_max)
+                                
                                 maxval4 = wave.y3
                                 for x in ilocs_max_valid[0:reach+1]:
 
@@ -256,7 +258,8 @@ def elliotRecursiveBlast(backtest,plotSize,n,startX=np.NaN,endX=np.NaN,level=0):
                                             wave.y4 = maxs[x]
                                             #print("found valid 4")
 
-                                            ilocs_min_valid = [x for x in ilocs_min if x>wave.x4]
+                                            #ilocs_min_valid = [x for x in ilocs_min if x>wave.x4]
+                                            #ilocs_min_valid = findLine(endX,wave.x4,ilocs_min)
 
                                             minval5 = wave.y4
                                             for x in ilocs_min_valid[0:reach+1]:
@@ -267,7 +270,8 @@ def elliotRecursiveBlast(backtest,plotSize,n,startX=np.NaN,endX=np.NaN,level=0):
                                                         wave.y5 = mins[x]
                                                         #print("found valid 5")
 
-                                                        ilocs_max_valid = [x for x in ilocs_max if x>wave.x5]
+                                                        #ilocs_max_valid = [x for x in ilocs_max if x>wave.x5]
+                                                        ilocs_max_valid = findLine(endX,wave.x5,ilocs_max)
 
                                                         maxval6 = wave.y5
                                                         for x in ilocs_max_valid[0:reach+1]:
