@@ -1,5 +1,5 @@
 import sys, os, copy
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))))
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))) #file path 3 back from current location
 
 from mplfinance import plotting
 from algos.algo_EMA import Algo as AlgoEMA
