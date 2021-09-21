@@ -1,22 +1,17 @@
-import sys
-sys.path.append('../')
-
+import sys,os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))))
 from extra.trade import Trade
 from extra.plotter import LiveChartEnv
-
+from algos.elliot import Elliotfuncs
 from datetime import datetime, timedelta
-
-
+import mplfinance as mpf
+from mplfinance import plotting
+from matplotlib import gridspec
 import pandas as pd
 import numpy as np
 import talib
+from scipy.signal import argrelextrema
 
-"""
-This file was made as a template to create other algos,  The plotting method should work...
-In order to add extra data to the plots you need to append or replace the values in teh arrays that are
-initialized at the top.  It works with object pointers so if you create a new array object it will not 
-work properly.  Styling options are limited rn. Check the plotter function for styling details.
-"""
 
 class Algo:
     
@@ -45,6 +40,7 @@ class Algo:
 
         #---------Algo Sepcific Variables--------
 
+        
         #----------------------------------------
 
         #initialize plot if plot variable is true
@@ -63,7 +59,7 @@ class Algo:
         self.extraPlots = [self.upArrow, self.downArrow, self.exit, self.entry]
 
         #style for extra plot data
-        self.style = [['scatter','up'],['scatter','down'],['line','dashdot'],['line','dashdot']]
+        self.style = [['scatter','up'],['scatter','down']]
 
 
     def update(self):
@@ -79,8 +75,33 @@ class Algo:
             #--------------------------------------------------------
             #----------|---Trading Logic Goes Below---|--------------
             #----------v------------------------------v--------------
+            self.extraPlots = []
+
+            data = self.ticker.getData("FULL").iloc[::-1]
+            ilocs_min = argrelextrema(data.low.values, np.less_equal, order=20)[0]
+            ilocs_max = argrelextrema(data.high.values, np.greater_equal, order=20)[0]
+            mins = [np.NaN] * self.plotSize
+            for i in range (0,len(ilocs_min)):
+                mins[ilocs_min[i]] = data.iloc[ilocs_min[i]].low * 0.999
+            maxs = [np.NaN] * self.plotSize
+            for i in range (0,len(ilocs_max)):
+                maxs[ilocs_max[i]] = data.iloc[ilocs_max[i]].high * 1.001
+            
+            self.extraPlots.append(mins)
+            self.extraPlots.append(maxs)
 
 
+            self.possibleWaves = Elliotfuncs.elliotRecursiveBlast(self.ticker.getData("FULL").iloc[::-1],self.plotSize,10)
+
+            
+            #plotting stuff
+            toDisplay = Elliotfuncs.displaywaves(self.possibleWaves)
+            for wave in toDisplay:
+                self.extraPlots.append(wave)
+
+            
+
+            
             #----------^------------------------------^--------------
             #----------|---Trading Logic Goes Above---|--------------
             #--------------------------------------------------------

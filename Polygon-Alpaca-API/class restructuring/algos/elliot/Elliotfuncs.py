@@ -204,8 +204,9 @@ def maxLimitRuleBreak(x, wavex, wavey, maxs):
 
 #if there are more future points to check and wave is valid, then print incomplete wave
 def checkFuturePoints(x, ilocs_min_valid,reach,possibleWaves,wave):
-    if(x == ilocs_min_valid[-1] and reach > len(ilocs_min_valid)):
-        possibleWaves.append(ElliotImpulse(wave.plotSize,wave.x1,wave.y1,wave.x2,wave.y2,wave.x3,wave.y3))
+    if ilocs_min_valid:
+        if(x == ilocs_min_valid[-1] and reach > len(ilocs_min_valid)):
+            possibleWaves.append(ElliotImpulse(wave.plotSize,wave.x1,wave.y1,wave.x2,wave.y2,wave.x3,wave.y3,wave.x4,wave.y4,wave.x5,wave.y5,wave.x6,wave.y6))
     
 
 
@@ -252,7 +253,7 @@ def elliotRecursiveBlast(backtest,plotSize,n,startX=np.NaN,endX=np.NaN,level=0):
 
     #-----------------------------------------------------------------------------------
 
-    reach = 6
+    reach = 3
     possibleWaves = list()
 
     #for every min in chart
@@ -270,61 +271,71 @@ def elliotRecursiveBlast(backtest,plotSize,n,startX=np.NaN,endX=np.NaN,level=0):
             wave.x1 = ilocs_min[i]
             wave.y1 = mins[ilocs_min[i]]
             
-            #ilocs_max_valid = [x for x in ilocs_max if x>wave.x1]
+            #checking wave 1/point 2 [ / ]
             ilocs_max_valid = findLine(endX,wave.x1,ilocs_max)
-
-            #print(wave.x1, ilocs_max_valid)
             maxval2 = wave.y1
             for x in ilocs_max_valid[0:reach+1]:
                 if(maxs[x] > maxval2):
-                    ruleBreak = minLimitRuleBreak(x, wave.x1, wave.y1, mins)
-                    if minLimitRuleBreak(x, wave.x1, wave.y1, mins):
+                    if minLimitRuleBreak(x, wave.x1, wave.y1, mins):#check if points are below
                         continue
                     else:
                         maxval2 = maxs[x]
                         wave.x2 = x
                         wave.y2 = maxs[x]
-                    
+                    #checking wave 2/point 3 [ /\ ]
                     ilocs_min_valid = findLine(endX,wave.x2,ilocs_min)
                     minval3 = wave.y2
                     for x in ilocs_min_valid[0:reach+1]:
                         if(wave.checkpoint3(x,mins[x])):
                             if(mins[x] < minval3):
-                                minval3 = mins[x]
-                                wave.x3 = x
-                                wave.y3 = mins[x]
+                                if maxLimitRuleBreak(x, wave.x2, wave.y2, maxs):#check if points are above
+                                    continue
+                                else:
+                                    minval3 = mins[x]
+                                    wave.x3 = x
+                                    wave.y3 = mins[x]
                                 
                                 checkFuturePoints(x, ilocs_min_valid,reach,possibleWaves,wave)
-                            
+                                #checking wave 3/point 4 [ /\/ ]
                                 ilocs_max_valid = findLine(endX,wave.x3,ilocs_max)
                                 maxval4 = wave.y3
                                 for x in ilocs_max_valid[0:reach+1]:
                                     if(wave.checkpoint4(x,maxs[x])):
                                         if(maxs[x] > maxval4):
-                                            maxval4 = maxs[x]
-                                            wave.x4 = x
-                                            wave.y4 = maxs[x]
+                                            if minLimitRuleBreak(x, wave.x3, wave.y3, mins):#check if points are below
+                                                continue
+                                            else:
+                                                maxval4 = maxs[x]
+                                                wave.x4 = x
+                                                wave.y4 = maxs[x]
 
+                                            checkFuturePoints(x, ilocs_max_valid,reach,possibleWaves,wave)
+                                            #checking wave 4/point 5 [ /\/\ ]
                                             ilocs_min_valid = findLine(endX,wave.x4,ilocs_min)
                                             minval5 = wave.y4
                                             for x in ilocs_min_valid[0:reach+1]:
                                                 if(wave.checkpoint5(x,mins[x])):
                                                     if(mins[x] < minval5):
-                                                        minval5 = mins[x]
-                                                        wave.x5 = x
-                                                        wave.y5 = mins[x]
-                                
+                                                        if maxLimitRuleBreak(x, wave.x4, wave.y4, maxs):#check if points are above
+                                                            continue
+                                                        else:
+                                                            minval5 = mins[x]
+                                                            wave.x5 = x
+                                                            wave.y5 = mins[x]
+                                                        checkFuturePoints(x, ilocs_min_valid,reach,possibleWaves,wave)
+                                                        #checking wave 5/point 6 [ /\/\/ ]
                                                         ilocs_max_valid = findLine(endX,wave.x5,ilocs_max)
                                                         maxval6 = wave.y5
                                                         for x in ilocs_max_valid[0:reach+1]:
                                                             if(wave.checkpoint6(x,maxs[x])):
                                                                 if(maxs[x] > maxval6):
-                                                                    maxval6 = maxs[x]
-                                                                    wave.x6 = x
-                                                                    wave.y6 = maxs[x]
-                                                
-                                                                    
-                                                                    possibleWaves.append(ElliotImpulse(wave.plotSize,wave.x1,wave.y1,wave.x2,wave.y2,wave.x3,wave.y3,wave.x4,wave.y4,wave.x5,wave.y5,wave.x6,wave.y6))
+                                                                    if minLimitRuleBreak(x, wave.x5, wave.y5, mins):#check if points are below
+                                                                        continue
+                                                                    else:
+                                                                        maxval6 = maxs[x]
+                                                                        wave.x6 = x
+                                                                        wave.y6 = maxs[x]
+                                                                        possibleWaves.append(ElliotImpulse(wave.plotSize,wave.x1,wave.y1,wave.x2,wave.y2,wave.x3,wave.y3,wave.x4,wave.y4,wave.x5,wave.y5,wave.x6,wave.y6))
                                                                     
                                                                     # possWaves1 = elliotRecursiveBlast(backtest,plotSize,o,wave.x1,wave.x2,level+1)
                                                                     # if possWaves1 != []:
