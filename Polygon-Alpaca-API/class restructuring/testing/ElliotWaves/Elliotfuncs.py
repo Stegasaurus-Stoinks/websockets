@@ -202,7 +202,10 @@ def maxLimitRuleBreak(x, wavex, wavey, maxs):
     ruleBreak = any(h > wavey for h in new_list)
     return ruleBreak
 
-
+#if there are more future points to check and wave is valid, then print incomplete wave
+def checkFuturePoints(x, ilocs_min_valid,reach,possibleWaves,wave):
+    if(x == ilocs_min_valid[-1] and reach > len(ilocs_min_valid)):
+        possibleWaves.append(ElliotImpulse(wave.plotSize,wave.x1,wave.y1,wave.x2,wave.y2,wave.x3,wave.y3))
     
 
 
@@ -274,48 +277,35 @@ def elliotRecursiveBlast(backtest,plotSize,n,startX=np.NaN,endX=np.NaN,level=0):
             maxval2 = wave.y1
             for x in ilocs_max_valid[0:reach+1]:
                 if(maxs[x] > maxval2):
-                    #code to detect if a lower min exists between points 1 and 2
                     ruleBreak = minLimitRuleBreak(x, wave.x1, wave.y1, mins)
-                    if(ruleBreak is True):
+                    if minLimitRuleBreak(x, wave.x1, wave.y1, mins):
                         continue
                     else:
                         maxval2 = maxs[x]
                         wave.x2 = x
                         wave.y2 = maxs[x]
-
-
-                    #ilocs_min_valid = [x for x in ilocs_min if x>wave.x2]
                     
                     ilocs_min_valid = findLine(endX,wave.x2,ilocs_min)
-
                     minval3 = wave.y2
                     for x in ilocs_min_valid[0:reach+1]:
-                        
                         if(wave.checkpoint3(x,mins[x])):
                             if(mins[x] < minval3):
                                 minval3 = mins[x]
                                 wave.x3 = x
                                 wave.y3 = mins[x]
                                 
-                                #if there are more future points to check and wave is valid, then print incomplete wave
-                                if(x == ilocs_min_valid[-1] and reach > len(ilocs_min_valid)):
-                                    possibleWaves.append(ElliotImpulse(wave.plotSize,wave.x1,wave.y1,wave.x2,wave.y2,wave.x3,wave.y3))
-                                #ilocs_max_valid = [x for x in ilocs_max if x>wave.x3]
+                                checkFuturePoints(x, ilocs_min_valid,reach,possibleWaves,wave)
+                            
                                 ilocs_max_valid = findLine(endX,wave.x3,ilocs_max)
-                                
                                 maxval4 = wave.y3
                                 for x in ilocs_max_valid[0:reach+1]:
-
                                     if(wave.checkpoint4(x,maxs[x])):
                                         if(maxs[x] > maxval4):
                                             maxval4 = maxs[x]
                                             wave.x4 = x
                                             wave.y4 = maxs[x]
-                                            #print("found valid 4")
 
-                                            #ilocs_min_valid = [x for x in ilocs_min if x>wave.x4]
-                                            #ilocs_min_valid = findLine(endX,wave.x4,ilocs_min)
-
+                                            ilocs_min_valid = findLine(endX,wave.x4,ilocs_min)
                                             minval5 = wave.y4
                                             for x in ilocs_min_valid[0:reach+1]:
                                                 if(wave.checkpoint5(x,mins[x])):
@@ -323,20 +313,16 @@ def elliotRecursiveBlast(backtest,plotSize,n,startX=np.NaN,endX=np.NaN,level=0):
                                                         minval5 = mins[x]
                                                         wave.x5 = x
                                                         wave.y5 = mins[x]
-                                                        #print("found valid 5")
-
-                                                        #ilocs_max_valid = [x for x in ilocs_max if x>wave.x5]
+                                
                                                         ilocs_max_valid = findLine(endX,wave.x5,ilocs_max)
-
                                                         maxval6 = wave.y5
                                                         for x in ilocs_max_valid[0:reach+1]:
-
                                                             if(wave.checkpoint6(x,maxs[x])):
                                                                 if(maxs[x] > maxval6):
                                                                     maxval6 = maxs[x]
                                                                     wave.x6 = x
                                                                     wave.y6 = maxs[x]
-                                                                    #print("found valid 6")
+                                                
                                                                     
                                                                     possibleWaves.append(ElliotImpulse(wave.plotSize,wave.x1,wave.y1,wave.x2,wave.y2,wave.x3,wave.y3,wave.x4,wave.y4,wave.x5,wave.y5,wave.x6,wave.y6))
                                                                     

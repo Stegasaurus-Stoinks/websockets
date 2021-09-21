@@ -37,7 +37,7 @@ Live_Trading = False
 BackTest = True
 
 start = 0
-plotSize = 900
+plotSize = 750
 #----------------------------
 
 DB = Database(BackTest)
@@ -88,8 +88,8 @@ for wave in toDisplay:
 
 #setup the figure and subplots
 
-#extraplots.append(plotting.make_addplot(mins,type='scatter',markersize=200,marker='^',ax=ax1))
-#extraplots.append(plotting.make_addplot(maxs,type='scatter',markersize=200,marker='.',color='b',ax=ax1))
+extraplots.append(plotting.make_addplot(mins,type='scatter',markersize=200,marker='^',ax=ax1))
+extraplots.append(plotting.make_addplot(maxs,type='scatter',markersize=200,marker='.',color='b',ax=ax1))
 
 mpf.plot(backtest,type='candle',style='charles',addplot= extraplots,warn_too_much_data=10000000000,ax=ax1, volume=ax2)
 plt.show()
