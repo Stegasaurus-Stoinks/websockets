@@ -4,7 +4,7 @@ import time
 
 class Ticker:
 
-    def __init__(self, symbol, type, Database, datasize = 100, startDate = 0, endDate = 0):
+    def __init__(self, symbol, type, Database, datasize = 100, startDate = 0, endDate = 0, inDB = False):
         self.symbol = symbol
         self.type = type
         self.status = "Not Initialized"

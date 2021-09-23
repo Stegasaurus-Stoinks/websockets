@@ -29,7 +29,8 @@ def stockAmData(data_time, data):
     global previous_timestamp
     global data_package
 
-    curData = (data_time,data.symbol,data.volume,0,0,data.vwap,data.open,data.high,data.close,data.low,0,data.start)
+    curData = (data_time,data.symbol,data.volume,0,0,data.vwap,data.open,data.high,data.close,data.low,0,data.start.timestamp())
+    print(curData)
 
     current_timestamp = data_time
     #print(current_timestamp)
@@ -97,7 +98,7 @@ dbconn = psycopg2.connect(CONNECTION)
 cur = dbconn.cursor()
 
 #list of tickers to be subbed to
-tickerList = ["AAPL"]#,"TSLA","F"]
+tickerList = ["AAPL","TSLA","F"]
 
 def createSubList(list):
     formatedList = []
