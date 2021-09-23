@@ -17,10 +17,10 @@ def todict(bar):
         'low':bar.l
     }
 
-def getAlpacaData(Ticker):
+def getAlpacaData(Ticker,num_points = 200):
     #Ticker = 'AAPL'
     # Get daily price data for AAPL over the last 5 trading days.
-    barset = api.get_barset(Ticker, '1Min', limit=200)
+    barset = api.get_barset(Ticker, '1Min', limit=num_points)
     bars = barset[Ticker]
 
     BackTestAM_candlesticks = pd.DataFrame([todict(t) for t in bars ])
