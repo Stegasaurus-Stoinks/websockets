@@ -13,6 +13,8 @@ from extra.database import Database
 from extra.tradeApi import TradeApi
 from extra.plotter import LiveChartEnv
 
+import Elliotfuncs
+
 import time
 import mplfinance as mpf
 import matplotlib.pyplot as plt
@@ -22,13 +24,20 @@ from matplotlib import gridspec
 
 plt.ion()
 
+extraplots = []
+spec = gridspec.GridSpec(ncols=1, nrows=2, hspace=0.5, height_ratios=[2, 1])
+fig = mpf.figure(figsize=(7,8))
+ax1 = fig.subplot(spec[0])
+ax2 = fig.add_subplot(spec[1])
+fig.gridspec_kw={'height_ratios': [1, 2]}
+
 #------Config Variables------
 Trading = False
 Live_Trading = False
 BackTest = True
 
 start = 0
-plotSize = 900
+plotSize = 750
 #----------------------------
 
 DB = Database(BackTest)
@@ -36,10 +45,9 @@ api = TradeApi(Trading, Live_Trading)
 #Initiaiize all relevant tickers for the day
 
 #pick from {CCL, AAPL, MSFT, HD, NFLX, GOOG, TSLA, VZ, INTC, AMZN, FB}
-
 AAPL = Ticker("AAPL", "Stock", DB, startDate='2021-01-04', endDate='2021-01-14')
-MSFT = Ticker("MSFT", "Stock", DB)  
-TSLA = Ticker("TSLA", "Stock", DB)
+MSFT = Ticker("MSFT", "Stock", DB, startDate='2021-01-04', endDate='2021-01-14')  
+TSLA = Ticker("TSLA", "Stock", DB, startDate='2021-01-04', endDate='2021-01-14')
 
 AAPL.warmUp()
 
@@ -49,44 +57,37 @@ backtest = backtest.sort_index(ascending=True)
 
 #removes all the data that is outside of market hours
 backtest = backtest.between_time('9:30', '15:59')
-print(backtest.shape)
 
-print(backtest.head())
-
+#skrinks the working data so its easier to use/analyze
 backtest = backtest[start:start + plotSize]
-
-#fig = mpf.figure(figsize=(7,8))
-
-#Calculating mins and maxs
-n = 20 #Adjust this to add more or less mins and maxs (2 was the best one I found for short term)
-ilocs_min = argrelextrema(backtest.close.values, np.less_equal, order=n)[0]
-ilocs_max = argrelextrema(backtest.close.values, np.greater_equal, order=n)[0]
-ilocs_max_wave1 = argrelextrema(backtest.close.values, np.greater_equal, order=15)[0]
-
-#print(ilocs_min)
-#print(ilocs_max)
-
+print(backtest.head())
+ilocs_min = argrelextrema(backtest.low.values, np.less_equal, order=20)[0]
+ilocs_max = argrelextrema(backtest.high.values, np.greater_equal, order=20)[0]
 mins = [np.NaN] * plotSize
 for i in range (0,len(ilocs_min)):
-    mins[ilocs_min[i]] = backtest.iloc[ilocs_min[i]].close * 0.999
+    mins[ilocs_min[i]] = backtest.iloc[ilocs_min[i]].low * 0.999
 
 maxs = [np.NaN] * plotSize
 for i in range (0,len(ilocs_max)):
-    maxs[ilocs_max[i]] = backtest.iloc[ilocs_max[i]].close * 1.001
+    maxs[ilocs_max[i]] = backtest.iloc[ilocs_max[i]].high * 1.001
 
-maxs_wave1 = [np.NaN] * plotSize
-for i in range (0,len(ilocs_max)):
-    maxs[ilocs_max[i]] = backtest.iloc[ilocs_max[i]].close * 1.001
+
+
+possibleWaves = Elliotfuncs.elliotRecursiveBlast(backtest,plotSize,25)
+
+
+
+print("found", len(possibleWaves),"possible elliot wave impulses")
+
+#[2,9] give decent results
+print(possibleWaves)
+toDisplay = Elliotfuncs.displaywaves(possibleWaves)
+for wave in toDisplay:
+    extraplots.append(plotting.make_addplot(wave,ax=ax1))
+    
 
 #setup the figure and subplots
-spec = gridspec.GridSpec(ncols=1, nrows=2, hspace=0.5, height_ratios=[2, 1])
 
-fig = mpf.figure(figsize=(7,8))
-ax1 = fig.subplot(spec[0])
-ax2 = fig.add_subplot(spec[1])
-fig.gridspec_kw={'height_ratios': [1, 2]}
-
-extraplots = []
 extraplots.append(plotting.make_addplot(mins,type='scatter',markersize=200,marker='^',ax=ax1))
 extraplots.append(plotting.make_addplot(maxs,type='scatter',markersize=200,marker='.',color='b',ax=ax1))
 

@@ -71,6 +71,8 @@ ilocs_max = argrelextrema(backtest.high.values, np.greater_equal, order=n)[0]
 #print(ilocs_min)
 #print(ilocs_max)
 
+#array of min and max plotpoints
+#fill array with nan's first, then replace nan's with min and max values where necessary
 mins = [np.NaN] * plotSize
 for i in range (0,len(ilocs_min)):
     mins[ilocs_min[i]] = backtest.iloc[ilocs_min[i]].low * 0.999
@@ -81,9 +83,10 @@ for i in range (0,len(ilocs_max)):
 
 
 reach = 2
-possibleWaves = []
+possibleWaves = list()
 counter = 0
 
+#for every min in chart
 for i in range (0,len(ilocs_min)):
     if(1):
     #try:
@@ -91,7 +94,9 @@ for i in range (0,len(ilocs_min)):
         wave.x1 = ilocs_min[i]
         wave.y1 = mins[ilocs_min[i]]
 
-        ilocs_max_valid = [x for x in ilocs_max if x>wave.x1]
+        
+           
+        ilocs_max_valid = [x for x in ilocs_max if x>wave.x1]#all max's past point 1
 
         #print(wave.x1, ilocs_max_valid)
         maxval2 = wave.y1
@@ -146,24 +151,21 @@ for i in range (0,len(ilocs_min)):
                                                                 wave.x6 = x
                                                                 wave.y6 = maxs[x]
                                                                 #print("found valid 6")
-                                                                #stack = stack[:] + [element["a"]]
-                                                                temp = copy.deepcopy(wave)
-                                                                possibleWaves = possibleWaves[:] + [temp]
-                                                                #possibleWaves.append(Elliotfuncs.ElliotImpulse(wave.plotSize,wave.x1,wave.y1,wave.x2,wave.y2,wave.x3,wave.y3,wave.x4,wave.y4,wave.x5,wave.y5,wave.x6,wave.y6))
-                                                                
-                                                                print("check data_________")
-                                                                #print(possibleWaves)
-                                                                for wave in possibleWaves:
-                                                                    wave.printdata()
-
-                                                                #counter+=1
-        
+                                                                print("wave:",counter)
+                                                                wave.printdata()
+                                                                possibleWaves.append(wave)
+                                                                possibleWaves[counter].printdata()
+                                                                counter += 1
+                                                                #waveplot = wave.assemble()
+                                                                #print(wave.printdata())
+                                                                #print(waveplot)
+                                                                #extraplots.append(plotting.make_addplot(waveplot,ax=ax1))        
         
     else:
     #except:
         
         print("something broke in the try thingy")
-
+possibleWaves[0].printdata()
 print("found", len(possibleWaves),"possible elliot wave impulses")
 
 #[2,9] give decent results
@@ -175,8 +177,8 @@ for wave in range(0,len(toDisplay)):
 
 #setup the figure and subplots
 
-extraplots.append(plotting.make_addplot(mins,type='scatter',markersize=200,marker='^',ax=ax1))
-extraplots.append(plotting.make_addplot(maxs,type='scatter',markersize=200,marker='.',color='b',ax=ax1))
+#extraplots.append(plotting.make_addplot(mins,type='scatter',markersize=200,marker='^',ax=ax1))
+#extraplots.append(plotting.make_addplot(maxs,type='scatter',markersize=200,marker='.',color='b',ax=ax1))
 
 mpf.plot(backtest,type='candle',style='charles',addplot= extraplots,warn_too_much_data=10000000000,ax=ax1, volume=ax2)
 plt.show()
