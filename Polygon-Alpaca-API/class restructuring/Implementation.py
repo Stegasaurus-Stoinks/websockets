@@ -13,7 +13,7 @@ from extra.tradeApi import TradeApi
 from extra.plotter import LiveChartEnv
 
 from mplfinance import plotting
-import time
+from datetime import datetime
 
 #------Config Variables------
 Trading = False
@@ -68,7 +68,10 @@ while 1:
     
     
     #time.sleep(0.1)
+    start = datetime.now()
     ElliotAlgo.update()
+    stop = datetime.now()
+    #print(stop-start)
     #AAPLalgo1.update()
     #AAPLalgo2.update()
     #AAPLalgo3.update()

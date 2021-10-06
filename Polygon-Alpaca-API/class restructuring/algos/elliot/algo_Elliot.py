@@ -91,14 +91,17 @@ class Algo:
             self.extraPlots.append(maxs)
 
 
-            self.possibleWaves = Elliotfuncs.elliotRecursiveBlast(self.ticker.getData("FULL").iloc[::-1],self.plotSize,10)
+            self.possibleWaves,self.tradingWaves = Elliotfuncs.elliotRecursiveBlast(self.ticker.getData("FULL").iloc[::-1],self.plotSize,10)
 
             
             #plotting stuff
-            toDisplay = Elliotfuncs.displaywaves(self.possibleWaves)
-            for wave in toDisplay:
-                self.extraPlots.append(wave)
+            plotWaves(self,self.possibleWaves)
+            plotWaves(self,self.tradingWaves)
 
+            print('----------\n',self.tradingWaves[0].x1,'\n----------')
+            
+
+            waveNum = checkWaves
             
 
             
@@ -185,3 +188,11 @@ class Algo:
 #--------------|---ALGO SPECIFIC FUNCTIONS----|--------------
 #--------------v------------------------------v--------------
 
+def plotWaves(self,waveList):
+    toDisplay = Elliotfuncs.displaywaves(waveList)
+    for wave in toDisplay:
+        self.extraPlots.append(wave)
+
+#will return an int of which wave we are on
+def checkWaves(wave):
+    if np.isnan(wave.x2)
