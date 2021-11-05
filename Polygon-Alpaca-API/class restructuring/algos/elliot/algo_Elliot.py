@@ -91,11 +91,11 @@ class Algo:
             self.extraPlots.append(maxs)
 
 
-            self.possibleWaves,self.tradingWaves = Elliotfuncs.elliotRecursiveBlast(self.ticker.getData("FULL").iloc[::-1],self.plotSize,10)
+            self.finishedWaves,self.tradingWaves = Elliotfuncs.elliotRecursiveBlast(self.ticker.getData("FULL").iloc[::-1],self.plotSize,10)
 
             
             #plotting stuff
-            plotWaves(self,self.possibleWaves)
+            plotWaves(self,self.finishedWaves)
             plotWaves(self,self.tradingWaves)
 
             print('----------\n',self.tradingWaves[0].x1,'\n----------')

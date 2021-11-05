@@ -255,7 +255,7 @@ def elliotRecursiveBlast(backtest,plotSize,n,startX=np.NaN,endX=np.NaN,level=0):
     #-----------------------------------------------------------------------------------
 
     reach = 3
-    possibleWaves = list()
+    finishedWaves = list()
     tradingWaves = list()
 
     #for every min in chart
@@ -337,7 +337,7 @@ def elliotRecursiveBlast(backtest,plotSize,n,startX=np.NaN,endX=np.NaN,level=0):
                                                                         maxval6 = maxs[x]
                                                                         wave.x6 = x
                                                                         wave.y6 = maxs[x]
-                                                                        possibleWaves.append(ElliotImpulse(wave.plotSize,wave.x1,wave.y1,wave.x2,wave.y2,wave.x3,wave.y3,wave.x4,wave.y4,wave.x5,wave.y5,wave.x6,wave.y6))
+                                                                        finishedWaves.append(ElliotImpulse(wave.plotSize,wave.x1,wave.y1,wave.x2,wave.y2,wave.x3,wave.y3,wave.x4,wave.y4,wave.x5,wave.y5,wave.x6,wave.y6))
                                                                     
                                                                     # possWaves1 = elliotRecursiveBlast(backtest,plotSize,o,wave.x1,wave.x2,level+1)
                                                                     # if possWaves1 != []:
@@ -354,4 +354,4 @@ def elliotRecursiveBlast(backtest,plotSize,n,startX=np.NaN,endX=np.NaN,level=0):
         else:
         #except:       
             print("something broke in the try thingy")
-    return possibleWaves,tradingWaves
+    return finishedWaves,tradingWaves
