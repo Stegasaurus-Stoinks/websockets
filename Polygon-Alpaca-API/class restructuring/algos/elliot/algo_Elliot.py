@@ -39,7 +39,7 @@ class Algo:
 
 
         #---------Algo Sepcific Variables--------
-
+        self.saveWave = 0
         
         #----------------------------------------
 
@@ -98,12 +98,31 @@ class Algo:
             plotWaves(self,self.finishedWaves)
             plotWaves(self,self.tradingWaves)
 
-            print('----------\n',self.tradingWaves[0].x1,'\n----------')
-            
+            ###find what wave the most recent unfinished elliot wave is on
+             #curWave is first set to null in case there are no unfinished waves
+            curWave = Elliotfuncs.ElliotImpulse(np.nan)
+             #we check for waves and then set curWave to most recent wave
+            if self.tradingWaves:
+                curWave = self.tradingWaves[-1]
+            waveNum = checkWaves(curWave)
+            print(waveNum)
 
-            waveNum = checkWaves
-            
+            #If wave 2 or 4,check if x value of latest point is relatively recent, then buy for now.
+            #    -Future implementation will have us wait for small uptrend before buying.
+            if not self.inPosition:
+                if waveNum == 2:
+                    openPosition()#temp method that will be replace when api is added
+                    self.saveWave = waveNum
 
+                elif waveNum == 4:
+                    openPosition()#temp method that will be replace when api is added
+                    self.saveWave = waveNum
+                #check every update if the next wave point has been added. When found, sell.
+            else:
+                if self.saveWave == waveNum+1:
+                    closePosition()
+                    
+                #sell logic
             
             #----------^------------------------------^--------------
             #----------|---Trading Logic Goes Above---|--------------
@@ -195,4 +214,13 @@ def plotWaves(self,waveList):
 
 #will return an int of which wave we are on
 def checkWaves(wave):
-    if np.isnan(wave.x2)
+    if np.isnan(wave.x2):#.
+        return 0
+    elif np.isnan(wave.x3):#/
+        return 1
+    elif np.isnan(wave.x4):#/\
+        return 2
+    elif np.isnan(wave.x5):#/\/
+        return 3
+    elif np.isnan(wave.x6):#/\/\
+        return 4
