@@ -1,7 +1,7 @@
 import sys, os, copy
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))))
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))) #file path 3 back from current location
 
-from mplfinance import plotting
+
 from algos.algo_EMA import Algo as AlgoEMA
 from algos.algo_Support import Algo as AlgoSupport
 from algos.algo_Support2 import Algo as AlgoSupport2
@@ -21,6 +21,7 @@ import matplotlib.pyplot as plt
 from scipy.signal import argrelextrema
 import numpy as np
 from matplotlib import gridspec
+from mplfinance import plotting
 
 plt.ion()
 

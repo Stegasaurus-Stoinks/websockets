@@ -60,7 +60,7 @@ backtest = backtest.sort_index(ascending=True)
 backtest = backtest.between_time('9:30', '15:59')
 #print(backtest.shape)
 
-#print(backtest.head())
+print(backtest.head())
 
 backtest = backtest[start:start + plotSize]
 
