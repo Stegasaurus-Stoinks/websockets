@@ -76,6 +76,8 @@ class Algo:
             #----------|---Trading Logic Goes Below---|--------------
             #----------v------------------------------v--------------
             self.extraPlots = []
+            volume = 10
+            self.entryPrice = current_data['open']
 
             data = self.ticker.getData("FULL").iloc[::-1]
             ilocs_min = argrelextrema(data.low.values, np.less_equal, order=20)[0]
@@ -105,25 +107,47 @@ class Algo:
             if self.tradingWaves:
                 curWave = self.tradingWaves[-1]
             waveNum = checkWaves(curWave)
-            print(waveNum)
+            #print(waveNum)
 
             #If wave 2 or 4,check if x value of latest point is relatively recent, then buy for now.
             #    -Future implementation will have us wait for small uptrend before buying.
             if not self.inPosition:
                 if waveNum == 2:
-                    openPosition()#temp method that will be replace when api is added
+                    self.trade = Trade(self.ticker.symbol, volume, self.tradeID, self.entryPrice, datetime.now(), "UP",self.tradeapi, printInfo = True)       
+                    self.inPosition = True
                     self.saveWave = waveNum
-
                 elif waveNum == 4:
-                    openPosition()#temp method that will be replace when api is added
+                    self.trade = Trade(self.ticker.symbol, volume, self.tradeID, self.entryPrice, datetime.now(), "UP",self.tradeapi, printInfo = True)       
+                    self.inPosition = True
                     self.saveWave = waveNum
-                #check every update if the next wave point has been added. When found, sell.
+                else:#clear exit and entry price and place empty point
+                    self.exitPrice = np.NaN
+                    self.entryPrice = np.NaN
+                    self.exit.append(self.exitPrice)
+                    self.entry.append(self.entryPrice)
+            #check if the next wave point has been added. When found, sell.
             else:
-                if self.saveWave == waveNum+1:
-                    closePosition()
+                #set stop loss and entry/exit prices
+                self.entry.append(self.entryPrice)
+                stop = 0.50
+                stop = self.entryPrice * (stop/100)
+                #Stop loss
+                if np.isnan(self.exitPrice):
+                    self.exitPrice = self.entryPrice - stop
+                if self.exitPrice < current_data['close'] - stop:
+                    self.exitPrice = current_data['close'] - stop 
+                self.exit.append(self.exitPrice)
+
+                if self.saveWave > waveNum or self.exitPrice > current_data['close']:
+                    self.trade.closePosition(self.exitPrice,datetime.now())
+                    self.trades.append(self.trade)
+                    stats = self.trade.getStats(display=False)
+                    print(stats['PL'] , stats['duration'])
+                    self.inPosition = False
                     
-                #sell logic
+                
             
+
             #----------^------------------------------^--------------
             #----------|---Trading Logic Goes Above---|--------------
             #--------------------------------------------------------
