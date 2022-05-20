@@ -2,14 +2,14 @@ class Trade:
     
     #unique id so find trades that have been placed by this algo
 
-    def __init__(self, symbol, volume, ID, openPrice, openTime, direction, tradeapi, printInfo = False):
+    def __init__(self, symbol, volume, ID, openPrice, openTime, direction, ibkrApi, printInfo = False):
         self.symbol = symbol
         self.volume = volume
         self.ID = ID
         self.openPrice = openPrice
         self.openTime = openTime
         self.direction = direction
-        self.tradeapi = tradeapi
+        self.ibkrApi = ibkrApi
         self.printInfo = printInfo
         self.openPosition()
         
@@ -20,10 +20,10 @@ class Trade:
 
         #check if short or long position
         if self.volume > 0:
-            self.tradeapi.SimpleBuy(self.symbol, self.volume)
+            self.ibkrApi.SimpleBuy(self.symbol, self.volume)
 
         if self.volume < 0:
-            self.tradeapi.SimpleSell(self.symbol, self.volume)
+            self.ibkrApi.SimpleSell(self.symbol, self.volume)
 
         self.position = True
         self.status = "Open"
@@ -42,10 +42,10 @@ class Trade:
         #call funtion to close order through api
         
         if self.volume > 0:
-            self.tradeapi.SimpleBuy(self.symbol, self.volume)
+            self.ibkrApi.SimpleBuy(self.symbol, self.volume)
 
         if self.volume < 0:
-            self.tradeapi.SimpleSell(self.symbol, self.volume)
+            self.ibkrApi.SimpleSell(self.symbol, self.volume)
 
         self.position = False
         self.status = "Closed"

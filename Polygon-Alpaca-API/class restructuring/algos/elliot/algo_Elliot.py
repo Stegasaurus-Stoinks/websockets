@@ -1,6 +1,8 @@
 import sys,os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))))
 from extra.trade import Trade
+from IBKR.ibkrApi import ibkrApi as ibkr
+from ib_insync import *
 from extra.plotter import LiveChartEnv
 from algos.elliot import Elliotfuncs
 from datetime import datetime, timedelta
@@ -17,11 +19,11 @@ class Algo:
     
     #unique id so find trades that have been placed by this algo
 
-    def __init__(self, ticker, name, risklevel, tradeapi, live, plotting = False, plotSize = 50):
+    def __init__(self, ticker, name, risklevel, ib, live, plotting = False, plotSize = 50):
         self.ticker = ticker
         self.name = name
         self.risklevel = risklevel
-        self.tradeapi = tradeapi
+        self.ib = ib
         self.live = live
         self.plotting = plotting
         self.plotSize = plotSize
@@ -83,7 +85,7 @@ class Algo:
             self.extraPlots = [self.mins, self.maxs, self.exit, self.entry]
 
             volume = 10
-            self.entryPrice = current_data['open']
+            self.entryPrice = current_data['close']
 
 
             data = self.ticker.getData("FULL").iloc[::-1]
@@ -118,12 +120,14 @@ class Algo:
             #If wave 2 or 4,check if x value of latest point is relatively recent, then buy for now.
             #    -Future implementation will have us wait for small uptrend before buying.
             if not self.inPosition:
-                if waveNum == 2:
-                    self.trade = Trade(self.ticker.symbol, volume, self.tradeID, self.entryPrice, datetime.now(), "UP",self.tradeapi, printInfo = True)       
+                if waveNum == 2 or 4:#check if this works later
+                    self.trade = Trade(self.ticker.symbol, volume, self.tradeID, self.entryPrice, datetime.now(), "UP",self.ib, printInfo = True)       
+                    self.ib.simpleBuy(self.ticker.symbol, volume, self.entryPrice)
                     self.inPosition = True
                     self.saveWave = waveNum
                 elif waveNum == 4:
-                    self.trade = Trade(self.ticker.symbol, volume, self.tradeID, self.entryPrice, datetime.now(), "UP",self.tradeapi, printInfo = True)       
+                    self.trade = Trade(self.ticker.symbol, volume, self.tradeID, self.entryPrice, datetime.now(), "UP",self.ib, printInfo = True)       
+                    self.ib.simpleBuy(self.ticker.symbol, volume, self.entryPrice)
                     self.inPosition = True
                     self.saveWave = waveNum
                 else:#clear exit and entry price and place empty point
