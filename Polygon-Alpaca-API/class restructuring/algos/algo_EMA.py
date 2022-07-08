@@ -1,5 +1,5 @@
-import sys
-sys.path.append('../')
+import sys,os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
 from extra.trade import Trade
 from extra.plotter import LiveChartEnv
@@ -258,22 +258,25 @@ class Algo:
         self.plot = LiveChartEnv("1min", self.plotSize)
         self.plot.initialize_chart()
 
+
     def plotUpdate(self):
+    #Ensure that all the arrays are the same size before sending them to the plotter
+        for array in self.extraPlots:
+            if len(array) > self.plotSize:
+                array.pop(0)
 
-        #Ensure that all the arrays are the same size before sending them to the plotter
-            for array in self.extraPlots:
-                if len(array) > self.plotSize:
-                    array.pop(0)
+            if len(array) < self.plotSize:
+                array.append(np.NaN)
 
-                if len(array) < self.plotSize:
-                    array.append(np.NaN)
+        if(self.inPosition):
+            self.status = "In a Position. ID: " + self.tradeID
 
-            if(self.inPosition):
-                self.status = "In a Position. ID: " + self.tradeID
+        #ensure that style is always a normal line if not specified
+        while len(self.style) < len(self.extraPlots):
+            self.style.append(['line','normal'])
 
-            #update plot if plotting is true
-            if self.plotting:
-                
-                self.plot.update_chart(self.ticker.getData("FULL")[0:self.plotSize], self.extraPlots, self.style)
-                
+        #update plot if plotting is true
+        if self.plotting:
+            self.plot.update_chart(self.ticker.getData("FULL")[0:self.plotSize])#, self.extraPlots, self.style) Removed xtraplots
+            
 

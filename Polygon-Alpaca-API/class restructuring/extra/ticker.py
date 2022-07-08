@@ -140,7 +140,7 @@ class Ticker:
             data = self.DataBase.QueryDate(self.symbol, self.firstDate, self.lastDate)
             #data = self.DataBase.QueryLast(self.symbol, self.length)
             self.BackTestAM_candlesticks = pd.DataFrame(data)
-            self.BackTestAM_candlesticks.columns = ['time','symbol','volume','day_volume','day_open','vwap','open','high','close','low','avg','unix']
+            self.BackTestAM_candlesticks.columns = ['time','symbol','volume','open','high','close','low','unix']
             self.BackTestAM_candlesticks['datetime'] = pd.to_datetime(self.BackTestAM_candlesticks['time'])
             self.BackTestAM_candlesticks = self.BackTestAM_candlesticks.set_index('datetime')
             self.BackTestAM_candlesticks.drop(['time'], axis=1, inplace=True)
@@ -154,7 +154,7 @@ class Ticker:
             data = self.DataBase.QueryLast(self.symbol, self.ArraySize)
             #Pandas Array for local data storage
             self.AM_candlesticks = pd.DataFrame(data)
-            self.AM_candlesticks.columns = ['time','symbol','volume','day_volume','day_open','vwap','open','high','close','low','avg','unix']
+            self.AM_candlesticks.columns = ['time','symbol','volume','open','high','close','low','unix']
             self.AM_candlesticks['datetime'] = pd.to_datetime(self.AM_candlesticks['time'])
             self.AM_candlesticks = self.AM_candlesticks.set_index('datetime')
             self.AM_candlesticks.drop(['time'], axis=1, inplace=True)
