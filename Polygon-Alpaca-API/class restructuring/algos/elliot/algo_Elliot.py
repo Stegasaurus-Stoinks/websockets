@@ -2,7 +2,7 @@ import sys,os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))))
 from extra.trade import Trade
 from IBKR.ibkrApi import ibkrApi as ibkr
-from ib_insync import *
+#from ib_insync import *
 from extra.plotter import LiveChartEnv
 from algos.elliot import Elliotfuncs
 from datetime import datetime, timedelta
@@ -13,6 +13,7 @@ import pandas as pd
 import numpy as np
 import talib
 from scipy.signal import argrelextrema
+import json
 
 
 class Algo:
@@ -40,10 +41,29 @@ class Algo:
         #----------------------------
 
 
+
+
         #---------Algo Sepcific Variables--------
         self.saveWave = 0
+        self.savedTrades = pd.DataFrame(columns=['trade','wave1','wave2'])
         
         #----------------------------------------
+
+
+        #----------Checking for saved positions-----------
+        #building file path
+        file = os.path.dirname(__file__)
+        fileString = ('saved_trades/'+self.ticker.toString()+'_Elliot.csv')
+        tradesFile = os.path.join(file,fileString)
+        fileExist = os.path.isfile(tradesFile)
+
+        print('File exists: ', str(fileExist), '\n')        
+        if fileExist:
+            inPosition = True
+            #pulling trade from file and deleting file
+            self.savedTrades = pd.read_csv(tradesFile)
+            os.path.remove(tradesFile)
+        #--------------------------------------------------
 
         #initialize plot if plot variable is true
         if(self.plotting):
@@ -95,7 +115,7 @@ class Algo:
             for i in range (0,len(ilocs_min)):
                 self.mins[ilocs_min[i]] = data.iloc[ilocs_min[i]].low * 0.999
             
-            for i in range (0,len(ilocs_max)):
+            for i in range (0,len(ilocs_max)-1):
                 self.maxs[ilocs_max[i]] = data.iloc[ilocs_max[i]].high * 1.001
             
             
@@ -121,13 +141,11 @@ class Algo:
             #    -Future implementation will have us wait for small uptrend before buying.
             if not self.inPosition:
                 if waveNum == 2 or 4:#check if this works later
-                    self.trade = Trade(self.ticker.symbol, volume, self.tradeID, self.entryPrice, datetime.now(), "UP",self.ib, printInfo = True)       
-                    self.ib.simpleBuy(self.ticker.symbol, volume, self.entryPrice)
+                    self.trade = Trade(self.ticker.symbol, volume, self.tradeID, self.entryPrice, datetime.now(), "UP",self.ib)       
                     self.inPosition = True
                     self.saveWave = waveNum
                 elif waveNum == 4:
-                    self.trade = Trade(self.ticker.symbol, volume, self.tradeID, self.entryPrice, datetime.now(), "UP",self.ib, printInfo = True)       
-                    self.ib.simpleBuy(self.ticker.symbol, volume, self.entryPrice)
+                    self.trade = Trade(self.ticker.symbol, volume, self.tradeID, self.entryPrice, datetime.now(), "UP",self.ib)       
                     self.inPosition = True
                     self.saveWave = waveNum
                 else:#clear exit and entry price and place empty point
@@ -172,8 +190,9 @@ class Algo:
             #One minute before market close: close any open positions and print stats
             if current_data.name == self.ticker.DAY_END_TIME - timedelta(minutes=1):
                 if self.inPosition:
-                    self.trade.closePosition(current_data['close'],datetime.now())
-                    self.trades.append(self.trade)
+                    self.saveTrade(self.trade)
+                    #self.trade.closePosition(current_data['close'],datetime.now())
+                    #self.trades.append(self.trade)
 
                 self.Stats()
 
@@ -260,3 +279,13 @@ class Algo:
             return 3
         elif np.isnan(wave.x6):#/\/\
             return 4
+
+    #save trade object to json file
+    def saveTrade(trade, wave):
+        data = trade.toJson(trade)
+        data['x1'] = wave.x1
+        data['x2'] = wave.x2
+
+        json_string = json.dumps(data)
+        with open('json_data.json', 'w') as outfile:
+            outfile.write(json_string)

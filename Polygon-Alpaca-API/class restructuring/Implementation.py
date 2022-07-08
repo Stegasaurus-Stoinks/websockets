@@ -10,7 +10,7 @@ from algos.elliot.algo_Elliot import Algo as AlgoElliotWave
 from extra.ticker import Ticker
 from extra.database import Database
 from IBKR.ibkrApi import ibkrApi as ibkr
-from ib_insync import *
+#from ib_insync import *
 from extra.plotter import LiveChartEnv
 
 from mplfinance import plotting
@@ -31,7 +31,7 @@ try:
     ib = ibkr()
     #ib.orderStatusEvent += onOrderUpdate
     ib.connect(host='127.0.0.1', port=7496, clientId=1)
-    Trading = True
+    Trading = False
 
     try:
         mintickrule = ib.reqMarketRule(110)
@@ -65,9 +65,9 @@ except:
 #MSFT = Ticker("MSFT", "Stock", DB)  
 #TSLA = Ticker("TSLA", "Stock", DB)
 
-AAPL = Ticker("AAPL", "Stock", DB, startDate='2021-01-08', endDate='2021-01-09',datasize=200)
-MSFT = Ticker("MSFT", "Stock", DB, startDate='2021-01-04', endDate='2021-01-14')  
-TSLA = Ticker("TSLA", "Stock", DB, startDate='2021-01-04', endDate='2021-01-14')
+AAPL = Ticker("AAPL", "Stock", DB, startDate='2022-07-05', endDate='2022-07-07',datasize=200)
+#MSFT = Ticker("MSFT", "Stock", DB, startDate='2021-01-04', endDate='2021-01-14')  
+#TSLA = Ticker("TSLA", "Stock", DB, startDate='2021-01-04', endDate='2021-01-14')
 
 
 #Warmup all tickers
