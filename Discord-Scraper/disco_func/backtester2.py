@@ -23,28 +23,24 @@ def stringify(data):
     tradeType = data.get('tradeType')
     ticker = data.get('ticker')
     strikePrice = data.get('strikePrice')
-    date = data.get('date')
-    myString = (str(tradeType) + ' ' + str(ticker) + ' ' + str(strikePrice) + ' ' + str(date))
+    myString = (str(tradeType) + ' ' + str(ticker) + ' ' + str(strikePrice))
     return myString
 
 def getNearMessages(data, messages):
     stringy = stringify(data)
     print(stringy)
-
-    """ removing functionality temporarily
     #search for message we want
     messageObject = [s for s in messages if stringy in s.content]
-    #print(messageObject)
-    #print(messageObject[0])
+    print(messageObject)
+    print(messageObject[0])
     #get index of message
     indexy = (messages.index(messageObject[0]))
     #print other messages
     for i in range(0,5):
         if indexy-i < 0:
             return
-        #print(i)
-        #print(messages[indexy-i].content)
-        """
+        print(i)
+        print(messages[indexy-i].content)
 
 print("BLAHHHHH")
 

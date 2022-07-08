@@ -12,6 +12,4 @@ python 3.9.5
 
 -pip install psycopg2
 
--pip install alpaca-trade-api
-
 -get keystore.py file

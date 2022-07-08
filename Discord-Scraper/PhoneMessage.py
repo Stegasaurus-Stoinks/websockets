@@ -16,7 +16,7 @@ carriers = {
 def send(message_text):
 
     fromaddr = 'pwilda100@gmail.com'
-    toaddr = ['4804630030@tmomail.net','4807346105@vtext.com']
+    toaddr = ['4804630030@tmomail.net']#,'4807346105@vtext.com']
     cc = ['test@gmail.com','wildakids@gmail.com']
     message_subject = 'TRADE UPDATE'
 
@@ -81,33 +81,18 @@ def onUpdateport(portfolio):
 
 def manageOrderUpdate(trade, ib, dfentry = 0):
     global entryprice
-    #if True:
     try:
         if trade.orderStatus.status == "Filled":
             print("Phone Message Order Update, Status: Filled")
-            trader = "Name not Found"
+
             #if dfentry !=0:
-            #print(dfentry)
-            for index, row in dfentry[::-1].iterrows():
-                #print(row)
-                strike = row['strikePrice'][:-1]
-                #print(strike)
-                #print(row['tradeType'],trade.order.action,row['ticker'],trade.contract.symbol,row['strikePrice'],trade.contract.strike)
-                
+            for row in dfentry.reverse():
                 if (row['tradeType'] == "stc" and trade.order.action == "SELL") or (row['tradeType'] == "bto" and trade.order.action == "BUY"):
-                    
                     if row['ticker'] == trade.contract.symbol:
-                        
-                        if int(row['strikePrice'][:-1]) == trade.contract.strike:
-                           
+                        if row['strikePrice'[:-1]] == trade.contract.strike:
                             trader = row['name']
-                            #print(trader)
-                            pass
 
-                            
-
-
-            message = " {} / \nFrom: {}\n{} {}{} {} {} @ ${}".format(trade.order.action, trader, trade.contract.symbol, trade.contract.strike, trade.contract.right, trade.orderStatus.status, trade.orderStatus.filled,trade.orderStatus.avgFillPrice)
+            message = " {} /\n{} {}{} {} {} @ ${}".format(trade.order.action, trade.contract.symbol, trade.contract.strike, trade.contract.right, trade.orderStatus.status, trade.orderStatus.filled,trade.orderStatus.avgFillPrice)
 
             if trade.order.action == "SELL":
                 if entryprice != 0.00:
@@ -136,9 +121,8 @@ def manageOrderUpdate(trade, ib, dfentry = 0):
                         #print(entryprice)
                 
 
-    #else:
     except:
-        print("Something wrong with phone stuff")
+        print("Probably not a trade object")
         print(trade)
     #print(trade)
     #print("IS THIS WORKING????")

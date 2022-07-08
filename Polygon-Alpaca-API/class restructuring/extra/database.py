@@ -8,9 +8,8 @@ class Database:
 
     def __init__(self, BackTest, notify_channel = "amdata"):
         self.notify_channel = notify_channel
-        CONNECTION = "postgres://{}:{}@{}:{}/{}".format(config.TSDB_USERNAME, "", config.TSDB_AWS_HOST, config.TSDB_PORT, config.TSDB_DATABASE)
+        CONNECTION = "postgres://{}:{}@{}:{}/{}".format(config.TSDB_USERNAME, config.TSDB_AWS_PASSWORD, config.TSDB_AWS_HOST, config.TSDB_PORT, config.TSDB_DATABASE)
         self.conn = psycopg2.connect(CONNECTION)
-        #self.conn = psycopg2.connect(database=config.TSDB_DATABASE, user="postgres", password="")
         self.cur = self.conn.cursor()
         self.BackTest = BackTest
 
