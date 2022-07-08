@@ -10,12 +10,7 @@ from algos.trend.algo_higherlows import Algo as AlgoHigherLows
 
 from extra.ticker import Ticker
 from extra.database import Database
-<<<<<<< HEAD
 from extra.tradeApi import TradeApi
-=======
-from IBKR.ibkrApi import ibkrApi as ibkr
-#from ib_insync import *
->>>>>>> 50158f9a39f92e3790280daa222d80989b246e2e
 from extra.plotter import LiveChartEnv
 
 
@@ -43,8 +38,8 @@ AAPL = Ticker("AAPL", "Stock", DB, startDate='2022-07-05', endDate='2022-07-07',
 #AAPL.warmUp() 
 #AAPL.getStatus()
 
-TSLA.warmUp()
-TSLA.getStatus()
+AAPL.warmUp()
+AAPL.getStatus()
 
 #MSFT.warmUp()
 #MSFT.getStatus()
@@ -52,7 +47,7 @@ TSLA.getStatus()
 #######Initialize all algos for the day#######
 #momentum1 = MomentumAlgo(AAPL, "testy", 2, api)
  
-EMAalgo = AlgoEMA(TSLA, "ThreeKings", 9, api, False, 40, 10 , plotting = True,plotSize=199)
+EMAalgo = AlgoEMA(AAPL, "ThreeKings", 9, api, False, 40, 10 , plotting = True,plotSize=199)
 # AAPLalgo1 = AlgoSupport2(TSLA, "MomentumEMA", 2, api, live = False, plotting = True,plotSize = 75)
 #AAPLalgo1 = AlgoHigherLows(TSLA, "MomentumEMA", 2, api, live = False, plotting = True,plotSize = 75)
 
@@ -66,7 +61,7 @@ while 1:
     #AAPL.update()
     #AAPL.getStatus()
 
-    TSLA.update()
+    AAPL.update()
     #TSLA.getStatus()
 
     #MSFT.update()
