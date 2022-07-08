@@ -30,8 +30,8 @@ DB = Database(BackTest)
 try:
     ib = ibkr()
     #ib.orderStatusEvent += onOrderUpdate
-    ib.connect(host='127.0.0.1', port=7496, clientId=1)
-    Trading = False
+    if Trading:
+        ib.connect(host='127.0.0.1', port=7496, clientId=1)
 
     try:
         mintickrule = ib.reqMarketRule(110)
@@ -65,7 +65,7 @@ except:
 #MSFT = Ticker("MSFT", "Stock", DB)  
 #TSLA = Ticker("TSLA", "Stock", DB)
 
-AAPL = Ticker("AAPL", "Stock", DB, startDate='2022-07-05', endDate='2021-07-07',datasize=200)
+AAPL = Ticker("AAPL", "Stock", DB, startDate='2022-07-05', endDate='2022-07-07',datasize=200)
 #MSFT = Ticker("MSFT", "Stock", DB, startDate='2021-01-04', endDate='2021-01-14')  
 #TSLA = Ticker("TSLA", "Stock", DB, startDate='2021-01-04', endDate='2021-01-14')
 
@@ -88,7 +88,7 @@ AAPL.warmUp()
 #AAPLalgo1 = AlgoHigherLows(TSLA, "MomentumEMA", 2, api, live = False, plotting = True,plotSize = 75)
 
 #AAPLalgo1 = AlgoSupport2(AAPL, "MomentumEMA", 2, api, live = False, plotting = True,plotSize = 75)
-ElliotAlgo = AlgoElliotWave(AAPL, "ElliotWaves", 2, ib, live = False, plotting = True,plotSize = 199)
+ElliotAlgo = AlgoElliotWave(AAPL, "ElliotWaves", 2, ib, live = Live_Trading, plotting = True,plotSize = 199)
 
 while 1:
 
