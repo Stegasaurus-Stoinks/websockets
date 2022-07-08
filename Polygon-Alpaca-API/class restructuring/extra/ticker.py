@@ -4,22 +4,17 @@ import time
 
 class Ticker:
 
-    def __init__(self, symbol, type, Database, datasize = 100, startDate = 0, endDate = 0, inDB = False):
+    def __init__(self, symbol, type, Database):
         self.symbol = symbol
         self.type = type
         self.status = "Not Initialized"
         
         #local array size
-        self.ArraySize = datasize
+        self.ArraySize = 100
         #backtest length minus the local array size
         self.length = 500
-        if startDate == 0:
-            self.firstDate = '2021-01-05'
-            self.lastDate = '2021-01-08'
-        else:
-            self.firstDate = startDate
-            self.lastDate = endDate
-
+        self.firstDate = '2021-01-05'
+        self.lastDate = '2021-01-08'
         #iteration to keep track of backtest
         self.iteration = 0
         #for timing the backtest
@@ -43,7 +38,7 @@ class Ticker:
         self.Current_time = datetime(2020, 11, 18, 18, 30, 0)
         self.Last_time = datetime(2020, 11, 18, 18, 30, 0)
 
-        #Start and End times of normal market hours(just place holders, they are configured correctly below, trust me)
+        #Start and End times of normal market hours(just place holders)
         self.DAY_START_TIME = datetime(2020, 11, 18, 18, 30, 0)
         self.DAY_END_TIME = datetime(2020, 11, 18, 18, 30, 0)
 
@@ -144,7 +139,6 @@ class Ticker:
             self.BackTestAM_candlesticks['datetime'] = pd.to_datetime(self.BackTestAM_candlesticks['time'])
             self.BackTestAM_candlesticks = self.BackTestAM_candlesticks.set_index('datetime')
             self.BackTestAM_candlesticks.drop(['time'], axis=1, inplace=True)
-            self.BackTestAM_candlesticks = self.BackTestAM_candlesticks.between_time('8:00', '16:30')
 
             self.AM_candlesticks = self.BackTestAM_candlesticks.iloc[self.length-self.ArraySize:self.length-1]
             self.length = self.BackTestAM_candlesticks.shape[0]

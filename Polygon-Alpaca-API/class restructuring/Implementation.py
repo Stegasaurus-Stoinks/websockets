@@ -1,18 +1,19 @@
 import sys
 sys.path.append('../')
 
+from mplfinance import plotting
 from algos.algo_EMA import Algo as AlgoEMA
 from algos.algo_Support import Algo as AlgoSupport
 from algos.algo_Support2 import Algo as AlgoSupport2
 from algos.trend.algo_Trendlines import Algo as AlgoTrend
 from algos.trend.algo_higherlows import Algo as AlgoHigherLows
-from algos.elliot.algo_Elliot import Algo as AlgoElliotWave
+
 from extra.ticker import Ticker
 from extra.database import Database
 from extra.tradeApi import TradeApi
 from extra.plotter import LiveChartEnv
 
-from mplfinance import plotting
+
 import time
 
 #------Config Variables------
@@ -44,7 +45,7 @@ TSLA.getStatus()
 #MSFT.getStatus()
 
 #######Initialize all algos for the day#######
-
+#momentum1 = MomentumAlgo(AAPL, "testy", 2, api)
  
 EMAalgo = AlgoEMA(TSLA, "ThreeKings", 9, api, False, 40, 10 , plotting = True,plotSize=199)
 # AAPLalgo1 = AlgoSupport2(TSLA, "MomentumEMA", 2, api, live = False, plotting = True,plotSize = 75)

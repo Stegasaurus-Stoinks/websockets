@@ -8,9 +8,10 @@ class ibkrApi(IB):
     pass
     #unique id so find trades that have been placed by this algo
 
+   
 
     def orderfilled(trade, fill):
-        print("------------------order has been filled")
+        print("order has been filled")
         print(trade)
         print(fill)
 
@@ -18,7 +19,8 @@ class ibkrApi(IB):
         position.contract.exchange = 'SMART'
         numShares = round(percent * position.position)
         if numShares == 0:
-            return   
+            numShares = 1
+
         if price == 0:
             sellOrder = MarketOrder('SELL', numShares)
 
@@ -27,7 +29,7 @@ class ibkrApi(IB):
 
         sell = self.placeOrder(position.contract,sellOrder)
         print(sell)
-        sell.fillEvent += self.orderfilled   
+        sell.fillEvent += orderfilled   
 
     def openPosition(self, ticker, strike, date, direction, quantity, price = 0):
         #ticker: 'AAPL'
@@ -40,13 +42,14 @@ class ibkrApi(IB):
             return
         call_option = Option(symbol = ticker,lastTradeDateOrContractMonth = date, strike=strike, right = direction, exchange='SMART', currency='USD')
         if price == 0:
-            buyOrder = MarketOrder('BUY', quantity) 
+            buyOrder = MarketOrder('BUY', quantity)
 
         else:
             buyOrder = LimitOrder('BUY', quantity, price)
 
         trade = self.placeOrder(call_option,buyOrder)
 
+        print(trade)
 
     #Generate new list of positions
     def refresh(self):
