@@ -11,12 +11,12 @@ def displaywaves(possibleWaves, array = []):
     if array == []:
         for wave in possibleWaves:
             waveplot = wave.assemble()
-            wave.printdata()
+            #wave.printdata()
             wavesfordisplay.append(waveplot)
 
     else:
         for i in array:
-            print(i)
+            #print(i)
             waveplot = possibleWaves[i].assemble()
             #print(waveplot)
             wavesfordisplay.append(waveplot)
@@ -203,21 +203,22 @@ def maxLimitRuleBreak(x, wavex, wavey, maxs):
     return ruleBreak
 
 #if there are more future points to check and wave is valid, then print incomplete wave
-def checkFuturePoints(x, ilocs_min_valid,reach,possibleWaves,wave):
+def checkFuturePoints(x, ilocs_min_valid,reach,tradingWaves,wave):
     if ilocs_min_valid:
         if(x == ilocs_min_valid[-1] and reach > len(ilocs_min_valid)):
-            possibleWaves.append(ElliotImpulse(wave.plotSize,wave.x1,wave.y1,wave.x2,wave.y2,wave.x3,wave.y3,wave.x4,wave.y4,wave.x5,wave.y5,wave.x6,wave.y6))
+            tradingWaves.append(ElliotImpulse(wave.plotSize,wave.x1,wave.y1,wave.x2,wave.y2,wave.x3,wave.y3,wave.x4,wave.y4,wave.x5,wave.y5,wave.x6,wave.y6))
     
 
 
 ############ Big boy function. father of all functions. Tamper with if you dare. A single wrong change will cause a cataclysmic chain of events
 
 def elliotRecursiveBlast(backtest,plotSize,n,startX=np.NaN,endX=np.NaN,level=0):
-    print("level: ",level)
+    # Uncomment this for debugging recursive stuff
+    #print("level: ",level)
     #Calculating mins and maxs
-    print("startX:",startX)
-    print("endX:",endX)
-    print("BEFORE RODER: ",n)
+    #print("startX:",startX)
+    #print("endX:",endX)
+    #print("BEFORE RODER: ",n)
     
     if np.isnan(startX):
         o = n
@@ -225,7 +226,7 @@ def elliotRecursiveBlast(backtest,plotSize,n,startX=np.NaN,endX=np.NaN,level=0):
         o = round(n/3) #Adjust this to add more or less mins and maxs (2 was the best one I found for short term)
         if o == 0:
             return list()
-        print("CURRENT RODER: ",o)
+        #print("CURRENT RODER: ",o)
         
     ilocs_min = argrelextrema(backtest.low.values, np.less_equal, order=o)[0]
     ilocs_max = argrelextrema(backtest.high.values, np.greater_equal, order=o)[0]
@@ -254,7 +255,8 @@ def elliotRecursiveBlast(backtest,plotSize,n,startX=np.NaN,endX=np.NaN,level=0):
     #-----------------------------------------------------------------------------------
 
     reach = 3
-    possibleWaves = list()
+    finishedWaves = list()
+    tradingWaves = list()
 
     #for every min in chart
     for i in range (0,len(ilocs_min)):
@@ -295,7 +297,7 @@ def elliotRecursiveBlast(backtest,plotSize,n,startX=np.NaN,endX=np.NaN,level=0):
                                     wave.x3 = x
                                     wave.y3 = mins[x]
                                 
-                                checkFuturePoints(x, ilocs_min_valid,reach,possibleWaves,wave)
+                                checkFuturePoints(x, ilocs_min_valid,reach,tradingWaves,wave)
                                 #checking wave 3/point 4 [ /\/ ]
                                 ilocs_max_valid = findLine(endX,wave.x3,ilocs_max)
                                 maxval4 = wave.y3
@@ -309,7 +311,7 @@ def elliotRecursiveBlast(backtest,plotSize,n,startX=np.NaN,endX=np.NaN,level=0):
                                                 wave.x4 = x
                                                 wave.y4 = maxs[x]
 
-                                            checkFuturePoints(x, ilocs_max_valid,reach,possibleWaves,wave)
+                                            checkFuturePoints(x, ilocs_max_valid,reach,tradingWaves,wave)
                                             #checking wave 4/point 5 [ /\/\ ]
                                             ilocs_min_valid = findLine(endX,wave.x4,ilocs_min)
                                             minval5 = wave.y4
@@ -322,7 +324,7 @@ def elliotRecursiveBlast(backtest,plotSize,n,startX=np.NaN,endX=np.NaN,level=0):
                                                             minval5 = mins[x]
                                                             wave.x5 = x
                                                             wave.y5 = mins[x]
-                                                        checkFuturePoints(x, ilocs_min_valid,reach,possibleWaves,wave)
+                                                        checkFuturePoints(x, ilocs_min_valid,reach,tradingWaves,wave)
                                                         #checking wave 5/point 6 [ /\/\/ ]
                                                         ilocs_max_valid = findLine(endX,wave.x5,ilocs_max)
                                                         maxval6 = wave.y5
@@ -335,7 +337,7 @@ def elliotRecursiveBlast(backtest,plotSize,n,startX=np.NaN,endX=np.NaN,level=0):
                                                                         maxval6 = maxs[x]
                                                                         wave.x6 = x
                                                                         wave.y6 = maxs[x]
-                                                                        possibleWaves.append(ElliotImpulse(wave.plotSize,wave.x1,wave.y1,wave.x2,wave.y2,wave.x3,wave.y3,wave.x4,wave.y4,wave.x5,wave.y5,wave.x6,wave.y6))
+                                                                        finishedWaves.append(ElliotImpulse(wave.plotSize,wave.x1,wave.y1,wave.x2,wave.y2,wave.x3,wave.y3,wave.x4,wave.y4,wave.x5,wave.y5,wave.x6,wave.y6))
                                                                     
                                                                     # possWaves1 = elliotRecursiveBlast(backtest,plotSize,o,wave.x1,wave.x2,level+1)
                                                                     # if possWaves1 != []:
@@ -352,4 +354,4 @@ def elliotRecursiveBlast(backtest,plotSize,n,startX=np.NaN,endX=np.NaN,level=0):
         else:
         #except:       
             print("something broke in the try thingy")
-    return possibleWaves
+    return finishedWaves,tradingWaves

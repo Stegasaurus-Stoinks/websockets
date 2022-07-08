@@ -14,8 +14,8 @@ class Ticker:
         #backtest length minus the local array size
         self.length = 500
         if startDate == 0:
-            self.firstDate = '2021-01-05'
-            self.lastDate = '2021-01-08'
+            self.firstDate = '2022-07-05'
+            self.lastDate = '2022-07-07'
         else:
             self.firstDate = startDate
             self.lastDate = endDate
@@ -187,7 +187,8 @@ class Ticker:
         #print(self.AM_candlesticks.head(1))
         return self.status
         
-
+    def toString(self):
+        return self.symbol
 
     def addTrade(self):
         print("Trade recorded - Well not really this method still need to be implemented")
