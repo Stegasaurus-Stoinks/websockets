@@ -2,7 +2,7 @@ class Trade:
     
     #unique id so find trades that have been placed by this algo
 
-    def __init__(self, symbol, volume, ID, openPrice, openTime, direction, ibkrApi, printInfo = False):
+    def __init__(self, symbol, volume, ID, openPrice, openTime, direction, ibkrApi):
         self.symbol = symbol
         self.volume = volume
         self.ID = ID
@@ -10,7 +10,7 @@ class Trade:
         self.openTime = openTime
         self.direction = direction
         self.ibkrApi = ibkrApi
-        self.printInfo = printInfo
+        self.printInfo = True
         self.openPosition()
         
 
@@ -89,3 +89,16 @@ class Trade:
         d['duration']   = duration
 
         return(d)
+
+
+    #returns a dictionary object of all data needed to recreate the trade object
+    def toJson():
+        data = {
+            'symbol' : self.symbol,
+            'volume' : self.volume,
+            'ID' : self.ID,
+            'openPrice' : self.openPrice,
+            'openTime' : self.openTime,
+            'direction' : self.direction
+            }
+        return data
