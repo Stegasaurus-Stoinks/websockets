@@ -27,7 +27,7 @@ class ibkrApi(IB):
 
         sell = self.placeOrder(position.contract,sellOrder)
         print(sell)
-        sell.fillEvent += self.orderfilled   
+        sell.fillEvent += self.orderfilled
 
     def openPosition(self, ticker, strike, date, direction, quantity, price = 0):
         #ticker: 'AAPL'
@@ -47,6 +47,41 @@ class ibkrApi(IB):
 
         trade = self.placeOrder(call_option,buyOrder)
 
+    #stock version of openPosition
+    def SimpleBuy(self, ticker, quantity, price = 0):
+        #ticker: 'AAPL'
+        #strike: int
+        #date: '20210430' = 'YYYYMMDD'
+        #direction: 'C' or 'P'
+        #quantity: int
+        #price: float
+        if quantity == 0:
+            return
+        stock_contract = Stock(symbol = ticker, exchange = 'SMART', currency= 'USD')
+        if price == 0:
+            buyOrder = MarketOrder('BUY', quantity) 
+
+        else:
+            buyOrder = LimitOrder('BUY', quantity, price)
+
+        trade = self.placeOrder(stock_contract,buyOrder)
+        print("PLACED BUY ORDER!")
+        return trade
+
+    def simpleSell(self, position, price = 0, percent=1.00):
+        position.contract.exchange = 'SMART'
+        numShares = round(percent * position.position)
+        if numShares == 0:
+            return   
+        if price == 0:
+            sellOrder = MarketOrder('SELL', numShares)
+
+        else:
+            sellOrder = LimitOrder('SELL', numShares, price)
+
+        sell = self.placeOrder(position.contract,sellOrder)
+        print(sell)
+        sell.fillEvent += self.orderfilled
 
     #Generate new list of positions
     def refresh(self):

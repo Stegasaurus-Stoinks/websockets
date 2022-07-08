@@ -49,6 +49,9 @@ class Algo:
         self.entry = [np.NaN] * self.plotSize
         self.exit = [np.NaN] * self.plotSize
 
+        self.shortline = [np.NaN] * self.plotSize
+        self.longline = [np.NaN] * self.plotSize
+
 
         #initialize plot if plot variable is true
         if(self.plotting):
@@ -77,19 +80,48 @@ class Algo:
             self.AM_candlesticks = self.ticker.getData("FULL")
             close = self.AM_candlesticks['close'].to_numpy()
             close = close[::-1]
-            
+
+
+            #ema calc from ta lib
             trendline = talib.LINEARREG(close, timeperiod=14).tolist()
+            trendline = trendline[len(close)-self.plotSize::] #shorten trendline calc to plotsize
+
+
+
+            #calculating trend line for certain range
+            selected = self.AM_candlesticks[0:10]['close']
+            coefficients, residuals, _, _, _ = np.polyfit(range(len(selected.index)),selected,1,full=True)
+            mse = residuals[0]/(len(selected.index))
+            nrmse = np.sqrt(mse)/(selected.max() - selected.min())
+            #print('Slope ' + str(coefficients[0]))
+            #print('NRMSE: ' + str(nrmse))
+            temp = [coefficients[0]*x + coefficients[1] for x in range(len(selected))]
+            for i in range (0,len(temp)):
+                self.shortline[self.plotSize - 1 - i] = temp[i]
+
+            #calculating second trend line for longer range
+            selected1 = self.AM_candlesticks[0:20]['close']
+            coefficients, residuals, _, _, _ = np.polyfit(range(len(selected1.index)),selected1,1,full=True)
+            mse = residuals[0]/(len(selected1.index))
+            nrmse = np.sqrt(mse)/(selected1.max() - selected1.min())
+            #print('Slope ' + str(coefficients[0]))
+            #print('NRMSE: ' + str(nrmse))
+            temp1 = [coefficients[0]*x + coefficients[1] for x in range(len(selected1))]
+            for i in range (0,len(temp1)):
+                self.longline[self.plotSize - 1 - i] = temp1[i]
+
+
 
             levels = []
             #Finding key price levels by matching candle pattern
             df = self.ticker.getData("FULL")
             for i in range(2,df.shape[0]-2):    
                 if self.isSupport(df,i):
-                    #if not self.isClosetoLevel(df['low'][i],levels):
-                    levels.append((df['close'][i]))
+                    if not self.isClosetoLevel(df['low'][i],levels,1):
+                        levels.append((df['close'][i]))
                 elif self.isResistance(df,i):
-                    #if not self.isClosetoLevel(df['high'][i],levels):
-                    levels.append((df['high'][i]))
+                    if not self.isClosetoLevel(df['high'][i],levels,1):
+                        levels.append((df['high'][i]))
                     #print("")
 
             #Adding some key price levels with local mins and maxs
@@ -101,10 +133,10 @@ class Algo:
 
 
 
-            #current_data_average = (current_data["open"] + current_data["close"])/2
-            #print(current_data_average)
-            #if self.isClosetoLevel(current_data_average, levels):
-            #    print("close to critical price level")
+            current_data_average = (self.current_data["open"] + self.current_data["close"])/2
+            print(current_data_average)
+            if self.isClosetoLevel(current_data_average, levels):
+                print("close to critical price level")
             #print(l,level)
             
                 
@@ -122,8 +154,10 @@ class Algo:
 
             
             
-            #print(len(trendline))
-            #self.extraPlots[0] = trendline
+            print(len(trendline))
+            self.extraPlots.append(trendline)
+            self.extraPlots.append(self.shortline)
+            self.extraPlots.append(self.longline)
             #self.extraPlots[1] = trendline1
             #print(output)
 

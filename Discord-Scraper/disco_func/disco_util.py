@@ -14,6 +14,23 @@ def getName(author):
     #print(name)
     return name
 
+def getTradeType(message):
+    tradeType = re.search("(?i)bto|(?i)stc", message)
+    if tradeType == None:
+        return
+    tradeType = tradeType.group()
+    #print("tradeType = " + tradeType)
+    return tradeType
+
+def getTicker(message):
+    mod_string = re.sub('(?i)bto|(?i)stc', '', message)
+    print(mod_string)
+    ticker = re.search("[a-zA-Z]+", mod_string)
+    if ticker == None:
+        return
+    ticker = ticker.group()
+    #print("tradeType = " + tradeType)
+    return ticker
 
 def getStrikePrice(message):
     strikePrice = re.search("[$]*[0-9.]+[cCpP]", message)
@@ -84,13 +101,16 @@ switcher = {
     "baby profits" : 0.0,
     "holding 1/3" : 0.66,
     "holding 2/3" : 0.33,
+    "profit" : 1.0,
+    "half" : 0.49,
     "trim some" : 0.20,
     "trim half" : 0.49,
+    "trim most" : 0.80,
     "trim" : 0.49,
     "out most" : 0.80,
     "leave runners" : 0.80,
     
-    "lotto" : 0.0,
+    #"lotto" : 0.0,
     
     # "scale" : 0.50,
     # "scrape" : 0.25,
@@ -148,19 +168,25 @@ def checkNotes(notes):
 async def parseAndStuff(author, message):
     
     #split string into array
-    splitString = re.split("\s", message, 2)
-    if len(splitString) < 3:
+    #splitString = re.split("\s", message, 2)
+    #if len(splitString) < 3:
+    #    return
+    tradeType = getTradeType(message)
+    if tradeType == None:
         return
-    tradeType = splitString[0]
-    ticker = splitString[1]
-    otherStuff = splitString[2]
+
+
+    ticker = getTicker(message)
+    if ticker == None:
+        return
+    #otherStuff = splitString[2]
 
 
     #Get name variable
     name = getName(author)
 
     #get strike price
-    strikePrice = getStrikePrice(otherStuff)
+    strikePrice = getStrikePrice(message)
     if strikePrice == None:
         return
 
@@ -168,19 +194,19 @@ async def parseAndStuff(author, message):
     optionType = getOptionType(strikePrice)
 
     #get date
-    date = getDate(otherStuff)
+    date = getDate(message)
     if date == None:
         return
 
     #get price
-    price = getPrice(otherStuff)
+    price = getPrice(message)
     if price == None:
         return
 
     now = datetime.now()
 
     #get notes
-    notes = getNotes(otherStuff)
+    notes = getNotes(message)
     
 
     tempList = {'name': name, 'tradeType': tradeType, 'ticker': ticker, 'strikePrice': strikePrice, 'optionType': optionType, 'date': date, 'price': price, 'timePlaced':now, 'notes':notes}

@@ -1,15 +1,19 @@
 from ib_insync import *
+import time
+import pandas as pd
+import numpy as np
+#pd.set_option("display.max_rows", None, "display.max_columns", None)
 
 def orderfilled(trade, fill):
     print("order has been filled")
     print(trade)
     print(fill)
 
-def closePosition(ib, position, price = 0, percent=1.00):
+def closePosition(position, price = 0, percent=1.00):
     position.contract.exchange = 'SMART'
     numShares = round(percent * position.position)
     if numShares == 0:
-        return
+        numShares = 1
 
     if price == 0:
         sellOrder = MarketOrder('SELL', numShares)
@@ -21,7 +25,7 @@ def closePosition(ib, position, price = 0, percent=1.00):
     print(sell)
     sell.fillEvent += orderfilled   
 
-def openPosition(ib, ticker, strike, date, direction, quantity, price = 0):
+def openPosition(ticker, strike, date, direction, quantity, price = 0):
     #ticker: 'AAPL'
     #strike: int
     #date: '20210430' = 'YYYYMMDD'
@@ -39,3 +43,21 @@ def openPosition(ib, ticker, strike, date, direction, quantity, price = 0):
     trade = ib.placeOrder(call_option,buyOrder)
 
     print(trade)
+
+ib = IB()
+ib.connect(host='127.0.0.1', port=7496, clientId=1)
+
+
+#openPosition('TSLA', 715, '20210423', 'P', 10, price=6.5)
+
+print("These are all my current postions")
+for position in ib.positions():
+    print("-------------------------------------")
+    print(position)
+
+    #if position.contract.symbol == 'TSLA' and position.contract.strike == 712 and position.contract.right == 'P':
+    closePosition(position,percent=1)
+    print(position.contract.conId)
+
+
+ib.run()

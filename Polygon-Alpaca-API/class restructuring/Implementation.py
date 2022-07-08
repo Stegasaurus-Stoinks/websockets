@@ -1,20 +1,20 @@
 import sys
 sys.path.append('../')
 
-from mplfinance import plotting
 from algos.algo_EMA import Algo as AlgoEMA
 from algos.algo_Support import Algo as AlgoSupport
 from algos.algo_Support2 import Algo as AlgoSupport2
 from algos.trend.algo_Trendlines import Algo as AlgoTrend
 from algos.trend.algo_higherlows import Algo as AlgoHigherLows
-
+from algos.elliot.algo_Elliot import Algo as AlgoElliotWave
 from extra.ticker import Ticker
 from extra.database import Database
-from extra.tradeApi import TradeApi
+from IBKR.ibkrApi import ibkrApi as ibkr
+#from ib_insync import *
 from extra.plotter import LiveChartEnv
 
-
-import time
+from mplfinance import plotting
+from datetime import datetime
 
 #------Config Variables------
 Trading = False
@@ -23,34 +23,72 @@ BackTest = True
 #----------------------------
 
 DB = Database(BackTest)
-api = TradeApi(Trading, Live_Trading)
+
+#-----------------------
+#starting IBKR API
+#-----------------------
+try:
+    ib = ibkr()
+    #ib.orderStatusEvent += onOrderUpdate
+    if Trading:
+        ib.connect(host='127.0.0.1', port=7496, clientId=1)
+
+    try:
+        mintickrule = ib.reqMarketRule(110)
+        print(mintickrule)
+        rulelowthresh = float(mintickrule[0][0])
+        rulelowtick = float(mintickrule[0][1])
+        rulehighthresh = float(mintickrule[1][0])
+        rulehightick = float(mintickrule[1][1])
+
+
+    except:
+        rulelowthresh = float(0)
+        rulelowtick = float(.05)
+        rulehighthresh = float(3.00)
+        rulehightick = float(0.1)
+
+except:
+    print(
+        "--------------------------------------------------------------------------------------------------------------------------------")
+    print(
+        "Trading offline: There was a problem connecting to IB. Make sure Trader Workstation is open and try restarting the python script")
+    print(
+        "--------------------------------------------------------------------------------------------------------------------------------")
+    Trading = False
+
+#-----------------------
+#End of IBKR API startup
+#-----------------------
 #Initiaiize all relevant tickers for the day
-AAPL = Ticker("AAPL", "Stock", DB)
-MSFT = Ticker("MSFT", "Stock", DB)  
-TSLA = Ticker("TSLA", "Stock", DB)
+#AAPL = Ticker("AAPL", "Stock", DB)
+#MSFT = Ticker("MSFT", "Stock", DB)  
+#TSLA = Ticker("TSLA", "Stock", DB)
+
+AAPL = Ticker("AAPL", "Stock", DB, startDate='2022-07-05', endDate='2022-07-07',datasize=200)
+#MSFT = Ticker("MSFT", "Stock", DB, startDate='2021-01-04', endDate='2021-01-14')  
+#TSLA = Ticker("TSLA", "Stock", DB, startDate='2021-01-04', endDate='2021-01-14')
+
 
 #Warmup all tickers
 #AAPL.warmUp() 
 #AAPL.getStatus()
 
-TSLA.warmUp()
-#TSLA.getStatus()
+AAPL.warmUp()
+#AAPL.getStatus()
 
 #MSFT.warmUp()
 #MSFT.getStatus()
 
 #######Initialize all algos for the day#######
-#momentum1 = MomentumAlgo(AAPL, "testy", 2, api)
+
  
-#AAPLalgo1 = AlgoEMA(TSLA, "ThreeKings", 9, api, False, 50, 20)
-#AAPLalgo2 = AlgoEMA(AAPL, "ThreeKings", 9, api, False, 50, 20)
-#AAPLalgo3 = AlgoEMA(AAPL, "ThreeKings", 9, api, False, 50, 30)
-#AAPLalgo1 = AlgoEMA(AAPL, "ThreeKings", 9, api, False, 40, 10 , plotting = True)
-AAPLalgo1 = AlgoSupport2(TSLA, "MomentumEMA", 2, api, live = False, plotting = False,plotSize = 75)
-#AAPLalgo1 = AlgoTrend(AAPL, "MomentumEMA", 2, api, live = False, plotting = True,plotSize = 75)
+#AAPLalgo1 = AlgoEMA(TSLA, "ThreeKings", 9, api, False, 40, 10 , plotting = True)
+# AAPLalgo1 = AlgoSupport2(TSLA, "MomentumEMA", 2, api, live = False, plotting = True,plotSize = 75)
 #AAPLalgo1 = AlgoHigherLows(TSLA, "MomentumEMA", 2, api, live = False, plotting = True,plotSize = 75)
 
-AAPLalgo1 = AlgoHigherLows(TSLA, "MomentumEMA", 2, api, live = False, plotting = True,plotSize = 75)
+#AAPLalgo1 = AlgoSupport2(AAPL, "MomentumEMA", 2, api, live = False, plotting = True,plotSize = 75)
+ElliotAlgo = AlgoElliotWave(AAPL, "ElliotWaves", 2, ib, live = Live_Trading, plotting = True,plotSize = 199)
 
 while 1:
 
@@ -59,7 +97,7 @@ while 1:
     #AAPL.update()
     #AAPL.getStatus()
 
-    TSLA.update()
+    AAPL.update()
     #TSLA.getStatus()
 
     #MSFT.update()
@@ -67,8 +105,11 @@ while 1:
     
     
     #time.sleep(0.1)
-
-    AAPLalgo1.update()
+    start = datetime.now()
+    ElliotAlgo.update()
+    stop = datetime.now()
+    #print(stop-start)
+    #AAPLalgo1.update()
     #AAPLalgo2.update()
     #AAPLalgo3.update()
     
