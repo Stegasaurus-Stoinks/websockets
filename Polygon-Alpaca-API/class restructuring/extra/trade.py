@@ -2,7 +2,7 @@ class Trade:
     
     #unique id so find trades that have been placed by this algo
 
-    def __init__(self, symbol, volume, ID, openPrice, openTime, direction, ibkrApi):
+    def __init__(self, symbol, volume, ID, openPrice, openTime, direction, ibkrApi, live):
         self.symbol = symbol
         self.volume = volume
         self.ID = ID
@@ -11,7 +11,10 @@ class Trade:
         self.direction = direction
         self.ibkrApi = ibkrApi
         self.printInfo = True
-        self.openPosition()
+        if live:
+            self.openPosition()
+        else:
+            self.fakeOpen()
         
 
 
@@ -51,9 +54,31 @@ class Trade:
         self.status = "Closed"
 
         if self.printInfo:
-            print("Opened a Postion! Bought " + str(self.volume) + " of " + self.symbol + " Trade ID: " + self.ID)
+            print("______________________________________________________________________")
+            print("Closed a Postion! Sold " + str(self.volume) + " of " + self.symbol + " Trade ID: " + self.ID)
+            print("______________________________________________________________________")
+
+    def fakeOpen(self):
+
+            self.position = True
+            self.status = "Open"
+
+            #print to console trade placement info if asked for it
+            if self.printInfo:
+                print("______________________________________________________________________")
+                print("Opened a fake Postion! Bought " + str(self.volume) + " of " + self.symbol + " at time: " + str(self.openTime) + " | Trade ID: " + self.ID)
+                print("______________________________________________________________________")
 
 
+    def fakeClose(self, closePrice, closeTime):
+        self.closePrice = closePrice
+        self.closeTime = closeTime
+
+        self.position = False
+        self.status = "Closed"
+
+        if self.printInfo:
+            print("Closed a fake Postion! Sold " + str(self.volume) + " of " + self.symbol + " Trade ID: " + self.ID)
     #return true or false whether we are in position or not
     def inPosition(self):
         return(self.position)

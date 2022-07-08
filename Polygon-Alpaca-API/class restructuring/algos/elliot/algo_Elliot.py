@@ -141,11 +141,11 @@ class Algo:
             #    -Future implementation will have us wait for small uptrend before buying.
             if not self.inPosition:
                 if waveNum == 2 or 4:#check if this works later
-                    self.trade = Trade(self.ticker.symbol, volume, self.tradeID, self.entryPrice, datetime.now(), "UP",self.ib)       
+                    self.trade = Trade(self.ticker.symbol, volume, self.tradeID, self.entryPrice, datetime.now(), "UP",self.ib, self.live)       
                     self.inPosition = True
                     self.saveWave = waveNum
                 elif waveNum == 4:
-                    self.trade = Trade(self.ticker.symbol, volume, self.tradeID, self.entryPrice, datetime.now(), "UP",self.ib)       
+                    self.trade = Trade(self.ticker.symbol, volume, self.tradeID, self.entryPrice, datetime.now(), "UP",self.ib, self.live)       
                     self.inPosition = True
                     self.saveWave = waveNum
                 else:#clear exit and entry price and place empty point
@@ -167,7 +167,10 @@ class Algo:
                 self.exit.append(self.exitPrice)
 
                 if self.saveWave > waveNum or self.exitPrice > current_data['close']:
-                    self.trade.closePosition(self.exitPrice,datetime.now())
+                    if self.live:
+                        self.trade.closePosition(self.exitPrice,datetime.now())
+                    else:
+                        self.trade.fakeClose(self.exitPrice,datetime.now())
                     self.trades.append(self.trade)
                     stats = self.trade.getStats(display=False)
                     print(stats['PL'] , stats['duration'])
