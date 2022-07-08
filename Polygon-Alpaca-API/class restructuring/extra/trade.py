@@ -51,9 +51,31 @@ class Trade:
         self.status = "Closed"
 
         if self.printInfo:
-            print("Opened a Postion! Bought " + str(self.volume) + " of " + self.symbol + " Trade ID: " + self.ID)
+            print("______________________________________________________________________")
+            print("Closed a Postion! Sold " + str(self.volume) + " of " + self.symbol + " Trade ID: " + self.ID)
+            print("______________________________________________________________________")
+
+    def fakeOpen(self):
+
+            self.position = True
+            self.status = "Open"
+
+            #print to console trade placement info if asked for it
+            if self.printInfo:
+                print("______________________________________________________________________")
+                print("Opened a fake Postion! Bought " + str(self.volume) + " of " + self.symbol + " at time: " + str(self.openTime) + " | Trade ID: " + self.ID)
+                print("______________________________________________________________________")
 
 
+    def fakeClose(self, closePrice, closeTime):
+        self.closePrice = closePrice
+        self.closeTime = closeTime
+
+        self.position = False
+        self.status = "Closed"
+
+        if self.printInfo:
+            print("Closed a fake Postion! Sold " + str(self.volume) + " of " + self.symbol + " Trade ID: " + self.ID)
     #return true or false whether we are in position or not
     def inPosition(self):
         return(self.position)

@@ -10,7 +10,12 @@ from algos.trend.algo_higherlows import Algo as AlgoHigherLows
 
 from extra.ticker import Ticker
 from extra.database import Database
+<<<<<<< HEAD
 from extra.tradeApi import TradeApi
+=======
+from IBKR.ibkrApi import ibkrApi as ibkr
+#from ib_insync import *
+>>>>>>> 50158f9a39f92e3790280daa222d80989b246e2e
 from extra.plotter import LiveChartEnv
 
 
@@ -29,9 +34,9 @@ api = TradeApi(Trading, Live_Trading)
 #MSFT = Ticker("MSFT", "Stock", DB)  
 #TSLA = Ticker("TSLA", "Stock", DB)
 
-#AAPL = Ticker("AAPL", "Stock", DB, startDate='2022-07-05', endDate='2022-07-08',datasize=75)
-#MSFT = Ticker("MSFT", "Stock", DB, startDate='2021-01-04', endDate='2021-01-14')  
-TSLA = Ticker("TSLA", "Stock", DB, startDate='2022-07-05', endDate='2022-07-08',datasize=200)
+AAPL = Ticker("AAPL", "Stock", DB, startDate='2022-07-05', endDate='2022-07-07',datasize=200)
+#MSFT = Ticker("MSFT", "Stock", DB, startDate='2021-01-04', endDate='2021-01-14')
+#TSLA = Ticker("TSLA", "Stock", DB, startDate='2021-01-04', endDate='2021-01-14')
 
 
 #Warmup all tickers
