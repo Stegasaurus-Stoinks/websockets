@@ -115,7 +115,7 @@ class Algo:
             for i in range (0,len(ilocs_min)):
                 self.mins[ilocs_min[i]] = data.iloc[ilocs_min[i]].low * 0.999
             
-            for i in range (0,len(ilocs_max)-1):
+            for i in range (0,len(ilocs_max)):
                 self.maxs[ilocs_max[i]] = data.iloc[ilocs_max[i]].high * 1.001
             
             

@@ -1,21 +1,20 @@
 import sys
 sys.path.append('../')
 
-from mplfinance import plotting
 from algos.algo_EMA import Algo as AlgoEMA
 from algos.algo_Support import Algo as AlgoSupport
 from algos.algo_Support2 import Algo as AlgoSupport2
 from algos.trend.algo_Trendlines import Algo as AlgoTrend
 from algos.trend.algo_higherlows import Algo as AlgoHigherLows
-
+from algos.elliot.algo_Elliot import Algo as AlgoElliotWave
 from extra.ticker import Ticker
 from extra.database import Database
 from IBKR.ibkrApi import ibkrApi as ibkr
 #from ib_insync import *
 from extra.plotter import LiveChartEnv
 
-
-import time
+from mplfinance import plotting
+from datetime import datetime
 
 #------Config Variables------
 Trading = False
@@ -75,24 +74,21 @@ AAPL = Ticker("AAPL", "Stock", DB, startDate='2022-07-05', endDate='2021-07-07',
 #AAPL.warmUp() 
 #AAPL.getStatus()
 
-TSLA.warmUp()
-#TSLA.getStatus()
+AAPL.warmUp()
+#AAPL.getStatus()
 
 #MSFT.warmUp()
 #MSFT.getStatus()
 
 #######Initialize all algos for the day#######
-#momentum1 = MomentumAlgo(AAPL, "testy", 2, api)
+
  
-#AAPLalgo1 = AlgoEMA(TSLA, "ThreeKings", 9, api, False, 50, 20)
-#AAPLalgo2 = AlgoEMA(AAPL, "ThreeKings", 9, api, False, 50, 20)
-#AAPLalgo3 = AlgoEMA(AAPL, "ThreeKings", 9, api, False, 50, 30)
-#AAPLalgo1 = AlgoEMA(AAPL, "ThreeKings", 9, api, False, 40, 10 , plotting = True)
-AAPLalgo1 = AlgoSupport2(TSLA, "MomentumEMA", 2, api, live = False, plotting = False,plotSize = 75)
-#AAPLalgo1 = AlgoTrend(AAPL, "MomentumEMA", 2, api, live = False, plotting = True,plotSize = 75)
+#AAPLalgo1 = AlgoEMA(TSLA, "ThreeKings", 9, api, False, 40, 10 , plotting = True)
+# AAPLalgo1 = AlgoSupport2(TSLA, "MomentumEMA", 2, api, live = False, plotting = True,plotSize = 75)
 #AAPLalgo1 = AlgoHigherLows(TSLA, "MomentumEMA", 2, api, live = False, plotting = True,plotSize = 75)
 
-AAPLalgo1 = AlgoHigherLows(TSLA, "MomentumEMA", 2, api, live = False, plotting = True,plotSize = 75)
+#AAPLalgo1 = AlgoSupport2(AAPL, "MomentumEMA", 2, api, live = False, plotting = True,plotSize = 75)
+ElliotAlgo = AlgoElliotWave(AAPL, "ElliotWaves", 2, ib, live = False, plotting = True,plotSize = 199)
 
 while 1:
 
@@ -101,7 +97,7 @@ while 1:
     #AAPL.update()
     #AAPL.getStatus()
 
-    TSLA.update()
+    AAPL.update()
     #TSLA.getStatus()
 
     #MSFT.update()
@@ -109,8 +105,11 @@ while 1:
     
     
     #time.sleep(0.1)
-
-    AAPLalgo1.update()
+    start = datetime.now()
+    ElliotAlgo.update()
+    stop = datetime.now()
+    #print(stop-start)
+    #AAPLalgo1.update()
     #AAPLalgo2.update()
     #AAPLalgo3.update()
     
