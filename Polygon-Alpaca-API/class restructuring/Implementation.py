@@ -65,7 +65,7 @@ except:
 #MSFT = Ticker("MSFT", "Stock", DB)  
 #TSLA = Ticker("TSLA", "Stock", DB)
 
-AAPL = Ticker("AAPL", "Stock", DB, startDate='2021-01-08', endDate='2021-01-09',datasize=200)
+AAPL = Ticker("AAPL", "Stock", DB, 200, '2021-01-08', '2021-01-09', False)
 MSFT = Ticker("MSFT", "Stock", DB, startDate='2021-01-04', endDate='2021-01-14')  
 TSLA = Ticker("TSLA", "Stock", DB, startDate='2021-01-04', endDate='2021-01-14')
 
