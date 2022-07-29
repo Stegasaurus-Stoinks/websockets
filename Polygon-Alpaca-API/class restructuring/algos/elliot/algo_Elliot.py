@@ -2,7 +2,6 @@ import sys,os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))))
 from extra.trade import Trade
 from IBKR.ibkrApi import ibkrApi as ibkr
-from ib_insync import *
 from extra.plotter import LiveChartEnv
 from algos.elliot import Elliotfuncs
 from datetime import datetime, timedelta
@@ -121,13 +120,11 @@ class Algo:
             #    -Future implementation will have us wait for small uptrend before buying.
             if not self.inPosition:
                 if waveNum == 2 or 4:#check if this works later
-                    self.trade = Trade(self.ticker.symbol, volume, self.tradeID, self.entryPrice, datetime.now(), "UP",self.ib, printInfo = True)       
-                    self.ib.simpleBuy(self.ticker.symbol, volume, self.entryPrice)
+                    self.trade = Trade(self.ticker.symbol, volume, self.tradeID, self.entryPrice, datetime.now(), "UP",self.ib, self.live)       
                     self.inPosition = True
                     self.saveWave = waveNum
                 elif waveNum == 4:
-                    self.trade = Trade(self.ticker.symbol, volume, self.tradeID, self.entryPrice, datetime.now(), "UP",self.ib, printInfo = True)       
-                    self.ib.simpleBuy(self.ticker.symbol, volume, self.entryPrice)
+                    self.trade = Trade(self.ticker.symbol, volume, self.tradeID, self.entryPrice, datetime.now(), "UP",self.ib, self.live)       
                     self.inPosition = True
                     self.saveWave = waveNum
                 else:#clear exit and entry price and place empty point
@@ -149,7 +146,10 @@ class Algo:
                 self.exit.append(self.exitPrice)
 
                 if self.saveWave > waveNum or self.exitPrice > current_data['close']:
-                    self.trade.closePosition(self.exitPrice,datetime.now())
+                    if self.live:
+                        self.trade.closePosition(self.exitPrice,datetime.now())
+                    else:
+                        self.trade.fakeClose(self.exitPrice,datetime.now())
                     self.trades.append(self.trade)
                     stats = self.trade.getStats(display=False)
                     print(stats['PL'] , stats['duration'])
@@ -172,7 +172,10 @@ class Algo:
             #One minute before market close: close any open positions and print stats
             if current_data.name == self.ticker.DAY_END_TIME - timedelta(minutes=1):
                 if self.inPosition:
-                    self.trade.closePosition(current_data['close'],datetime.now())
+                    if self.live:
+                        self.trade.closePosition(self.exitPrice,datetime.now())
+                    else:
+                        self.trade.fakeClose(self.exitPrice,datetime.now())
                     self.trades.append(self.trade)
 
                 self.Stats()
