@@ -16,8 +16,8 @@ from mplfinance import plotting
 from datetime import datetime
 
 #------Config Variables------
-Trading = False
-BackTest = True
+Trading = True
+BackTest = False
 #----------------------------
 
 DB = Database(BackTest)

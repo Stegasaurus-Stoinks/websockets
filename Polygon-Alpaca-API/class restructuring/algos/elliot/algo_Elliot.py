@@ -84,7 +84,7 @@ class Algo:
             self.extraPlots = [self.mins, self.maxs, self.exit, self.entry]
 
             volume = 10
-            self.entryPrice = current_data['close']
+            self.entryPrice = current_data['open']
 
 
             data = self.ticker.getData("FULL").iloc[::-1]
@@ -119,7 +119,7 @@ class Algo:
             #If wave 2 or 4,check if x value of latest point is relatively recent, then buy for now.
             #    -Future implementation will have us wait for small uptrend before buying.
             if not self.inPosition:
-                if waveNum == 2 or 4:#check if this works later
+                if waveNum == 2:#check if this works later
                     self.trade = Trade(self.ticker.symbol, volume, self.tradeID, self.entryPrice, datetime.now(), "UP",self.ib, self.live)       
                     self.inPosition = True
                     self.saveWave = waveNum
@@ -151,7 +151,7 @@ class Algo:
                     else:
                         self.trade.fakeClose(self.exitPrice,datetime.now())
                     self.trades.append(self.trade)
-                    stats = self.trade.getStats(display=False)
+                    stats = self.trade.getStats(display=True)
                     print(stats['PL'] , stats['duration'])
                     self.inPosition = False
                     

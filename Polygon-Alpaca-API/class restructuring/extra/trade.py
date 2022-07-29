@@ -95,6 +95,16 @@ class Trade:
         duration = self.closeTime - self.openTime
         
         if(display):
+            f = open("tradey.txt", "a")
+            f.write("---------Trade Stats---------\n")
+            f.write(str("Open Price: "+str(self.openPrice)+"\n"))
+            f.write(str("Close Price: "+str(self.closePrice)+"\n"))
+            f.write(str("P/L: "+str(PL)+"\n\n"))
+            f.write(str("Open Time: "+str(self.openTime)+"\n"))
+            f.write(str("Close Time: "+str(self.closeTime)+"\n"))
+            f.write(str("Direction: "+str(self.direction)+"\n\n"))
+            f.write(str("Duration: "+str(duration)+"\n\n\n\n"))
+            f.close()
             print("---------Trade Stats---------")
             print("Open Price: ",self.openPrice)
             print("Close Price: ",self.closePrice)
