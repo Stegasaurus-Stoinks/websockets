@@ -222,8 +222,8 @@ class Algo:
     def plotUpdate(self):
         #Ensure that all the arrays are the same size before sending them to the plotter
             for array in self.extraPlots:
-                if len(array) > self.plotSize:
-                    array.pop(0)
+                # if len(array) > self.plotSize:
+                #     array.pop(0)
 
                 if len(array) < self.plotSize:
                     array.append(np.NaN)
@@ -238,7 +238,7 @@ class Algo:
             #update plot if plotting is true
             if self.plotting:
                 print(self.ticker.getData("FULL").shape)
-                self.plot.update_chart(self.ticker.getData("FULL"), self.extraPlots, self.style)
+                self.plot.update_chart(self.ticker.getData("FULL")[0:self.plotSize], self.extraPlots, self.style)
 
     #clear array without reinitializing. If reinitialized then it will not plot properly
     def clearArray(self, array):
