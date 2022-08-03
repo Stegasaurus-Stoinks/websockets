@@ -49,12 +49,12 @@ class Algo:
             self.plotInit()
 
         #Initialize extra plot data arrays
-        self.finishedWaves = [np.NaN] * self.plotSize
-        self.tradingWaves = [np.NaN] * self.plotSize
-        self.mins = [np.NaN] * self.plotSize
-        self.maxs = [np.NaN] * self.plotSize
-        self.entry = [np.NaN] * self.plotSize
-        self.exit = [np.NaN] * self.plotSize
+        self.finishedWaves = [np.NaN] * self.ticker.dataSize
+        self.tradingWaves = [np.NaN] * self.ticker.dataSize
+        self.mins = [np.NaN] * self.ticker.dataSize
+        self.maxs = [np.NaN] * self.ticker.dataSize
+        self.entry = [np.NaN] * self.ticker.dataSize
+        self.exit = [np.NaN] * self.ticker.dataSize
 
         #array for all extra plot data
         self.extraPlots = [self.mins, self.maxs, self.exit, self.entry]
