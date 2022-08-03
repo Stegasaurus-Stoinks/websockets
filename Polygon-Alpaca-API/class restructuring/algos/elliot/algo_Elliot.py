@@ -92,15 +92,17 @@ class Algo:
             ilocs_max = argrelextrema(data.high.values, np.greater_equal, order=20)[0]
             
             for i in range (0,len(ilocs_min)):
-                self.mins[ilocs_min[i]] = data.iloc[ilocs_min[i]].low * 0.999
+                if ilocs_min[i] < len(self.mins):
+                    self.mins[ilocs_min[i]] = data.iloc[ilocs_min[i]].low * 0.999
             
             for i in range (0,len(ilocs_max)):
-                self.maxs[ilocs_max[i]] = data.iloc[ilocs_max[i]].high * 1.001
+                if ilocs_max[i] < len(self.mins):
+                    self.maxs[ilocs_max[i]] = data.iloc[ilocs_max[i]].high * 1.001
             
             
 
 
-            self.finishedWaves,self.tradingWaves = Elliotfuncs.elliotRecursiveBlast(self.ticker.getData("FULL").iloc[::-1],self.plotSize,10)
+            self.finishedWaves,self.tradingWaves = Elliotfuncs.elliotRecursiveBlast(self.ticker.getData("FULL").iloc[::-1],self.ticker.dataSize,10)
 
             
             #plotting stuff
@@ -235,7 +237,8 @@ class Algo:
 
             #update plot if plotting is true
             if self.plotting:
-                self.plot.update_chart(self.ticker.getData("FULL")[0:self.plotSize], self.extraPlots, self.style)
+                print(self.ticker.getData("FULL").shape)
+                self.plot.update_chart(self.ticker.getData("FULL"), self.extraPlots, self.style)
 
     #clear array without reinitializing. If reinitialized then it will not plot properly
     def clearArray(self, array):

@@ -63,7 +63,7 @@ except:
 #MSFT = Ticker("MSFT", "Stock", DB)  
 #TSLA = Ticker("TSLA", "Stock", DB)
 
-AAPL = Ticker("AAPL", "Stock", DB, 200, '2021-01-08', '2021-01-09', False)
+AAPL = Ticker("AAPL", "Stock", DB, 200, '2021-01-08', '2021-01-09')
 #MSFT = Ticker("MSFT", "Stock", DB, startDate='2021-01-04', endDate='2021-01-14')  
 #TSLA = Ticker("TSLA", "Stock", DB, startDate='2021-01-04', endDate='2021-01-14')
 
@@ -86,7 +86,7 @@ AAPL.warmUp()
 #AAPLalgo1 = AlgoHigherLows(TSLA, "MomentumEMA", 2, api, live = False, plotting = True,plotSize = 75)
 
 #AAPLalgo1 = AlgoSupport2(AAPL, "MomentumEMA", 2, api, live = False, plotting = True,plotSize = 75)
-ElliotAlgo = AlgoElliotWave(AAPL, "ElliotWaves", 2, ib, live = not BackTest, plotting = True,plotSize = 199)
+ElliotAlgo = AlgoElliotWave(AAPL, "ElliotWaves", 2, ib, live = not BackTest, plotting = True,plotSize = 200)
 
 while 1:
 
