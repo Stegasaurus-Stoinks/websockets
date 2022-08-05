@@ -44,6 +44,7 @@ class LiveChartEnv:
             extraPlots = []
             if extraData:
                 for i in range(0,len(extraData),1):
+                    extraData[i] = extraData[i][-self.candle_window:]
                     if style[i][0] == 'scatter':
                         if style[i][1] == 'up':
                             extraPlots.append(mpf.make_addplot(extraData[i],type='scatter',markersize=200,marker='^', ax=self.ax1))

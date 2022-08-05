@@ -4,18 +4,18 @@ import time
 
 class Ticker:
 
-    def __init__(self, symbol, type, Database, datasize = 100, startDate = 0, endDate = 0, inDB = False):
+    def __init__(self, symbol, type, Database, dataSize = 100, startDate = 0, endDate = 0):
         self.symbol = symbol
         self.type = type
         self.status = "Not Initialized"
         
         #local array size
-        self.ArraySize = datasize
+        self.dataSize = dataSize
         #backtest length minus the local array size
         self.length = 500
         if startDate == 0:
-            self.firstDate = '2021-01-05'
-            self.lastDate = '2021-01-08'
+            self.firstDate = '2022-07-05'
+            self.lastDate = '2022-07-07'
         else:
             self.firstDate = startDate
             self.lastDate = endDate
@@ -68,8 +68,8 @@ class Ticker:
             self.iteration += 1
             if PrintStats:
                 print("Update local array with backtest data: ",self.iteration ,"/",self.length)
-            self.AM_candlesticks = self.BackTestAM_candlesticks.iloc[self.length-self.ArraySize-self.iteration:self.length-1-self.iteration]
-            if self.iteration+self.ArraySize >= self.BackTestAM_candlesticks.shape[0]:
+            self.AM_candlesticks = self.BackTestAM_candlesticks.iloc[self.length-self.dataSize-self.iteration:self.length-self.iteration]
+            if self.iteration+self.dataSize >= self.BackTestAM_candlesticks.shape[0]:
                 self.exe_end_time = time.time()
                 print("Backtesting Complete!")
                 print("Backtesting " + str(self.iteration) + " points took " + str(self.exe_end_time-self.exe_start_time) + " seconds")
@@ -146,12 +146,12 @@ class Ticker:
             self.BackTestAM_candlesticks.drop(['time'], axis=1, inplace=True)
             self.BackTestAM_candlesticks = self.BackTestAM_candlesticks.between_time('8:00', '16:30')
 
-            self.AM_candlesticks = self.BackTestAM_candlesticks.iloc[self.length-self.ArraySize:self.length-1]
+            self.AM_candlesticks = self.BackTestAM_candlesticks.iloc[self.length-self.dataSize:self.length]
             self.length = self.BackTestAM_candlesticks.shape[0]
 
         #Update for LIVE Data
         else:
-            data = self.DataBase.QueryLast(self.symbol, self.ArraySize)
+            data = self.DataBase.QueryLast(self.symbol, self.dataSize)
             #Pandas Array for local data storage
             self.AM_candlesticks = pd.DataFrame(data)
             self.AM_candlesticks.columns = ['time','symbol','volume','open','high','close','low','unix']
@@ -187,7 +187,8 @@ class Ticker:
         #print(self.AM_candlesticks.head(1))
         return self.status
         
-
+    def toString(self):
+        return self.symbol
 
     def addTrade(self):
         print("Trade recorded - Well not really this method still need to be implemented")
