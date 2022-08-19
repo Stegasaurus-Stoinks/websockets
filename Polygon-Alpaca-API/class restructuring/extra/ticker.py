@@ -45,8 +45,8 @@ class Ticker:
         self.Last_time = datetime(2020, 11, 18, 18, 30, 0, 0, pytz.UTC)
 
         #Start and End times of normal market hours(just place holders, they are configured correctly below, trust me)
-        self.DAY_START_TIME = datetime(2020, 11, 18, 18, 30, 0, 0, pytz.timezone('US/Eastern'))
-        self.DAY_END_TIME = datetime(2020, 11, 18, 18, 30, 0, 0, pytz.timezone('US/Eastern'))
+        self.DAY_START_TIME = datetime(2020, 11, 18, 9, 30, 0, 0, pytz.timezone('US/Eastern'))
+        self.DAY_END_TIME = datetime(2020, 11, 18, 16, 0, 0, 0, pytz.timezone('US/Eastern'))
 
         self.validTradingHours = False
 
@@ -92,8 +92,8 @@ class Ticker:
         self.Current_time = self.AM_candlesticks.index[0]
         if not((self.DAY_START_TIME.day is self.Current_time.day) and (self.DAY_START_TIME.month is self.Current_time.month)):
             print("replace time")
-            self.DAY_START_TIME = self.Current_time.replace(hour=9, minute=30)
-            self.DAY_END_TIME = self.Current_time.replace(hour=16, minute=00)
+            self.DAY_START_TIME = self.DAY_START_TIME.replace(year=self.Current_time.year, month=self.Current_time.month, day=self.Current_time.day)
+            self.DAY_END_TIME = self.DAY_END_TIME.replace(year=self.Current_time.year, month=self.Current_time.month, day=self.Current_time.day)
 
         #check valid trading hours
         self.Current_time = self.AM_candlesticks.index[0]
