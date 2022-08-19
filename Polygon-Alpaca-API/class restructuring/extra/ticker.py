@@ -1,16 +1,17 @@
 import pandas as pd 
 from datetime import datetime, timedelta
-import time
+import time, pytz
+
 
 class Ticker:
 
-    def __init__(self, symbol, type, Database, datasize = 100, startDate = 0, endDate = 0, inDB = False):
+    def __init__(self, symbol, type, Database, dataSize = 100, startDate = 0, endDate = 0):
         self.symbol = symbol
         self.type = type
         self.status = "Not Initialized"
         
         #local array size
-        self.ArraySize = datasize
+        self.dataSize = dataSize
         #backtest length minus the local array size
         self.length = 500
         if startDate == 0:
@@ -40,12 +41,12 @@ class Ticker:
         self.dayVolume = 0
         self.avgVolume = 0
 
-        self.Current_time = datetime(2020, 11, 18, 18, 30, 0)
-        self.Last_time = datetime(2020, 11, 18, 18, 30, 0)
+        self.Current_time = datetime(2020, 11, 18, 18, 30, 0, 0, pytz.UTC)
+        self.Last_time = datetime(2020, 11, 18, 18, 30, 0, 0, pytz.UTC)
 
         #Start and End times of normal market hours(just place holders, they are configured correctly below, trust me)
-        self.DAY_START_TIME = datetime(2020, 11, 18, 18, 30, 0)
-        self.DAY_END_TIME = datetime(2020, 11, 18, 18, 30, 0)
+        self.DAY_START_TIME = datetime(2020, 11, 18, 18, 30, 0, 0, pytz.timezone('US/Eastern'))
+        self.DAY_END_TIME = datetime(2020, 11, 18, 18, 30, 0, 0, pytz.timezone('US/Eastern'))
 
         self.validTradingHours = False
 
@@ -68,8 +69,8 @@ class Ticker:
             self.iteration += 1
             if PrintStats:
                 print("Update local array with backtest data: ",self.iteration ,"/",self.length)
-            self.AM_candlesticks = self.BackTestAM_candlesticks.iloc[self.length-self.ArraySize-self.iteration:self.length-1-self.iteration]
-            if self.iteration+self.ArraySize >= self.BackTestAM_candlesticks.shape[0]:
+            self.AM_candlesticks = self.BackTestAM_candlesticks.iloc[self.length-self.dataSize-self.iteration:self.length-self.iteration]
+            if self.iteration+self.dataSize >= self.BackTestAM_candlesticks.shape[0]:
                 self.exe_end_time = time.time()
                 print("Backtesting Complete!")
                 print("Backtesting " + str(self.iteration) + " points took " + str(self.exe_end_time-self.exe_start_time) + " seconds")
@@ -89,20 +90,23 @@ class Ticker:
 
         #Define the valid trading hours based on the first dataset pulled in
         self.Current_time = self.AM_candlesticks.index[0]
-        if self.Current_time.day is not self.DAY_START_TIME.day:
+        if not((self.DAY_START_TIME.day is self.Current_time.day) and (self.DAY_START_TIME.month is self.Current_time.month)):
+            print("replace time")
             self.DAY_START_TIME = self.Current_time.replace(hour=9, minute=30)
             self.DAY_END_TIME = self.Current_time.replace(hour=16, minute=00)
 
         #check valid trading hours
         self.Current_time = self.AM_candlesticks.index[0]
         two_minutes = timedelta(minutes = 2)
-        #print(self.Current_time, self.DAY_START_TIME, self.DAY_END_TIME)
+        print(self.Current_time, self.DAY_START_TIME, self.DAY_END_TIME)
         #print(self.Current_time.day, self.DAY_START_TIME.day)
         if (self.Current_time < self.DAY_END_TIME - two_minutes) and (self.Current_time > self.DAY_START_TIME):
             self.validTradingHours = True
 
         else:
             self.validTradingHours = False
+
+        print(self.validTradingHours)
 
 
 
@@ -146,12 +150,12 @@ class Ticker:
             self.BackTestAM_candlesticks.drop(['time'], axis=1, inplace=True)
             self.BackTestAM_candlesticks = self.BackTestAM_candlesticks.between_time('8:00', '16:30')
 
-            self.AM_candlesticks = self.BackTestAM_candlesticks.iloc[self.length-self.ArraySize:self.length-1]
+            self.AM_candlesticks = self.BackTestAM_candlesticks.iloc[self.length-self.dataSize:self.length]
             self.length = self.BackTestAM_candlesticks.shape[0]
 
         #Update for LIVE Data
         else:
-            data = self.DataBase.QueryLast(self.symbol, self.ArraySize)
+            data = self.DataBase.QueryLast(self.symbol, self.dataSize)
             #Pandas Array for local data storage
             self.AM_candlesticks = pd.DataFrame(data)
             self.AM_candlesticks.columns = ['time','symbol','volume','open','high','close','low','unix']

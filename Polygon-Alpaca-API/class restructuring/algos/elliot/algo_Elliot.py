@@ -2,7 +2,6 @@ import sys,os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))))
 from extra.trade import Trade
 from IBKR.ibkrApi import ibkrApi as ibkr
-#from ib_insync import *
 from extra.plotter import LiveChartEnv
 from algos.elliot import Elliotfuncs
 from datetime import datetime, timedelta
@@ -70,12 +69,12 @@ class Algo:
             self.plotInit()
 
         #Initialize extra plot data arrays
-        self.finishedWaves = [np.NaN] * self.plotSize
-        self.tradingWaves = [np.NaN] * self.plotSize
-        self.mins = [np.NaN] * self.plotSize
-        self.maxs = [np.NaN] * self.plotSize
-        self.entry = [np.NaN] * self.plotSize
-        self.exit = [np.NaN] * self.plotSize
+        self.finishedWaves = [np.NaN] * self.ticker.dataSize
+        self.tradingWaves = [np.NaN] * self.ticker.dataSize
+        self.mins = [np.NaN] * self.ticker.dataSize
+        self.maxs = [np.NaN] * self.ticker.dataSize
+        self.entry = [np.NaN] * self.ticker.dataSize
+        self.exit = [np.NaN] * self.ticker.dataSize
 
         #array for all extra plot data
         self.extraPlots = [self.mins, self.maxs, self.exit, self.entry]
@@ -105,7 +104,7 @@ class Algo:
             self.extraPlots = [self.mins, self.maxs, self.exit, self.entry]
 
             volume = 10
-            self.entryPrice = current_data['close']
+            self.entryPrice = current_data['open']
 
 
             data = self.ticker.getData("FULL").iloc[::-1]
@@ -113,15 +112,17 @@ class Algo:
             ilocs_max = argrelextrema(data.high.values, np.greater_equal, order=20)[0]
             
             for i in range (0,len(ilocs_min)):
-                self.mins[ilocs_min[i]] = data.iloc[ilocs_min[i]].low * 0.999
+                if ilocs_min[i] < len(self.mins):
+                    self.mins[ilocs_min[i]] = data.iloc[ilocs_min[i]].low * 0.999
             
-            for i in range (0,len(ilocs_max)-1):
-                self.maxs[ilocs_max[i]] = data.iloc[ilocs_max[i]].high * 1.001
+            for i in range (0,len(ilocs_max)):
+                if ilocs_max[i] < len(self.mins):
+                    self.maxs[ilocs_max[i]] = data.iloc[ilocs_max[i]].high * 1.001
             
             
 
 
-            self.finishedWaves,self.tradingWaves = Elliotfuncs.elliotRecursiveBlast(self.ticker.getData("FULL").iloc[::-1],self.plotSize,10)
+            self.finishedWaves,self.tradingWaves = Elliotfuncs.elliotRecursiveBlast(self.ticker.getData("FULL").iloc[::-1],self.ticker.dataSize,10)
 
             
             #plotting stuff
@@ -140,7 +141,7 @@ class Algo:
             #If wave 2 or 4,check if x value of latest point is relatively recent, then buy for now.
             #    -Future implementation will have us wait for small uptrend before buying.
             if not self.inPosition:
-                if waveNum == 2 or 4:#check if this works later
+                if waveNum == 2:#check if this works later
                     self.trade = Trade(self.ticker.symbol, volume, self.tradeID, self.entryPrice, datetime.now(), "UP",self.ib, self.live)       
                     self.inPosition = True
                     self.saveWave = waveNum
@@ -172,7 +173,7 @@ class Algo:
                     else:
                         self.trade.fakeClose(self.exitPrice,datetime.now())
                     self.trades.append(self.trade)
-                    stats = self.trade.getStats(display=False)
+                    stats = self.trade.getStats(display=True)
                     print(stats['PL'] , stats['duration'])
                     self.inPosition = False
                     
@@ -193,9 +194,11 @@ class Algo:
             #One minute before market close: close any open positions and print stats
             if current_data.name == self.ticker.DAY_END_TIME - timedelta(minutes=1):
                 if self.inPosition:
-                    self.saveTrade(self.trade)
-                    #self.trade.closePosition(current_data['close'],datetime.now())
-                    #self.trades.append(self.trade)
+                    if self.live:
+                        self.trade.closePosition(self.exitPrice,datetime.now())
+                    else:
+                        self.trade.fakeClose(self.exitPrice,datetime.now())
+                    self.trades.append(self.trade)
 
                 self.Stats()
 
@@ -239,8 +242,8 @@ class Algo:
     def plotUpdate(self):
         #Ensure that all the arrays are the same size before sending them to the plotter
             for array in self.extraPlots:
-                if len(array) > self.plotSize:
-                    array.pop(0)
+                # if len(array) > self.plotSize:
+                #     array.pop(0)
 
                 if len(array) < self.plotSize:
                     array.append(np.NaN)
@@ -254,6 +257,7 @@ class Algo:
 
             #update plot if plotting is true
             if self.plotting:
+                print(self.ticker.getData("FULL").shape)
                 self.plot.update_chart(self.ticker.getData("FULL")[0:self.plotSize], self.extraPlots, self.style)
 
     #clear array without reinitializing. If reinitialized then it will not plot properly
