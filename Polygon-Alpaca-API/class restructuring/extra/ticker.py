@@ -1,6 +1,7 @@
 import pandas as pd 
 from datetime import datetime, timedelta
-import time
+import time, pytz
+
 
 class Ticker:
 
@@ -40,12 +41,12 @@ class Ticker:
         self.dayVolume = 0
         self.avgVolume = 0
 
-        self.Current_time = datetime(2020, 11, 18, 18, 30, 0)
-        self.Last_time = datetime(2020, 11, 18, 18, 30, 0)
+        self.Current_time = datetime(2020, 11, 18, 18, 30, 0, 0, pytz.UTC)
+        self.Last_time = datetime(2020, 11, 18, 18, 30, 0, 0, pytz.UTC)
 
         #Start and End times of normal market hours(just place holders, they are configured correctly below, trust me)
-        self.DAY_START_TIME = datetime(2020, 11, 18, 18, 30, 0)
-        self.DAY_END_TIME = datetime(2020, 11, 18, 18, 30, 0)
+        self.DAY_START_TIME = datetime(2020, 11, 18, 18, 30, 0, 0, pytz.timezone('US/Eastern'))
+        self.DAY_END_TIME = datetime(2020, 11, 18, 18, 30, 0, 0, pytz.timezone('US/Eastern'))
 
         self.validTradingHours = False
 
@@ -89,20 +90,23 @@ class Ticker:
 
         #Define the valid trading hours based on the first dataset pulled in
         self.Current_time = self.AM_candlesticks.index[0]
-        if self.Current_time.day is not self.DAY_START_TIME.day:
+        if not((self.DAY_START_TIME.day is self.Current_time.day) and (self.DAY_START_TIME.month is self.Current_time.month)):
+            print("replace time")
             self.DAY_START_TIME = self.Current_time.replace(hour=9, minute=30)
             self.DAY_END_TIME = self.Current_time.replace(hour=16, minute=00)
 
         #check valid trading hours
         self.Current_time = self.AM_candlesticks.index[0]
         two_minutes = timedelta(minutes = 2)
-        #print(self.Current_time, self.DAY_START_TIME, self.DAY_END_TIME)
+        print(self.Current_time, self.DAY_START_TIME, self.DAY_END_TIME)
         #print(self.Current_time.day, self.DAY_START_TIME.day)
         if (self.Current_time < self.DAY_END_TIME - two_minutes) and (self.Current_time > self.DAY_START_TIME):
             self.validTradingHours = True
 
         else:
             self.validTradingHours = False
+
+        print(self.validTradingHours)
 
 
 

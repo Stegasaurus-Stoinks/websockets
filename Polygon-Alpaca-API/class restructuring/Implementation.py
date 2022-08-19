@@ -16,8 +16,8 @@ from mplfinance import plotting
 from datetime import datetime
 
 #------Config Variables------
-Trading = True
-BackTest = False
+Trading = False
+BackTest = True
 #----------------------------
 
 DB = Database(BackTest)
@@ -25,35 +25,39 @@ DB = Database(BackTest)
 #-----------------------
 #starting IBKR API
 #-----------------------
-try:
-    ib = ibkr()
-    #ib.orderStatusEvent += onOrderUpdate
-    ib.connect(host='127.0.0.1', port=7496, clientId=1)
-    Trading = True
-
+ib = ibkr()
+if Trading:
     try:
-        mintickrule = ib.reqMarketRule(110)
-        print(mintickrule)
-        rulelowthresh = float(mintickrule[0][0])
-        rulelowtick = float(mintickrule[0][1])
-        rulehighthresh = float(mintickrule[1][0])
-        rulehightick = float(mintickrule[1][1])
+        #ib.orderStatusEvent += onOrderUpdate
+        ib.connect(host='127.0.0.1', port=7496, clientId=1)
+        Trading = True
 
+        try:
+            mintickrule = ib.reqMarketRule(110)
+            print(mintickrule)
+            rulelowthresh = float(mintickrule[0][0])
+            rulelowtick = float(mintickrule[0][1])
+            rulehighthresh = float(mintickrule[1][0])
+            rulehightick = float(mintickrule[1][1])
+
+
+        except:
+            rulelowthresh = float(0)
+            rulelowtick = float(.05)
+            rulehighthresh = float(3.00)
+            rulehightick = float(0.1)
 
     except:
-        rulelowthresh = float(0)
-        rulelowtick = float(.05)
-        rulehighthresh = float(3.00)
-        rulehightick = float(0.1)
+        print(
+            "--------------------------------------------------------------------------------------------------------------------------------")
+        print(
+            "Trading offline: There was a problem connecting to IB. Make sure Trader Workstation is open and try restarting the python script")
+        print(
+            "--------------------------------------------------------------------------------------------------------------------------------")
+        Trading = False
 
-except:
-    print(
-        "--------------------------------------------------------------------------------------------------------------------------------")
-    print(
-        "Trading offline: There was a problem connecting to IB. Make sure Trader Workstation is open and try restarting the python script")
-    print(
-        "--------------------------------------------------------------------------------------------------------------------------------")
-    Trading = False
+else:
+    print("Not Trading so no need to connect to IBKR :)")
 
 #-----------------------
 #End of IBKR API startup
@@ -63,14 +67,14 @@ except:
 #MSFT = Ticker("MSFT", "Stock", DB)  
 #TSLA = Ticker("TSLA", "Stock", DB)
 
-AAPL = Ticker("AAPL", "Stock", DB, 200, '2021-01-08', '2021-01-09')
+AAPL = Ticker("AAPL", "Stock", DB, 100, '2022-08-18', '2022-08-19')
 #MSFT = Ticker("MSFT", "Stock", DB, startDate='2021-01-04', endDate='2021-01-14')  
 #TSLA = Ticker("TSLA", "Stock", DB, startDate='2021-01-04', endDate='2021-01-14')
 
 
 #Warmup all tickers
 AAPL.warmUp() 
-AAPL.getStatus()
+#AAPL.getStatus()
 
 #TSLA.warmUp()
 #TSLA.getStatus()
@@ -86,7 +90,7 @@ AAPL.getStatus()
 #AAPLalgo1 = AlgoHigherLows(TSLA, "MomentumEMA", 2, api, live = False, plotting = True,plotSize = 75)
 
 #AAPLalgo1 = AlgoSupport2(AAPL, "MomentumEMA", 2, api, live = False, plotting = True,plotSize = 75)
-ElliotAlgo = AlgoElliotWave(AAPL, "ElliotWaves", 2, ib, live = not BackTest, plotting = True,plotSize = 200)
+ElliotAlgo = AlgoElliotWave(AAPL, "ElliotWaves", 2, ib, live = Trading, plotting = True,plotSize = 75)
 
 while 1:
 
@@ -95,7 +99,7 @@ while 1:
     #AAPL.update()
     #AAPL.getStatus()
 
-    TSLA.update()
+    AAPL.update()
     #TSLA.getStatus()
 
     #MSFT.update()
