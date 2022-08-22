@@ -235,6 +235,10 @@ def elliotRecursiveBlast(backtest,plotSize,n,startX=np.NaN,endX=np.NaN,level=0):
 
     #array of min and max plotpoints
     #fill array with nan's first, then replace nan's with min and max values where necessary
+
+    
+    print(backtest)
+
     mins = [np.NaN] * plotSize
     for i in range (0,len(ilocs_min)):
         mins[ilocs_min[i]] = backtest.iloc[ilocs_min[i]].low * 0.9999
