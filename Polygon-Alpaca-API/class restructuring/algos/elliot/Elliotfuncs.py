@@ -237,11 +237,13 @@ def elliotRecursiveBlast(backtest,plotSize,n,startX=np.NaN,endX=np.NaN,level=0):
     #fill array with nan's first, then replace nan's with min and max values where necessary
     mins = [np.NaN] * plotSize
     for i in range (0,len(ilocs_min)):
-        mins[ilocs_min[i]] = backtest.iloc[ilocs_min[i]].low * 0.9999
+        if ilocs_min[i] < len(mins):
+            mins[ilocs_min[i]] = backtest.iloc[ilocs_min[i]].low * 0.9999
 
     maxs = [np.NaN] * plotSize
     for i in range (0,len(ilocs_max)):
-        maxs[ilocs_max[i]] = backtest.iloc[ilocs_max[i]].high * 1.0001
+        if ilocs_max[i] < len(maxs):
+            maxs[ilocs_max[i]] = backtest.iloc[ilocs_max[i]].high * 1.0001
 
     #---------------Now I just need to find these points automatically----------------
 
