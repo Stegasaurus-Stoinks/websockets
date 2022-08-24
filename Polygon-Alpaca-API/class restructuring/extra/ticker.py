@@ -86,7 +86,12 @@ class Ticker:
             series = pd.Series(self.Checked_data[0][1:], index = self.AM_candlesticks.columns, name=self.Checked_data[0][0])
 
             self.AM_candlesticks = self.AM_candlesticks.append(series)
+ 
             self.AM_candlesticks = self.AM_candlesticks.sort_index(ascending=False)
+
+            self.AM_candlesticks.drop(index=self.AM_candlesticks.index[-1], 
+                axis=0, 
+                inplace=True)
 
         #Define the valid trading hours based on the first dataset pulled in
         self.Current_time = self.AM_candlesticks.index[0]
