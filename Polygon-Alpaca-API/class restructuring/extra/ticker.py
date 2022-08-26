@@ -111,7 +111,7 @@ class Ticker:
         else:
             self.validTradingHours = False
 
-        #print("Trading hours:",self.validTradingHours)
+        print("Trading hours:",self.validTradingHours)
 
 
 

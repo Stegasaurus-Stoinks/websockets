@@ -34,6 +34,8 @@ class Algo:
         self.exitPrice = np.NaN
         self.entryPrice = np.NaN
 
+        self.secondexit = 0
+
         #-----------STATS------------
         self.trades = []
         #----------------------------
@@ -84,14 +86,11 @@ class Algo:
             self.extraPlots = [self.mins, self.maxs, self.exit, self.entry]
 
             volume = 10
-            self.entryPrice = current_data['open']
-
-            self.secondexit = Elliotfuncs.getseg1top(5)
-
+            #self.entryPrice = current_data['open']
 
             data = self.ticker.getData("FULL").iloc[::-1]
-            ilocs_min = argrelextrema(data.low.values, np.less_equal, order=20)[0]
-            ilocs_max = argrelextrema(data.high.values, np.greater_equal, order=20)[0]
+            ilocs_min = argrelextrema(data.low.values, np.less_equal, order=10)[0]
+            ilocs_max = argrelextrema(data.high.values, np.greater_equal, order=10)[0]
             
             for i in range (0,len(ilocs_min)):
                 if ilocs_min[i] < len(self.mins):
@@ -115,7 +114,7 @@ class Algo:
              #curWave is first set to null in case there are no unfinished waves
             curWave = Elliotfuncs.ElliotImpulse(np.nan)
              #we check for waves and then set curWave to most recent wave
-            if self.tradingWaves:
+            if self.tradingWaves and not self.inPosition:
                 curWave = self.tradingWaves[-1]
             waveNum = self.checkWaves(curWave)
             #print(waveNum)
@@ -124,13 +123,17 @@ class Algo:
             #    -Future implementation will have us wait for small uptrend before buying.
             if not self.inPosition:
                 if waveNum == 2:#check if this works later
+                    self.entryPrice = current_data['open']
                     self.trade = Trade(self.ticker.symbol, volume, self.tradeID, self.entryPrice, datetime.now(), "UP",self.ib, self.live)       
                     self.inPosition = True
                     self.saveWave = waveNum
+                    self.secondexit = curWave.y2
                 elif waveNum == 4:
+                    self.entryPrice = current_data['open']
                     self.trade = Trade(self.ticker.symbol, volume, self.tradeID, self.entryPrice, datetime.now(), "UP",self.ib, self.live)       
                     self.inPosition = True
                     self.saveWave = waveNum
+                    self.secondexit = curWave.y4
                 else:#clear exit and entry price and place empty point
                     self.exitPrice = np.NaN
                     self.entryPrice = np.NaN
@@ -140,24 +143,26 @@ class Algo:
             else:
                 #set stop loss and entry/exit prices
                 self.entry.append(self.entryPrice)
-                stop = 0.50
-                stop = self.entryPrice * (stop/100)
+                #stop = 0.50
+                #stop = self.entryPrice * (stop/100)
                 #Stop loss
                 if np.isnan(self.exitPrice):
                     self.exitPrice = self.entryPrice
 
                 if current_data['close'] > self.secondexit:
-                    if current_data['close'] > (self.secondexit + .15):
-                        self.exitPrice = current_data['close'] - 0.15
-                    else:
-                        self.exitPrice = self.secondexit
+                    if current_data['close'] > (self.exitPrice + .1):
+                         self.exitPrice = current_data['close'] - 0.1
+
 
                 else:
                     self.exitPrice = self.entryPrice
 
+                #print("ExitPrice ",self.exitPrice)
+                #print("entryPrice ",self.entryPrice)
+
                 self.exit.append(self.exitPrice)
 
-                if self.saveWave > waveNum or self.exitPrice > current_data['close']:
+                if self.exitPrice >= current_data['close']:
                     if self.live:
                         self.trade.closePosition(self.exitPrice,datetime.now())
                     else:
