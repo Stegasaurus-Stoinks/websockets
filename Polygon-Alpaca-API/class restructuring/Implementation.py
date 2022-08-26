@@ -109,7 +109,7 @@ while 1:
     #time.sleep(0.1)
     start = datetime.now()
     ElliotAlgo.update()
-    stop = datetime.now()
+
     #print(stop-start)
     #AAPLalgo1.update()
     #AAPLalgo2.update()

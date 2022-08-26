@@ -13,6 +13,7 @@ import pandas as pd
 import numpy as np
 import talib
 from scipy.signal import argrelextrema
+import json
 
 
 class Algo:
@@ -42,10 +43,30 @@ class Algo:
         #----------------------------
 
 
+
+
         #---------Algo Sepcific Variables--------
         self.saveWave = 0
+        self.order = 10 #This is for specifying how strict we want our mins and maxs
+        self.savedTrades = pd.DataFrame(columns=['trade','wave1','wave2'])
         
         #----------------------------------------
+
+
+        #----------Checking for saved positions-----------
+        #building file path
+        file = os.path.dirname(__file__)
+        fileString = ('saved_trades/'+self.ticker.toString()+'_Elliot.csv')
+        tradesFile = os.path.join(file,fileString)
+        fileExist = os.path.isfile(tradesFile)
+
+        print('File exists: ', str(fileExist), '\n')        
+        if fileExist:
+            inPosition = True
+            #pulling trade from file and deleting file
+            self.savedTrades = pd.read_csv(tradesFile)
+            os.path.remove(tradesFile)
+        #--------------------------------------------------
 
         #initialize plot if plot variable is true
         if(self.plotting):
@@ -90,8 +111,8 @@ class Algo:
             #self.entryPrice = current_data['open']
 
             data = self.ticker.getData("FULL").iloc[::-1]
-            ilocs_min = argrelextrema(data.low.values, np.less_equal, order=10)[0]
-            ilocs_max = argrelextrema(data.high.values, np.greater_equal, order=10)[0]
+            ilocs_min = argrelextrema(data.low.values, np.less_equal, order=self.order)[0]
+            ilocs_max = argrelextrema(data.high.values, np.greater_equal, order=self.order)[0]
             
             for i in range (0,len(ilocs_min)):
                 if ilocs_min[i] < len(self.mins):
@@ -104,7 +125,7 @@ class Algo:
             
 
 
-            self.finishedWaves,self.tradingWaves = Elliotfuncs.elliotRecursiveBlast(self.ticker.getData("FULL").iloc[::-1],self.ticker.dataSize,10)
+            self.finishedWaves,self.tradingWaves = Elliotfuncs.elliotRecursiveBlast(self.ticker.getData("FULL").iloc[::-1],self.ticker.dataSize,self.order)
 
             
             #plotting stuff
@@ -254,7 +275,6 @@ class Algo:
 
             #update plot if plotting is true
             if self.plotting:
-                #print(self.ticker.getData("FULL").shape)
                 self.plot.update_chart(self.ticker.getData("FULL")[0:self.plotSize], self.extraPlots, self.style)
 
     #clear array without reinitializing. If reinitialized then it will not plot properly
@@ -283,3 +303,13 @@ class Algo:
             return 3
         elif np.isnan(wave.x6):#/\/\
             return 4
+
+    #save trade object to json file
+    def saveTrade(trade, wave):
+        data = trade.toJson(trade)
+        data['x1'] = wave.x1
+        data['x2'] = wave.x2
+
+        json_string = json.dumps(data)
+        with open('json_data.json', 'w') as outfile:
+            outfile.write(json_string)
