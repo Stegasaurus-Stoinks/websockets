@@ -60,8 +60,6 @@ class Trade:
 
     def fakeOpen(self):
 
-    def fakeOpen(self):
-
         self.position = True
         self.status = "Open"
 
