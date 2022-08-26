@@ -207,8 +207,14 @@ def checkFuturePoints(x, ilocs_min_valid,reach,tradingWaves,wave):
     if ilocs_min_valid:
         if(x == ilocs_min_valid[-1] and reach > len(ilocs_min_valid)):
             tradingWaves.append(ElliotImpulse(wave.plotSize,wave.x1,wave.y1,wave.x2,wave.y2,wave.x3,wave.y3,wave.x4,wave.y4,wave.x5,wave.y5,wave.x6,wave.y6))
-    
 
+seg1top = 0
+
+def getseg1top(var):
+    global seg1top
+    var = var +1
+    return(seg1top)
+    
 
 ############ Big boy function. father of all functions. Tamper with if you dare. A single wrong change will cause a cataclysmic chain of events
 
@@ -219,6 +225,8 @@ def elliotRecursiveBlast(backtest,plotSize,n,startX=np.NaN,endX=np.NaN,level=0):
     #print("startX:",startX)
     #print("endX:",endX)
     #print("BEFORE RODER: ",n)
+
+    global seg1top
     
     if np.isnan(startX):
         o = n
@@ -237,7 +245,7 @@ def elliotRecursiveBlast(backtest,plotSize,n,startX=np.NaN,endX=np.NaN,level=0):
     #fill array with nan's first, then replace nan's with min and max values where necessary
 
     
-    print(backtest)
+    #print(backtest)
 
     mins = [np.NaN] * plotSize
     for i in range (0,len(ilocs_min)):
@@ -288,6 +296,7 @@ def elliotRecursiveBlast(backtest,plotSize,n,startX=np.NaN,endX=np.NaN,level=0):
                         maxval2 = maxs[x]
                         wave.x2 = x
                         wave.y2 = maxs[x]
+                        seg1top = wave.y2
                     #checking wave 2/point 3 [ /\ ]
                     ilocs_min_valid = findLine(endX,wave.x2,ilocs_min)
                     minval3 = wave.y2

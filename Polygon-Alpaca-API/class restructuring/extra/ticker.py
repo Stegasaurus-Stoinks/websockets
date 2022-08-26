@@ -81,7 +81,7 @@ class Ticker:
         else:
             data = self.queryNewData()
             self.Checked_data = self.checkData(data)
-            print(self.Checked_data[0])
+            #print(self.Checked_data[0])
 
             series = pd.Series(self.Checked_data[0][1:], index = self.AM_candlesticks.columns, name=self.Checked_data[0][0])
 
@@ -103,7 +103,7 @@ class Ticker:
         #check valid trading hours
         self.Current_time = self.AM_candlesticks.index[0]
         two_minutes = timedelta(minutes = 2)
-        print(self.Current_time, self.DAY_START_TIME, self.DAY_END_TIME)
+        #print(self.Current_time, self.DAY_START_TIME, self.DAY_END_TIME)
         #print(self.Current_time.day, self.DAY_START_TIME.day)
         if (self.Current_time < self.DAY_END_TIME - two_minutes) and (self.Current_time > self.DAY_START_TIME):
             self.validTradingHours = True
@@ -111,7 +111,7 @@ class Ticker:
         else:
             self.validTradingHours = False
 
-        print(self.validTradingHours)
+        #print("Trading hours:",self.validTradingHours)
 
 
 

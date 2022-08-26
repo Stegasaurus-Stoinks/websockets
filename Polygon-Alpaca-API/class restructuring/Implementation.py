@@ -17,7 +17,7 @@ from datetime import datetime
 
 #------Config Variables------
 Trading = False
-BackTest = False
+BackTest = True
 #----------------------------
 
 DB = Database(BackTest)

@@ -86,6 +86,8 @@ class Algo:
             volume = 10
             self.entryPrice = current_data['open']
 
+            self.secondexit = Elliotfuncs.getseg1top(5)
+
 
             data = self.ticker.getData("FULL").iloc[::-1]
             ilocs_min = argrelextrema(data.low.values, np.less_equal, order=20)[0]
@@ -142,9 +144,17 @@ class Algo:
                 stop = self.entryPrice * (stop/100)
                 #Stop loss
                 if np.isnan(self.exitPrice):
-                    self.exitPrice = self.entryPrice - stop
-                if self.exitPrice < current_data['close'] - stop:
-                    self.exitPrice = current_data['close'] - stop 
+                    self.exitPrice = self.entryPrice
+
+                if current_data['close'] > self.secondexit:
+                    if current_data['close'] > (self.secondexit + .15):
+                        self.exitPrice = current_data['close'] - 0.15
+                    else:
+                        self.exitPrice = self.secondexit
+
+                else:
+                    self.exitPrice = self.entryPrice
+
                 self.exit.append(self.exitPrice)
 
                 if self.saveWave > waveNum or self.exitPrice > current_data['close']:
@@ -237,7 +247,7 @@ class Algo:
 
             #update plot if plotting is true
             if self.plotting:
-                print(self.ticker.getData("FULL").shape)
+                #print(self.ticker.getData("FULL").shape)
                 self.plot.update_chart(self.ticker.getData("FULL")[0:self.plotSize], self.extraPlots, self.style)
 
     #clear array without reinitializing. If reinitialized then it will not plot properly
