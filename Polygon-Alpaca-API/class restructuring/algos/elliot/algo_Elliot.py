@@ -1,3 +1,4 @@
+from importlib.metadata import entry_points
 import sys,os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))))
 from extra.trade import Trade
@@ -150,16 +151,17 @@ class Algo:
                     self.exitPrice = self.entryPrice
 
                 if current_data['close'] > self.secondexit:
+
                     if current_data['close'] > (self.exitPrice + .1):
-                         self.exitPrice = current_data['close'] - 0.1
+                        self.exitPrice = current_data['close'] - 0.1
 
+                    # if(self.exitPrice == self.entryPrice):
+                    #     self.exitPrice = self.secondexit
 
-                else:
-                    self.exitPrice = self.entryPrice
 
                 #print("ExitPrice ",self.exitPrice)
                 #print("entryPrice ",self.entryPrice)
-
+                
                 self.exit.append(self.exitPrice)
 
                 if self.exitPrice >= current_data['close']:

@@ -67,7 +67,7 @@ else:
 #MSFT = Ticker("MSFT", "Stock", DB)  
 #TSLA = Ticker("TSLA", "Stock", DB)
 
-AAPL = Ticker("AAPL", "Stock", DB, 100, '2022-08-22', '2022-08-23')
+AAPL = Ticker("AAPL", "Stock", DB, 100, '2022-08-22', '2022-08-25')
 #MSFT = Ticker("MSFT", "Stock", DB, startDate='2021-01-04', endDate='2021-01-14')  
 #TSLA = Ticker("TSLA", "Stock", DB, startDate='2021-01-04', endDate='2021-01-14')
 
