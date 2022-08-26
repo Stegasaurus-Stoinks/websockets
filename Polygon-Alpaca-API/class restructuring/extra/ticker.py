@@ -103,7 +103,7 @@ class Ticker:
         #check valid trading hours
         self.Current_time = self.AM_candlesticks.index[0]
         two_minutes = timedelta(minutes = 2)
-        print(self.Current_time, self.DAY_START_TIME, self.DAY_END_TIME)
+        #print(self.Current_time, self.DAY_START_TIME, self.DAY_END_TIME)
         #print(self.Current_time.day, self.DAY_START_TIME.day)
         if (self.Current_time < self.DAY_END_TIME - two_minutes) and (self.Current_time > self.DAY_START_TIME):
             self.validTradingHours = True

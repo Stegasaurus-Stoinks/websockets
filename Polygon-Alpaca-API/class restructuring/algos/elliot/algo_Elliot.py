@@ -41,6 +41,7 @@ class Algo:
 
         #---------Algo Sepcific Variables--------
         self.saveWave = 0
+        self.order = 10 #This is for specifying how strict we want our mins and maxs
         
         #----------------------------------------
 
@@ -88,8 +89,8 @@ class Algo:
 
 
             data = self.ticker.getData("FULL").iloc[::-1]
-            ilocs_min = argrelextrema(data.low.values, np.less_equal, order=20)[0]
-            ilocs_max = argrelextrema(data.high.values, np.greater_equal, order=20)[0]
+            ilocs_min = argrelextrema(data.low.values, np.less_equal, order=self.order)[0]
+            ilocs_max = argrelextrema(data.high.values, np.greater_equal, order=self.order)[0]
             
             for i in range (0,len(ilocs_min)):
                 if ilocs_min[i] < len(self.mins):
@@ -102,7 +103,7 @@ class Algo:
             
 
 
-            self.finishedWaves,self.tradingWaves = Elliotfuncs.elliotRecursiveBlast(self.ticker.getData("FULL").iloc[::-1],self.ticker.dataSize,10)
+            self.finishedWaves,self.tradingWaves = Elliotfuncs.elliotRecursiveBlast(self.ticker.getData("FULL").iloc[::-1],self.ticker.dataSize,self.order)
 
             
             #plotting stuff
@@ -113,7 +114,7 @@ class Algo:
              #curWave is first set to null in case there are no unfinished waves
             curWave = Elliotfuncs.ElliotImpulse(np.nan)
              #we check for waves and then set curWave to most recent wave
-            if self.tradingWaves:
+            if self.tradingWaves and not self.inPosition:
                 curWave = self.tradingWaves[-1]
             waveNum = self.checkWaves(curWave)
             #print(waveNum)
@@ -147,7 +148,7 @@ class Algo:
                     self.exitPrice = current_data['close'] - stop 
                 self.exit.append(self.exitPrice)
 
-                if self.saveWave > waveNum or self.exitPrice > current_data['close']:
+                if self.exitPrice > current_data['close']:
                     if self.live:
                         self.trade.closePosition(self.exitPrice,datetime.now())
                     else:
@@ -237,7 +238,6 @@ class Algo:
 
             #update plot if plotting is true
             if self.plotting:
-                print(self.ticker.getData("FULL").shape)
                 self.plot.update_chart(self.ticker.getData("FULL")[0:self.plotSize], self.extraPlots, self.style)
 
     #clear array without reinitializing. If reinitialized then it will not plot properly

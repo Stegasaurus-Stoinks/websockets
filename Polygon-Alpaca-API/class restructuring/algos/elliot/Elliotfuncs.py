@@ -107,14 +107,26 @@ class ElliotImpulse(object):
 
         return(wave)
 
+    
+    def checkpoint2(self,x2,y2,mins):
+        result = False
+        #add rules and conditions that would make this point work in the elliot wave
+        if x2>self.x1 and y2>self.y1:
+            if not minLimitRuleBreak(x2, self.x1, self.y1, mins):#check if max exists between points 2 and 3
+                result = True
+        return result
 
-    def checkpoint3(self,x3,y3,maxs):
+
+    def checkpoint3(self,x3,y3,maxs,mins):
+        retList = [.50, .618, .65, .786, .886]
         result = False
         #add rules and conditions that would make this point work in the elliot wave
         if x3>self.x2 and y3>self.y1 and y3 < self.y2:
-            if not maxLimitRuleBreak(x3, self.x2, self.y2, maxs):#check if max exists between points 2 and 3
-                result = True
-
+            if not maxLimitRuleBreak(x3, self.x1, self.y2, maxs):#check if max exists between points 1 and 3
+                if not minLimitRuleBreak(x3, self.x1, self.y1, mins):#check if max exists between points 2 and 3
+                    if checkRetracement(self.y1,self.y2,y3,retList):
+                        result = True
+                    
         return result
 
     def checkpoint4(self,x4,y4,mins):
@@ -143,6 +155,10 @@ class ElliotImpulse(object):
                 result = True
 
         return result
+
+
+    
+
 
 
     def definepoints(self,x1,y1,x2,y2,x3,y3,x4,y4,x5,y5,x6,y6):
@@ -210,9 +226,19 @@ def maxLimitRuleBreak(x, wavex, wavey, maxs):
 def checkFuturePoints(x, ilocs_min_valid,reach,tradingWaves,wave):
     if ilocs_min_valid:
         if(x == ilocs_min_valid[-1] and reach > len(ilocs_min_valid)):
-            tradingWaves.append(wave)
+            tradingWaves.append(ElliotImpulse(wave.plotSize,wave.x1,wave.y1,wave.x2,wave.y2,wave.x3,wave.y3,wave.x4,wave.y4,wave.x5,wave.y5,wave.x6,wave.y6))
     
+def checkRetracement(num1,num2,num3,retList):
+    reach = 0.03
+    properRetracement = False
 
+    ans = (num2-num3)/(num2-num1)
+    for retrace in retList:
+        lowLimit = retrace-reach
+        highLimit = retrace+reach
+        if ans > lowLimit and ans < highLimit:
+            return True
+    return properRetracement
 
 ############ Big boy function. father of all functions. Tamper with if you dare. A single wrong change will cause a cataclysmic chain of events
 
@@ -231,7 +257,7 @@ def elliotRecursiveBlast(backtest,plotSize,n,startX=np.NaN,endX=np.NaN,level=0):
         if o == 0:
             return list()
         #print("CURRENT RODER: ",o)
-        
+    
     ilocs_min = argrelextrema(backtest.low.values, np.less_equal, order=o)[0]
     ilocs_max = argrelextrema(backtest.high.values, np.greater_equal, order=o)[0]
     #print(ilocs_min)
@@ -239,9 +265,6 @@ def elliotRecursiveBlast(backtest,plotSize,n,startX=np.NaN,endX=np.NaN,level=0):
 
     #array of min and max plotpoints
     #fill array with nan's first, then replace nan's with min and max values where necessary
-
-    
-    print(backtest)
 
     mins = [np.NaN] * plotSize
     for i in range (0,len(ilocs_min)):
@@ -253,16 +276,7 @@ def elliotRecursiveBlast(backtest,plotSize,n,startX=np.NaN,endX=np.NaN,level=0):
         if ilocs_max[i] < len(maxs):
             maxs[ilocs_max[i]] = backtest.iloc[ilocs_max[i]].high * 1.0001
 
-    #---------------Now I just need to find these points automatically----------------
-
-    #wave = Elliotfuncs.ElliotImpulse(plotSize)
-    #wave.definepoints(x1,y1,x2,y2,x3,y3,x4,y4,x5,y5,x6,y6)
-    #wave.printdata()
-    #waveplot = wave.assemble()
-    #print(waveplot)
-    #extraplots.append(plotting.make_addplot(waveplot,ax=ax1))
-
-    #-----------------------------------------------------------------------------------
+    
 
     reach = 3
     finishedWaves = list()
@@ -285,20 +299,15 @@ def elliotRecursiveBlast(backtest,plotSize,n,startX=np.NaN,endX=np.NaN,level=0):
             
             #checking wave 1/point 2 [ / ]
             ilocs_max_valid = findLine(endX,wave.x1,ilocs_max)
-            maxval2 = wave.y1
             for curPoint in ilocs_max_valid[0:reach+1]:
-                if(maxs[curPoint] > maxval2):
-                    if minLimitRuleBreak(curPoint, wave.x1, wave.y1, mins):#check if points are below
-                        continue
-                    else:
-                        maxval2 = maxs[curPoint]
-                        wave.x2 = curPoint
-                        wave.y2 = maxs[curPoint]
+                if(wave.checkpoint2(curPoint,maxs[curPoint], mins)):
+                    wave.x2 = curPoint
+                    wave.y2 = maxs[curPoint]
 
                     #checking wave 2/point 3 [ /\ ]
                     ilocs_min_valid = findLine(endX,wave.x2,ilocs_min)
                     for curPoint in ilocs_min_valid[0:reach+1]:
-                        if(wave.checkpoint3(curPoint,mins[curPoint], maxs)):
+                        if(wave.checkpoint3(curPoint,mins[curPoint], maxs,mins)):
                             wave.x3 = curPoint
                             wave.y3 = mins[curPoint]
                             
@@ -328,7 +337,7 @@ def elliotRecursiveBlast(backtest,plotSize,n,startX=np.NaN,endX=np.NaN,level=0):
                                                 if(wave.checkpoint6(curPoint,maxs[curPoint],mins)):
                                                     wave.x6 = curPoint
                                                     wave.y6 = maxs[curPoint]
-                                                    finishedWaves.append(wave)
+                                                    finishedWaves.append(ElliotImpulse(wave.plotSize,wave.x1,wave.y1,wave.x2,wave.y2,wave.x3,wave.y3,wave.x4,wave.y4,wave.x5,wave.y5,wave.x6,wave.y6))
                                                         
                                                     # possWaves1 = elliotRecursiveBlast(backtest,plotSize,o,wave.x1,wave.x2,level+1)
                                                     # if possWaves1 != []:
