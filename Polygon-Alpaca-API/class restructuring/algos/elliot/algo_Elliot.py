@@ -18,15 +18,15 @@ class Algo:
     
     #unique id so find trades that have been placed by this algo
 
-    def __init__(self, ticker, name, risklevel, ib, live, plotting = False, plotSize = 50):
+    def __init__(self, ticker, name, risklevel, ib, live, backTest = True, plotSize = 50):
         self.ticker = ticker
         self.name = name
         self.risklevel = risklevel
         self.ib = ib
         self.live = live
-        self.plotting = plotting
+        self.plotting = True
         self.plotSize = plotSize
-
+        self.backTest = backTest
         self.tradeID = name + ticker.symbol + str(risklevel)
         self.type = ticker.type
         self.inPosition = False
@@ -123,11 +123,11 @@ class Algo:
             #    -Future implementation will have us wait for small uptrend before buying.
             if not self.inPosition:
                 if waveNum == 2:#check if this works later
-                    self.trade = Trade(self.ticker.symbol, volume, self.tradeID, self.entryPrice, datetime.now(), "UP",self.ib, self.live)       
+                    self.trade = Trade(self.ticker.symbol, volume, self.tradeID, self.entryPrice, datetime.now(), "UP",self.ib, self.live, self.backTest)       
                     self.inPosition = True
                     self.saveWave = waveNum
                 elif waveNum == 4:
-                    self.trade = Trade(self.ticker.symbol, volume, self.tradeID, self.entryPrice, datetime.now(), "UP",self.ib, self.live)       
+                    self.trade = Trade(self.ticker.symbol, volume, self.tradeID, self.entryPrice, datetime.now(), "UP",self.ib, self.live, self.backTest)       
                     self.inPosition = True
                     self.saveWave = waveNum
                 else:#clear exit and entry price and place empty point

@@ -37,7 +37,6 @@ MANIFEST
 pip-log.txt
 pip-delete-this-directory.txt
 keystore.py
-tradey.txt
 
 # Unit test / coverage reports
 htmlcov/
@@ -142,3 +141,7 @@ dmypy.json
 *.csv
 trade_data
 Discord-Scraper/trade_data/cur_positions.csv
+
+#Algo stuff
+test_tradey.txt
+live_tradey.txt
