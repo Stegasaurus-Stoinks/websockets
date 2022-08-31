@@ -2,7 +2,7 @@ class Trade:
     
     #unique id so find trades that have been placed by this algo
 
-    def __init__(self, symbol, volume, ID, openPrice, openTime, direction, ibkrApi, live):
+    def __init__(self, symbol, volume, ID, openPrice, openTime, direction, ibkrApi, live, backTest):
         self.symbol = symbol
         self.volume = volume
         self.ID = ID
@@ -11,6 +11,8 @@ class Trade:
         self.direction = direction
         self.ibkrApi = ibkrApi
         self.printInfo = True
+        self.live = live
+        self.backTest = backTest
         if live:
             self.openPosition()
         else:
@@ -96,7 +98,10 @@ class Trade:
         duration = self.closeTime - self.openTime
         
         if(display):
-            f = open("tradey.txt", "a")
+            if self.backTest:
+                f = open("live_tradey.txt", "a")
+            else:
+                f = open("test_tradey.txt", "a")
             f.write("---------Trade Stats---------\n")
             f.write(str("Open Price: "+str(self.openPrice)+"\n"))
             f.write(str("Close Price: "+str(self.closePrice)+"\n"))

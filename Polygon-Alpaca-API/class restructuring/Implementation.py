@@ -90,7 +90,7 @@ AAPL.warmUp()
 #AAPLalgo1 = AlgoHigherLows(TSLA, "MomentumEMA", 2, api, live = False, plotting = True,plotSize = 75)
 
 #AAPLalgo1 = AlgoSupport2(AAPL, "MomentumEMA", 2, api, live = False, plotting = True,plotSize = 75)
-ElliotAlgo = AlgoElliotWave(AAPL, "ElliotWaves", 2, ib, live = Trading, plotting = True,plotSize = 75)
+ElliotAlgo = AlgoElliotWave(AAPL, "ElliotWaves", 2, ib, live = Trading, backTest = BackTest,plotSize = 75)
 
 while 1:
 

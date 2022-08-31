@@ -20,15 +20,15 @@ class Algo:
     
     #unique id so find trades that have been placed by this algo
 
-    def __init__(self, ticker, name, risklevel, ib, live, plotting = False, plotSize = 50):
+    def __init__(self, ticker, name, risklevel, ib, live, backTest = True, plotSize = 50):
         self.ticker = ticker
         self.name = name
         self.risklevel = risklevel
         self.ib = ib
         self.live = live
-        self.plotting = plotting
+        self.plotting = True
         self.plotSize = plotSize
-
+        self.backTest = backTest
         self.tradeID = name + ticker.symbol + str(risklevel)
         self.type = ticker.type
         self.inPosition = False
@@ -49,7 +49,7 @@ class Algo:
         self.saveWave = 0
         self.order = 10 #This is for specifying how strict we want our mins and maxs
         self.savedTrades = pd.DataFrame(columns=['trade','wave1','wave2'])
-        
+
         #----------------------------------------
 
 
@@ -60,7 +60,7 @@ class Algo:
         tradesFile = os.path.join(file,fileString)
         fileExist = os.path.isfile(tradesFile)
 
-        print('File exists: ', str(fileExist), '\n')        
+        print('File exists: ', str(fileExist), '\n')
         if fileExist:
             inPosition = True
             #pulling trade from file and deleting file
@@ -146,13 +146,13 @@ class Algo:
             if not self.inPosition:
                 if waveNum == 2:#check if this works later
                     self.entryPrice = current_data['open']
-                    self.trade = Trade(self.ticker.symbol, volume, self.tradeID, self.entryPrice, datetime.now(), "UP",self.ib, self.live)       
+                    self.trade = Trade(self.ticker.symbol, volume, self.tradeID, self.entryPrice, datetime.now(), "UP",self.ib, self.live, self.backTest)
                     self.inPosition = True
                     self.saveWave = waveNum
                     self.secondexit = curWave.y2
                 elif waveNum == 4:
                     self.entryPrice = current_data['open']
-                    self.trade = Trade(self.ticker.symbol, volume, self.tradeID, self.entryPrice, datetime.now(), "UP",self.ib, self.live)       
+                    self.trade = Trade(self.ticker.symbol, volume, self.tradeID, self.entryPrice, datetime.now(), "UP",self.ib, self.live, self.backTest)
                     self.inPosition = True
                     self.saveWave = waveNum
                     self.secondexit = curWave.y4
@@ -182,7 +182,7 @@ class Algo:
 
                 #print("ExitPrice ",self.exitPrice)
                 #print("entryPrice ",self.entryPrice)
-                
+
                 self.exit.append(self.exitPrice)
 
                 if self.exitPrice >= current_data['close']:
