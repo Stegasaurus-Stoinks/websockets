@@ -98,7 +98,7 @@ class Trade:
         duration = self.closeTime - self.openTime
         
         if(display):
-            if self.backTest:
+            if not self.backTest:
                 f = open("live_tradey.txt", "a")
             else:
                 f = open("test_tradey.txt", "a")
