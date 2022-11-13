@@ -56,8 +56,9 @@ class Trade:
         self.status = "Closed"
 
         if self.printInfo:
-            print("Opened a Postion! Bought " + str(self.volume) + " of " + self.symbol + " Trade ID: " + self.ID)
-
+            print("______________________________________________________________________")
+            print("Closed a Postion! Sold " + str(self.volume) + " of " + self.symbol + " Trade ID: " + self.ID)
+            print("______________________________________________________________________")
 
     def fakeOpen(self):
 
@@ -97,7 +98,7 @@ class Trade:
         duration = self.closeTime - self.openTime
         
         if(display):
-            if self.backTest:
+            if not self.backTest:
                 f = open("live_tradey.txt", "a")
             else:
                 f = open("test_tradey.txt", "a")

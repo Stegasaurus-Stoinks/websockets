@@ -249,6 +249,8 @@ def elliotRecursiveBlast(backtest,plotSize,n,startX=np.NaN,endX=np.NaN,level=0):
     #print("startX:",startX)
     #print("endX:",endX)
     #print("BEFORE RODER: ",n)
+
+    global seg1top
     
     if np.isnan(startX):
         o = n

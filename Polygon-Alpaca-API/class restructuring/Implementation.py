@@ -17,7 +17,7 @@ from datetime import datetime
 
 #------Config Variables------
 Trading = False
-BackTest = False
+BackTest = True
 #----------------------------
 
 DB = Database(BackTest)
@@ -67,7 +67,7 @@ else:
 #MSFT = Ticker("MSFT", "Stock", DB)  
 #TSLA = Ticker("TSLA", "Stock", DB)
 
-AAPL = Ticker("AAPL", "Stock", DB, 100, '2022-08-22', '2022-08-23')
+AAPL = Ticker("AAPL", "Stock", DB, 100, '2022-08-22', '2022-08-25')
 #MSFT = Ticker("MSFT", "Stock", DB, startDate='2021-01-04', endDate='2021-01-14')  
 #TSLA = Ticker("TSLA", "Stock", DB, startDate='2021-01-04', endDate='2021-01-14')
 
@@ -109,7 +109,7 @@ while 1:
     #time.sleep(0.1)
     start = datetime.now()
     ElliotAlgo.update()
-    stop = datetime.now()
+
     #print(stop-start)
     #AAPLalgo1.update()
     #AAPLalgo2.update()

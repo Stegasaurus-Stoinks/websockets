@@ -81,7 +81,7 @@ class Ticker:
         else:
             data = self.queryNewData()
             self.Checked_data = self.checkData(data)
-            print(self.Checked_data[0])
+            #print(self.Checked_data[0])
 
             series = pd.Series(self.Checked_data[0][1:], index = self.AM_candlesticks.columns, name=self.Checked_data[0][0])
 
@@ -111,7 +111,7 @@ class Ticker:
         else:
             self.validTradingHours = False
 
-        print(self.validTradingHours)
+        print("Trading hours:",self.validTradingHours)
 
 
 

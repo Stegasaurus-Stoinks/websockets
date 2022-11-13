@@ -1,3 +1,4 @@
+from importlib.metadata import entry_points
 import sys,os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))))
 from extra.trade import Trade
@@ -12,6 +13,7 @@ import pandas as pd
 import numpy as np
 import talib
 from scipy.signal import argrelextrema
+import json
 
 
 class Algo:
@@ -34,16 +36,37 @@ class Algo:
         self.exitPrice = np.NaN
         self.entryPrice = np.NaN
 
+        self.secondexit = 0
+
         #-----------STATS------------
         self.trades = []
         #----------------------------
 
 
+
+
         #---------Algo Sepcific Variables--------
         self.saveWave = 0
         self.order = 10 #This is for specifying how strict we want our mins and maxs
-        
+        self.savedTrades = pd.DataFrame(columns=['trade','wave1','wave2'])
+
         #----------------------------------------
+
+
+        #----------Checking for saved positions-----------
+        #building file path
+        file = os.path.dirname(__file__)
+        fileString = ('saved_trades/'+self.ticker.toString()+'_Elliot.csv')
+        tradesFile = os.path.join(file,fileString)
+        fileExist = os.path.isfile(tradesFile)
+
+        print('File exists: ', str(fileExist), '\n')
+        if fileExist:
+            inPosition = True
+            #pulling trade from file and deleting file
+            self.savedTrades = pd.read_csv(tradesFile)
+            os.path.remove(tradesFile)
+        #--------------------------------------------------
 
         #initialize plot if plot variable is true
         if(self.plotting):
@@ -85,8 +108,7 @@ class Algo:
             self.extraPlots = [self.mins, self.maxs, self.exit, self.entry]
 
             volume = 10
-            self.entryPrice = current_data['open']
-
+            #self.entryPrice = current_data['open']
 
             data = self.ticker.getData("FULL").iloc[::-1]
             ilocs_min = argrelextrema(data.low.values, np.less_equal, order=self.order)[0]
@@ -123,13 +145,17 @@ class Algo:
             #    -Future implementation will have us wait for small uptrend before buying.
             if not self.inPosition:
                 if waveNum == 2:#check if this works later
-                    self.trade = Trade(self.ticker.symbol, volume, self.tradeID, self.entryPrice, datetime.now(), "UP",self.ib, self.live, self.backTest)       
+                    self.entryPrice = current_data['open']
+                    self.trade = Trade(self.ticker.symbol, volume, self.tradeID, self.entryPrice, datetime.now(), "UP",self.ib, self.live, self.backTest)
                     self.inPosition = True
                     self.saveWave = waveNum
+                    self.secondexit = curWave.y2
                 elif waveNum == 4:
-                    self.trade = Trade(self.ticker.symbol, volume, self.tradeID, self.entryPrice, datetime.now(), "UP",self.ib, self.live, self.backTest)       
+                    self.entryPrice = current_data['open']
+                    self.trade = Trade(self.ticker.symbol, volume, self.tradeID, self.entryPrice, datetime.now(), "UP",self.ib, self.live, self.backTest)
                     self.inPosition = True
                     self.saveWave = waveNum
+                    self.secondexit = curWave.y4
                 else:#clear exit and entry price and place empty point
                     self.exitPrice = np.NaN
                     self.entryPrice = np.NaN
@@ -139,16 +165,27 @@ class Algo:
             else:
                 #set stop loss and entry/exit prices
                 self.entry.append(self.entryPrice)
-                stop = 0.50
-                stop = self.entryPrice * (stop/100)
+                #stop = 0.50
+                #stop = self.entryPrice * (stop/100)
                 #Stop loss
                 if np.isnan(self.exitPrice):
-                    self.exitPrice = self.entryPrice - stop
-                if self.exitPrice < current_data['close'] - stop:
-                    self.exitPrice = current_data['close'] - stop 
+                    self.exitPrice = self.entryPrice
+
+                if current_data['close'] > self.secondexit:
+
+                    if current_data['close'] > (self.exitPrice + .1):
+                        self.exitPrice = current_data['close'] - 0.1
+
+                    # if(self.exitPrice == self.entryPrice):
+                    #     self.exitPrice = self.secondexit
+
+
+                #print("ExitPrice ",self.exitPrice)
+                #print("entryPrice ",self.entryPrice)
+
                 self.exit.append(self.exitPrice)
 
-                if self.exitPrice > current_data['close']:
+                if self.exitPrice >= current_data['close']:
                     if self.live:
                         self.trade.closePosition(self.exitPrice,datetime.now())
                     else:
@@ -266,3 +303,13 @@ class Algo:
             return 3
         elif np.isnan(wave.x6):#/\/\
             return 4
+
+    #save trade object to json file
+    def saveTrade(trade, wave):
+        data = trade.toJson(trade)
+        data['x1'] = wave.x1
+        data['x2'] = wave.x2
+
+        json_string = json.dumps(data)
+        with open('json_data.json', 'w') as outfile:
+            outfile.write(json_string)
