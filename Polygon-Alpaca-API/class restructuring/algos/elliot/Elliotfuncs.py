@@ -38,7 +38,9 @@ class ElliotImpulse(object):
     def __init__(self, plotSize,x1= np.NaN,y1= np.NaN,x2= np.NaN,y2= np.NaN,x3= np.NaN,y3= np.NaN,x4= np.NaN,y4= np.NaN,x5= np.NaN,y5= np.NaN,x6= np.NaN,y6= np.NaN):
 
         self.plotSize = plotSize
-
+        #CheckyBouncyLimitOfMostRecentPointyFoRealsy is the validation limit for the most recent min/max
+        # in other words, we use this to make sure the price is going up before declaring a min
+        self.CheckyBouncyLimitOfMostRecentPointyFoRealsy = plotSize - 3
         self.x1 = x1
         self.y1 = y1
         self.x2 = x2
@@ -121,11 +123,12 @@ class ElliotImpulse(object):
         retList = [.50, .618, .65, .786, .886]
         result = False
         #add rules and conditions that would make this point work in the elliot wave
-        if x3>self.x2 and y3>self.y1 and y3 < self.y2:
-            if not maxLimitRuleBreak(x3, self.x1, self.y2, maxs):#check if max exists between points 1 and 3
-                if not minLimitRuleBreak(x3, self.x1, self.y1, mins):#check if max exists between points 2 and 3
-                    if checkRetracement(self.y1,self.y2,y3,retList):
-                        result = True
+        if x3 < self.CheckyBouncyLimitOfMostRecentPointyFoRealsy:
+            if x3>self.x2 and y3>self.y1 and y3 < self.y2:
+                if not maxLimitRuleBreak(x3, self.x1, self.y2, maxs):#check if max exists between points 1 and 3
+                    if not minLimitRuleBreak(x3, self.x1, self.y1, mins):#check if max exists between points 2 and 3
+                        if checkRetracement(self.y1,self.y2,y3,retList):
+                            result = True
                     
         return result
 
@@ -141,9 +144,10 @@ class ElliotImpulse(object):
     def checkpoint5(self,x5,y5,maxs):
         result = False
         #add rules and conditions that would make this point work in the elliot wave
-        if x5>self.x4 and y5>self.y3 and y5<self.y4:
-            if not maxLimitRuleBreak(x5, self.x4, self.y4, maxs):#check if max exists between points 4 and 5
-                result = True
+        if x5 < self.CheckyBouncyLimitOfMostRecentPointyFoRealsy:
+            if x5>self.x4 and y5>self.y3 and y5<self.y4:
+                if not maxLimitRuleBreak(x5, self.x4, self.y4, maxs):#check if max exists between points 4 and 5
+                    result = True
 
         return result
 
@@ -252,9 +256,9 @@ def elliotRecursiveBlast(backtest,plotSize,n,startX=np.NaN,endX=np.NaN,level=0):
 
     global seg1top
     
-    if np.isnan(startX):
-        o = n
-    else:
+    if np.isnan(startX): #if this is a fresh blast
+        o = n #then set order = base order
+    else: #else, we are in a recursive blast
         o = round(n/3) #Adjust this to add more or less mins and maxs (2 was the best one I found for short term)
         if o == 0:
             return list()
@@ -262,7 +266,7 @@ def elliotRecursiveBlast(backtest,plotSize,n,startX=np.NaN,endX=np.NaN,level=0):
     
     ilocs_min = argrelextrema(backtest.low.values, np.less_equal, order=o)[0]
     ilocs_max = argrelextrema(backtest.high.values, np.greater_equal, order=o)[0]
-    #print(ilocs_min)
+    print(ilocs_min)
     #print(ilocs_max)
 
     #array of min and max plotpoints
